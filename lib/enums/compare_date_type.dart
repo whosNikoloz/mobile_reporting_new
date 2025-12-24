@@ -1,0 +1,15 @@
+enum CompareDateType {
+  lastDay,
+  lastWeekDay,
+  lastMonthDay,
+  lastYearDay,
+  chooseDay,
+  lastWeek,
+  chooseWeek,
+  lastMonth,
+  lastYearMonth,
+  chooseMonth,
+  lastYear,
+  chooseYear,
+  period,
+}
