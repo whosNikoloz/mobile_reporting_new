@@ -10,6 +10,8 @@ import 'package:intl/intl.dart';
 import 'package:mobile_reporting/enums/screen_type.dart';
 import 'package:mobile_reporting/models/store_model.dart';
 import 'package:month_year_picker/month_year_picker.dart';
+import 'package:mobile_reporting/theme/app_theme.dart';
+import 'package:mobile_reporting/widgets/date_ranger_picker.dart';
 
 class PickerWidget extends StatefulWidget {
   const PickerWidget({
@@ -141,249 +143,201 @@ class PickerWidgetState extends State<PickerWidget> {
     }
     return Column(
       children: [
-        Row(
-          children: [
-            if ((cdt == CompareDateType.period &&
-                    widget.showCompareDateFilter) ==
-                false)
-              IconButton(
-                onPressed: () async {
-                  await arrowBackwardPress();
-                },
-                icon: Icon(
-                  Icons.arrow_back_ios_new_outlined,
-                  size: 25,
-                  color: Colors.grey.shade500,
-                ),
-              ),
-            if (widget.showCompareDateFilter)
-              const SizedBox(
-                width: 35,
-              ),
-            const Spacer(),
-            if (!widget.onlyDayPicker)
-              SizedBox(
-                height: 44,
-                child: InkWell(
-                  splashFactory: NoSplash.splashFactory,
-                  highlightColor: Colors.transparent,
-                  onTap: () async {
-                    if (widget.showDateTypeChoose) {
-                      await chooseDateType(dateType: dt, compareDateType: cdt);
-                    } else {
-                      DateTime? date = await showDatePicker(
-                        context: context,
-                        initialDate: currentDate1,
-                        firstDate:
-                            DateTime.now().subtract(const Duration(days: 1000)),
-                        lastDate: DateTime(DateTime.now().year,
-                            DateTime.now().month, DateTime.now().day, 23, 59),
-                      );
-                      if (date == null) return;
-                      currentDate1 =
-                          DateTime(date.year, date.month, date.day, 00, 00);
-                      currentDate2 =
-                          DateTime(date.year, date.month, date.day, 23, 59);
-                      oldDate1 = currentDate1.subtract(const Duration(days: 1));
-                      oldDate2 = currentDate2.subtract(const Duration(days: 1));
-                      isLoading = true;
-                      setState(() {});
-                      await widget.getDate(currentDate1, currentDate2, oldDate1,
-                          oldDate2, null, null, null);
-                      isLoading = false;
-                      setState(() {});
-                    }
-                  },
-                  child: Row(
-                    children: [
-                      Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            dt == DateType.day
-                                ? DateFormat('dd-MMM').format(currentDate1)
-                                : dt == DateType.month
-                                    ? DateFormat('MMM-yyyy')
-                                        .format(currentDate1)
-                                    : dt == DateType.week
-                                        ? '${DateFormat('dd-MMM-yy').format(currentDate1)} - ${DateFormat('dd-MMM-yy').format(currentDate2)}'
-                                        : dt == DateType.period
-                                            ? '${DateFormat('dd-MMM-yy').format(currentDate1)} - ${DateFormat('dd-MMM-yy').format(currentDate2)}'
-                                            : '',
-                            style: TextStyle(
-                              fontSize: 18,
-                              color: Colors.grey.shade500,
-                            ),
-                          ),
-                          const SizedBox(
-                            height: 1,
-                          ),
-                          if (!widget.showFilterButton && widget.showOldDate)
-                            Text(
-                              dt == DateType.day
-                                  ? DateFormat('dd-MMM').format(oldDate1)
-                                  : dt == DateType.month
-                                      ? DateFormat('MMM-yyyy').format(oldDate1)
-                                      : dt == DateType.week
-                                          ? '${DateFormat('dd-MMM-yy').format(oldDate1)} - ${DateFormat('dd-MMM-yy').format(oldDate2)}'
-                                          : dt == DateType.period
-                                              ? '${DateFormat('dd-MMM-yy').format(oldDate1)} - ${DateFormat('dd-MMM-yy').format(oldDate2)}'
-                                              : '',
-                              style: const TextStyle(
-                                fontSize: 14,
-                                color: Color.fromARGB(255, 0, 68, 124),
-                              ),
-                            ),
-                        ],
-                      ),
-                      if (!widget.onlyDayPicker)
-                        const Icon(
-                          Icons.arrow_drop_down_outlined,
-                          size: 25,
-                          color: Colors.grey,
-                        )
-                    ],
-                  ),
-                ),
-              ),
-            if (widget.showCompareDateFilter)
-              Container(
-                height: 35,
-                width: 35,
-                decoration: BoxDecoration(
-                  border: Border.all(
-                    color: Colors.white,
-                  ),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: InkWell(
-                  onTap: () async {
-                    await chooseFilterOption();
-                  },
-                  child: Icon(
-                    Icons.date_range_outlined,
-                    color: Colors.grey.shade500,
-                  ),
-                ),
-              ),
-            const Spacer(),
-            if (isLoading)
-              const SpinKitRing(
-                color: Color.fromARGB(255, 0, 68, 124),
-                size: 25.0,
-                lineWidth: 3,
-              ),
-            if ((cdt == CompareDateType.period &&
-                    widget.showCompareDateFilter) ==
-                false)
-              IconButton(
-                onPressed: () async {
-                  await arrowForwardPress();
-                },
-                icon: Icon(
-                  Icons.arrow_forward_ios_outlined,
-                  size: 25,
-                  color: Colors.grey.shade500,
-                ),
-              ),
-            if (widget.showFilterButton)
-              Container(
-                decoration: BoxDecoration(
-                  border: Border.all(
-                    color: const Color.fromARGB(255, 0, 68, 124),
-                  ),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: InkWell(
-                  customBorder: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  onTap: () async {
-                    await showFilterDialog();
-                  },
-                  child: Padding(
-                    padding: EdgeInsets.all(5),
-                    child: Icon(
-                      MdiIcons.filterOutline,
-                      color: Color.fromARGB(255, 0, 68, 124),
-                    ),
-                  ),
-                ),
-              ),
-            if (widget.showFilterButton)
-              const SizedBox(
-                width: 10,
-              ),
-          ],
-        ),
-        if (widget.showStoreFilter)
-          Divider(
-            height: 0,
-            color: Colors.grey.shade500,
-            indent: 7,
-            endIndent: 7,
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          decoration: BoxDecoration(
+            color: Colors.grey.shade100,
           ),
-        if (widget.showStoreFilter)
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 12),
-            child: Container(
-              height: 40,
-              decoration: BoxDecoration(
-                border: Border.all(
-                  color: Colors.white,
-                ),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: InkWell(
-                customBorder: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                onTap: () async {
-                  bool storeChanged = await selectStore();
-                  if (storeChanged) {
+          child: Row(
+            children: [
+              // Date Range Selector
+              Expanded(
+                child: GestureDetector(
+                  onTap: () async {
+                    PeriodType initialPeriodType = PeriodType.day;
+                    if (dt == DateType.week) {
+                      initialPeriodType = PeriodType.week;
+                    } else if (dt == DateType.month) {
+                      initialPeriodType = PeriodType.month;
+                    } else if (dt == DateType.period) {
+                      initialPeriodType = PeriodType.period;
+                    }
+
+                    final result = await showDialog<DateRangePickerResult>(
+                      context: context,
+                      builder: (context) => DateRangePicker(
+                        initialStartDate: currentDate1,
+                        initialEndDate: currentDate2,
+                        initialPeriodType: initialPeriodType,
+                      ),
+                    );
+
+                    if (result == null) return;
+
+                    currentDate1 = result.startDate;
+                    currentDate2 = result.endDate;
+
+                    // Update DateType based on PeriodType
+                    switch (result.periodType) {
+                      case PeriodType.day:
+                        dt = DateType.day;
+                        break;
+                      case PeriodType.week:
+                        dt = DateType.week;
+                        break;
+                      case PeriodType.month:
+                        dt = DateType.month;
+                        break;
+                      case PeriodType.year:
+                        dt = DateType.day; // No year type in DateType enum
+                        break;
+                      case PeriodType.period:
+                        dt = DateType.period;
+                        break;
+                    }
+
+                    // Calculate old dates for comparison
+                    final daysDifference = currentDate2.difference(currentDate1).inDays;
+                    oldDate1 = currentDate1.subtract(Duration(days: daysDifference + 1));
+                    oldDate2 = currentDate2.subtract(Duration(days: daysDifference + 1));
+
                     isLoading = true;
                     setState(() {});
                     await widget.getDate(currentDate1, currentDate2, oldDate1,
                         oldDate2, null, null, null);
-                    if (dt != DateType.day) {
-                      application.startCurrentPeriod = currentDate1;
-                      application.endCurrentPeriod = currentDate2;
-                      application.startOldPeriod = oldDate1;
-                      application.endOldPeriod = oldDate2;
-                      application.dateType = dt;
-                      application.compareDateType = cdt;
-                    }
                     isLoading = false;
                     setState(() {});
-                  }
-                },
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      Icons.location_on_outlined,
-                      color: Colors.grey.shade500,
+                  },
+                  child: Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(12),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.04),
+                          blurRadius: 8,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
                     ),
-                    const SizedBox(
-                      width: 2,
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.calendar_today,
+                          size: 20,
+                          color: AppTheme.primaryBlue,
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Text(
+                            dt == DateType.day
+                                ? DateFormat('dd.MM.yy').format(currentDate1)
+                                : dt == DateType.month
+                                    ? DateFormat('MMM-yyyy').format(currentDate1)
+                                    : '${DateFormat('dd.MM.yy').format(currentDate1)} - ${DateFormat('dd.MM.yy').format(currentDate2)}',
+                            style: const TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.black87,
+                              letterSpacing: 0.2,
+                            ),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                        if (isLoading)
+                          const SizedBox(
+                            width: 16,
+                            height: 16,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              valueColor: AlwaysStoppedAnimation<Color>(
+                                  AppTheme.primaryBlue),
+                            ),
+                          ),
+                      ],
                     ),
-                    Text(
-                      application.selectedStoreId != null
-                          ? application.stores
-                              .firstWhere((element) =>
-                                  element.id == application.selectedStoreId)
-                              .name
-                          : 'ყველა ფილიალი',
-                      style: TextStyle(
-                        color: Colors.grey.shade500,
-                        fontSize: 17,
-                      ),
-                    ),
-                  ],
+                  ),
                 ),
               ),
-            ),
+              if (widget.showStoreFilter) const SizedBox(width: 12),
+              // Store Selector
+              if (widget.showStoreFilter)
+                Expanded(
+                  child: GestureDetector(
+                    onTap: () async {
+                      bool storeChanged = await selectStore();
+                      if (storeChanged) {
+                        isLoading = true;
+                        setState(() {});
+                        await widget.getDate(currentDate1, currentDate2,
+                            oldDate1, oldDate2, null, null, null);
+                        if (dt != DateType.day) {
+                          application.startCurrentPeriod = currentDate1;
+                          application.endCurrentPeriod = currentDate2;
+                          application.startOldPeriod = oldDate1;
+                          application.endOldPeriod = oldDate2;
+                          application.dateType = dt;
+                          application.compareDateType = cdt;
+                        }
+                        isLoading = false;
+                        setState(() {});
+                      }
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 14),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(12),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.04),
+                            blurRadius: 8,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.storefront,
+                            size: 20,
+                            color: AppTheme.primaryBlue,
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Text(
+                              application.selectedStoreId != null
+                                  ? application.stores
+                                      .firstWhere((element) =>
+                                          element.id == application.selectedStoreId)
+                                      .name
+                                  : 'ყველა ფილიალი',
+                              style: const TextStyle(
+                                fontSize: 15,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.black87,
+                                letterSpacing: 0.2,
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Icon(
+                            Icons.keyboard_arrow_down,
+                            size: 20,
+                            color: Colors.grey.shade600,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+            ],
           ),
+        ),
       ],
     );
   }
@@ -471,7 +425,7 @@ class PickerWidgetState extends State<PickerWidget> {
                         },
                         icon: const Icon(
                           Icons.close_outlined,
-                          color: Color.fromARGB(255, 0, 68, 124),
+                          color: AppTheme.primaryBlue,
                         ),
                       ),
                     ),
@@ -492,7 +446,7 @@ class PickerWidgetState extends State<PickerWidget> {
                   decoration: BoxDecoration(
                     border: Border.all(
                       color: initialDateType == DateType.day
-                          ? const Color.fromARGB(255, 0, 68, 124)
+                          ? AppTheme.primaryBlue
                           : Colors.grey.shade500,
                     ),
                     borderRadius: BorderRadius.circular(8),
@@ -562,7 +516,7 @@ class PickerWidgetState extends State<PickerWidget> {
                 decoration: BoxDecoration(
                   border: Border.all(
                     color: initialDateType == DateType.week
-                        ? const Color.fromARGB(255, 0, 68, 124)
+                        ? AppTheme.primaryBlue
                         : Colors.grey.shade500,
                   ),
                   borderRadius: BorderRadius.circular(8),
@@ -622,7 +576,7 @@ class PickerWidgetState extends State<PickerWidget> {
                 decoration: BoxDecoration(
                   border: Border.all(
                     color: initialDateType == DateType.month
-                        ? const Color.fromARGB(255, 0, 68, 124)
+                        ? AppTheme.primaryBlue
                         : Colors.grey.shade500,
                   ),
                   borderRadius: BorderRadius.circular(8),
@@ -682,7 +636,7 @@ class PickerWidgetState extends State<PickerWidget> {
                 decoration: BoxDecoration(
                   border: Border.all(
                     color: initialDateType == DateType.period
-                        ? const Color.fromARGB(255, 0, 68, 124)
+                        ? AppTheme.primaryBlue
                         : Colors.grey.shade500,
                   ),
                   borderRadius: BorderRadius.circular(8),
@@ -797,7 +751,7 @@ class PickerWidgetState extends State<PickerWidget> {
                       width: 154,
                       decoration: BoxDecoration(
                         border: Border.all(
-                          color: const Color.fromARGB(255, 0, 68, 124),
+                          color: AppTheme.primaryBlue,
                         ),
                         borderRadius: BorderRadius.circular(8),
                       ),
@@ -847,7 +801,7 @@ class PickerWidgetState extends State<PickerWidget> {
                       width: 154,
                       decoration: BoxDecoration(
                         border: Border.all(
-                          color: const Color.fromARGB(255, 0, 68, 124),
+                          color: AppTheme.primaryBlue,
                         ),
                         borderRadius: BorderRadius.circular(8),
                       ),
@@ -898,7 +852,7 @@ class PickerWidgetState extends State<PickerWidget> {
                       width: 120,
                       decoration: BoxDecoration(
                         border: Border.all(
-                          color: const Color.fromARGB(255, 0, 68, 124),
+                          color: AppTheme.primaryBlue,
                         ),
                         borderRadius: BorderRadius.circular(8),
                       ),
@@ -954,7 +908,7 @@ class PickerWidgetState extends State<PickerWidget> {
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(15),
                         border: Border.all(
-                            color: const Color.fromARGB(255, 0, 68, 124)),
+                            color: AppTheme.primaryBlue),
                       ),
                       child: TextButton(
                         child: Text(
@@ -993,7 +947,7 @@ class PickerWidgetState extends State<PickerWidget> {
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(15),
                         border: Border.all(
-                            color: const Color.fromARGB(255, 0, 68, 124)),
+                            color: AppTheme.primaryBlue),
                       ),
                       child: TextButton(
                         child: Text(
@@ -1089,7 +1043,7 @@ class PickerWidgetState extends State<PickerWidget> {
                         },
                         icon: const Icon(
                           Icons.close_outlined,
-                          color: Color.fromARGB(255, 0, 68, 124),
+                          color: AppTheme.primaryBlue,
                         ),
                       ),
                     ),
@@ -1113,7 +1067,7 @@ class PickerWidgetState extends State<PickerWidget> {
                         borderRadius: BorderRadius.circular(7),
                         border: Border.all(
                           color: initial == options.keys.elementAt(index)
-                              ? const Color.fromARGB(255, 0, 68, 124)
+                              ? AppTheme.primaryBlue
                               : Colors.grey.shade500,
                         ),
                       ),
@@ -1550,97 +1504,193 @@ class PickerWidgetState extends State<PickerWidget> {
       stores.add(StoreModel(id: element.id, name: element.name));
     }
 
-    await showModalBottomSheet(
-      backgroundColor: Colors.transparent,
+    await showDialog(
       context: context,
-      builder: (context) => Container(
+      builder: (context) => _StoreSelectorDialog(
+        stores: stores,
+        selectedStoreId: application.selectedStoreId,
+        onStoreSelected: (storeId) {
+          application.selectedStoreId = storeId;
+          res = true;
+        },
+      ),
+    );
+    return res;
+  }
+}
+
+class _StoreSelectorDialog extends StatefulWidget {
+  final List<StoreModel> stores;
+  final int? selectedStoreId;
+  final Function(int?) onStoreSelected;
+
+  const _StoreSelectorDialog({
+    Key? key,
+    required this.stores,
+    required this.selectedStoreId,
+    required this.onStoreSelected,
+  }) : super(key: key);
+
+  @override
+  State<_StoreSelectorDialog> createState() => _StoreSelectorDialogState();
+}
+
+class _StoreSelectorDialogState extends State<_StoreSelectorDialog> {
+  late TextEditingController _searchController;
+  List<StoreModel> _filteredStores = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _searchController = TextEditingController();
+    _filteredStores = widget.stores;
+    _searchController.addListener(_filterStores);
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  void _filterStores() {
+    setState(() {
+      final query = _searchController.text.toLowerCase();
+      if (query.isEmpty) {
+        _filteredStores = widget.stores;
+      } else {
+        _filteredStores = widget.stores
+            .where((store) => store.name.toLowerCase().contains(query))
+            .toList();
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Dialog(
+      backgroundColor: Colors.transparent,
+      insetPadding: const EdgeInsets.symmetric(horizontal: 24),
+      child: Container(
+        constraints: const BoxConstraints(maxWidth: 400, maxHeight: 600),
         decoration: BoxDecoration(
-          borderRadius: const BorderRadius.only(
-            topLeft: Radius.circular(20),
-            topRight: Radius.circular(20),
-          ),
-          color: Colors.grey.shade900,
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
         ),
-        padding:
-            const EdgeInsets.only(left: 10, right: 10, bottom: 10, top: 15),
         child: Column(
+          mainAxisSize: MainAxisSize.min,
           children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Spacer(),
-                Text(
-                  'ფილიალები',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    color: Colors.grey.shade500,
-                    fontSize: 18,
+            // Header
+            Padding(
+              padding: const EdgeInsets.all(20),
+              child: Row(
+                children: [
+                  const Expanded(
+                    child: Text(
+                      'ფილიალები',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.black,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
                   ),
+                  GestureDetector(
+                    onTap: () => Navigator.of(context).pop(),
+                    child: Container(
+                      padding: const EdgeInsets.all(4),
+                      child: Icon(
+                        Icons.close,
+                        size: 20,
+                        color: Colors.grey.shade600,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            // Search Field
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade50,
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(color: Colors.grey.shade200),
                 ),
-                Expanded(
-                  child: IconButton(
-                    alignment: Alignment.centerRight,
-                    constraints: const BoxConstraints(),
-                    padding: EdgeInsets.zero,
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
-                    icon: const Icon(
-                      Icons.close_outlined,
-                      color: Color.fromARGB(255, 0, 68, 124),
+                child: TextField(
+                  controller: _searchController,
+                  decoration: InputDecoration(
+                    hintText: 'ძიება',
+                    hintStyle: TextStyle(
+                      color: Colors.grey.shade400,
+                      fontSize: 15,
+                    ),
+                    prefixIcon: Icon(
+                      Icons.search,
+                      color: AppTheme.primaryBlue,
+                      size: 20,
+                    ),
+                    border: InputBorder.none,
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 12,
                     ),
                   ),
                 ),
-              ],
+              ),
             ),
-            const SizedBox(
-              height: 15,
-            ),
-            Expanded(
+
+            const SizedBox(height: 8),
+
+            // Store List
+            Flexible(
               child: ListView.builder(
-                padding: EdgeInsets.zero,
                 shrinkWrap: true,
-                itemCount: stores.length,
+                itemCount: _filteredStores.length,
                 itemBuilder: (context, index) {
-                  return Container(
-                    margin: const EdgeInsets.only(bottom: 7),
-                    height: 50,
-                    width: 300,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(7),
-                      border: Border.all(
-                        color: application.selectedStoreId ==
-                                stores.elementAt(index).id
-                            ? const Color.fromARGB(255, 0, 68, 124)
-                            : Colors.grey.shade500,
+                  final store = _filteredStores[index];
+                  final isSelected = store.id == widget.selectedStoreId;
+
+                  return InkWell(
+                    onTap: () {
+                      widget.onStoreSelected(store.id);
+                      Navigator.of(context).pop();
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 20,
+                        vertical: 16,
                       ),
-                    ),
-                    child: InkWell(
-                      child: Center(
-                        child: Text(
-                          stores.elementAt(index).name,
-                          style: TextStyle(
-                            color: Colors.grey.shade500,
-                            fontWeight: FontWeight.w300,
-                            fontSize: 17,
-                          ),
+                      decoration: BoxDecoration(
+                        color: isSelected
+                            ? AppTheme.primaryBlue.withOpacity(0.1)
+                            : Colors.transparent,
+                      ),
+                      child: Text(
+                        store.name,
+                        style: TextStyle(
+                          fontSize: 15,
+                          fontWeight:
+                              isSelected ? FontWeight.w600 : FontWeight.w400,
+                          color: isSelected
+                              ? AppTheme.primaryBlue
+                              : Colors.black87,
                         ),
+                        textAlign: TextAlign.center,
                       ),
-                      onTap: () {
-                        application.selectedStoreId =
-                            stores.elementAt(index).id;
-                        Navigator.pop(context);
-                        res = true;
-                      },
                     ),
                   );
                 },
               ),
-            )
+            ),
+
+            const SizedBox(height: 8),
           ],
         ),
       ),
     );
-    return res;
   }
 }

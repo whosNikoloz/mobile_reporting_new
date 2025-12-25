@@ -291,7 +291,7 @@ class _MainScreenState extends State<MainScreen> {
                         if (main[index].values.isEmpty) const Spacer(),
                         if (main[index].values.isEmpty)
                           const SpinKitRing(
-                            color: Color.fromARGB(255, 0, 68, 124),
+                            color: AppTheme.primaryBlue,
                             size: 15.0,
                             lineWidth: 2,
                           ),
@@ -328,7 +328,7 @@ class _MainScreenState extends State<MainScreen> {
                     ),
                   if (reportLoading)
                     const SpinKitRing(
-                      color: Color.fromARGB(255, 0, 68, 124),
+                      color: AppTheme.primaryBlue,
                       size: 30.0,
                       lineWidth: 2,
                     ),
@@ -338,7 +338,7 @@ class _MainScreenState extends State<MainScreen> {
             Text(
               DateFormat('MMMM yyyy').format(startCurrentPeriod),
               style: const TextStyle(
-                color: Color.fromARGB(255, 0, 68, 124),
+                color: AppTheme.primaryBlue,
               ),
             ),
             const SizedBox(

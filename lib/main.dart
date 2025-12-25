@@ -6,11 +6,16 @@ import 'package:month_year_picker/month_year_picker.dart';
 import 'package:mobile_reporting/localization/generated/l10n.dart';
 import 'package:mobile_reporting/theme/app_theme.dart';
 import 'package:provider/provider.dart';
+import 'package:jiffy/jiffy.dart';
 
-void main() {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   Provider.debugCheckInvalidValueType = null;
   registerModules();
+
+  // Set Jiffy to use English locale since Georgian ('ka') is not supported for ordinals
+  // This only affects Jiffy's internal date calculations, not the app's UI locale
+  await Jiffy.setLocale('en');
 
   runApp(
     const ReportingApp(),

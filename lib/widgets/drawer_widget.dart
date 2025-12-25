@@ -10,6 +10,7 @@ import 'package:mobile_reporting/screens/splash_screen.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:mobile_reporting/screens/statistics_main_screen.dart';
 import 'package:provider/provider.dart';
+import 'package:mobile_reporting/theme/app_theme.dart';
 
 class DrawerWidget extends StatefulWidget {
   const DrawerWidget({super.key});
@@ -236,9 +237,9 @@ class _DrawerWidgetState extends State<DrawerWidget> {
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(15),
                   border: Border.all(
-                    color: const Color.fromARGB(255, 0, 68, 124),
+                    color: AppTheme.primaryBlue,
                   ),
-                  color: const Color.fromARGB(255, 0, 68, 124),
+                  color: AppTheme.primaryBlue,
                 ),
                 child: TextButton(
                   child: const Text(

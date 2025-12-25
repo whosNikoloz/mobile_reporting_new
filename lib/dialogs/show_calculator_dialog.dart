@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:ndialog/ndialog.dart';
+import 'package:mobile_reporting/theme/app_theme.dart';
 
 TextEditingController pinTextController = TextEditingController();
 
@@ -49,7 +50,7 @@ Future<double?> showCalculatorDialog(
                     padding: EdgeInsets.zero,
                     icon: const Icon(
                       Icons.close_outlined,
-                      color: Color.fromARGB(255, 0, 68, 124),
+                      color: AppTheme.primaryBlue,
                     ),
                     onPressed: () {
                       Navigator.pop(context, null);
@@ -69,7 +70,7 @@ Future<double?> showCalculatorDialog(
                 height: 50.0,
                 decoration: BoxDecoration(
                   border: Border.all(
-                    color: const Color.fromARGB(255, 0, 68, 124),
+                    color: AppTheme.primaryBlue,
                     width: 2,
                   ),
                   color: Colors.black38,
@@ -341,7 +342,7 @@ Widget getButton(String text, {required VoidCallback onPressed, required context
       style: ElevatedButton.styleFrom(
         side: const BorderSide(
           width: 2.0,
-          color: Color.fromARGB(255, 0, 68, 124),
+          color: AppTheme.primaryBlue,
         ),
         backgroundColor: Colors.black38,
         elevation: 0,

@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 
 class AppTheme {
-  // Primary blue color - matches existing accent color
-  static const Color primaryBlue = Color.fromARGB(255, 0, 68, 124);
-  static const Color lightBlue = Color.fromARGB(255, 33, 150, 243);
+  // Primary blue color - lighter blue theme
+  static const Color primaryBlue = Color.fromARGB(255, 33, 150, 243);
+  static const Color lightBlue = Color.fromARGB(255, 66, 165, 245);
 
   // Background colors
   static const Color backgroundColor = Colors.white;
