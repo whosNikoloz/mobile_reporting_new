@@ -45,9 +45,12 @@ class _DateRangePickerState extends State<DateRangePicker> {
 
   // Compare to state
   bool _isCompareMode = false;
-  CompareToOption _selectedCompareOption = CompareToOption.today;
+  CompareToOption _selectedCurrentOption = CompareToOption.today;
+  CompareToOption _selectedCompareOption = CompareToOption.yesterday;
   DateTime? _compareRangeStart;
   DateTime? _compareRangeEnd;
+  DateTime? _currentCompareStart;
+  DateTime? _currentCompareEnd;
 
   @override
   void initState() {
@@ -154,35 +157,45 @@ class _DateRangePickerState extends State<DateRangePicker> {
     DateTime startDate;
     DateTime endDate;
 
-    switch (_selectedPeriodType) {
-      case PeriodType.day:
-        startDate = DateTime(
-            _selectedDate.year, _selectedDate.month, _selectedDate.day, 0, 0);
-        endDate = DateTime(
-            _selectedDate.year, _selectedDate.month, _selectedDate.day, 23, 59);
-        break;
-      case PeriodType.week:
-        startDate = DateTime(
-            _rangeStart!.year, _rangeStart!.month, _rangeStart!.day, 0, 0);
-        endDate =
-            DateTime(_rangeEnd!.year, _rangeEnd!.month, _rangeEnd!.day, 23, 59);
-        break;
-      case PeriodType.month:
-        startDate = DateTime(_selectedDate.year, _selectedDate.month, 1, 0, 0);
-        endDate =
-            DateTime(_selectedDate.year, _selectedDate.month + 1, 0, 23, 59);
-        break;
-      case PeriodType.year:
-        startDate = DateTime(_selectedDate.year, 1, 1, 0, 0);
-        endDate = DateTime(_selectedDate.year, 12, 31, 23, 59);
-        break;
-      case PeriodType.period:
-        if (_rangeStart == null || _rangeEnd == null) return;
-        startDate = DateTime(
-            _rangeStart!.year, _rangeStart!.month, _rangeStart!.day, 0, 0);
-        endDate =
-            DateTime(_rangeEnd!.year, _rangeEnd!.month, _rangeEnd!.day, 23, 59);
-        break;
+    // If in compare mode, use the current period from compare mode
+    if (_isCompareMode &&
+        _currentCompareStart != null &&
+        _currentCompareEnd != null) {
+      startDate = _currentCompareStart!;
+      endDate = _currentCompareEnd!;
+    } else {
+      // Use period tab selection
+      switch (_selectedPeriodType) {
+        case PeriodType.day:
+          startDate = DateTime(
+              _selectedDate.year, _selectedDate.month, _selectedDate.day, 0, 0);
+          endDate = DateTime(_selectedDate.year, _selectedDate.month,
+              _selectedDate.day, 23, 59);
+          break;
+        case PeriodType.week:
+          startDate = DateTime(
+              _rangeStart!.year, _rangeStart!.month, _rangeStart!.day, 0, 0);
+          endDate = DateTime(
+              _rangeEnd!.year, _rangeEnd!.month, _rangeEnd!.day, 23, 59);
+          break;
+        case PeriodType.month:
+          startDate =
+              DateTime(_selectedDate.year, _selectedDate.month, 1, 0, 0);
+          endDate =
+              DateTime(_selectedDate.year, _selectedDate.month + 1, 0, 23, 59);
+          break;
+        case PeriodType.year:
+          startDate = DateTime(_selectedDate.year, 1, 1, 0, 0);
+          endDate = DateTime(_selectedDate.year, 12, 31, 23, 59);
+          break;
+        case PeriodType.period:
+          if (_rangeStart == null || _rangeEnd == null) return;
+          startDate = DateTime(
+              _rangeStart!.year, _rangeStart!.month, _rangeStart!.day, 0, 0);
+          endDate = DateTime(
+              _rangeEnd!.year, _rangeEnd!.month, _rangeEnd!.day, 23, 59);
+          break;
+      }
     }
 
     Navigator.of(context).pop(
@@ -324,14 +337,32 @@ class _DateRangePickerState extends State<DateRangePicker> {
                     : Colors.transparent,
                 borderRadius: BorderRadius.circular(8),
               ),
-              child: Text(
-                'პერიოდი',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 14,
-                  color: isSelected ? AppTheme.primaryBlue : Colors.black87,
-                  fontWeight: isSelected ? FontWeight.w500 : FontWeight.normal,
-                ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    'პერიოდი',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: isSelected ? AppTheme.primaryBlue : Colors.black87,
+                      fontWeight:
+                          isSelected ? FontWeight.w500 : FontWeight.normal,
+                    ),
+                  ),
+                  if (isSelected && !hasDateRange)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 4),
+                      child: Text(
+                        'Click calendar dates',
+                        style: TextStyle(
+                          fontSize: 10,
+                          color: AppTheme.primaryBlue,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                ],
               ),
             ),
           ),
@@ -740,7 +771,7 @@ class _DateRangePickerState extends State<DateRangePicker> {
             borderRadius = BorderRadius.zero;
           }
         } else if (isPeriodFirstDateOnly) {
-          // First date selected in period mode - show with lighter color
+          // First date selected in period mode - show with lighter blue
           backgroundColor = AppTheme.primaryBlue.withOpacity(0.3);
           textColor = AppTheme.primaryBlue;
           borderRadius = BorderRadius.circular(20);
@@ -770,6 +801,7 @@ class _DateRangePickerState extends State<DateRangePicker> {
             !isInPeriodRange &&
             !isPeriodStart &&
             !isPeriodEnd &&
+            !isPeriodFirstDateOnly &&
             !isWeekStart &&
             !isWeekEnd;
 
@@ -857,11 +889,16 @@ class _DateRangePickerState extends State<DateRangePicker> {
   }
 
   Widget _buildCompareToContent() {
+    // Calculate compare dates automatically
+    _calculateCompareDatesForCompareMode();
+
+    final isCustomRange = _selectedCompareOption == CompareToOption.customRange;
+
     return Padding(
       padding: const EdgeInsets.all(12),
       child: Column(
         children: [
-          _buildCompareToDropdown('დღეს'),
+          _buildCurrentPeriodDropdown(),
           const SizedBox(height: 12),
           Text(
             'შედარება',
@@ -871,68 +908,430 @@ class _DateRangePickerState extends State<DateRangePicker> {
             ),
           ),
           const SizedBox(height: 8),
-          _buildCompareToDropdown('პერიოდი'),
-          const SizedBox(height: 8),
-          Row(
-            children: [
-              Expanded(
-                child: Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    border: Border.all(color: Colors.grey.shade300),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Text(
-                    '11.11.24',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(fontSize: 14),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    border: Border.all(color: Colors.grey.shade300),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Text(
-                    '11.12.24',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(fontSize: 14),
+          _buildComparePeriodDropdown(),
+
+          // Show calendar when either current or compare has custom range selected
+          if (isCustomRange ||
+              _selectedCurrentOption == CompareToOption.customRange) ...[
+            const SizedBox(height: 12),
+            Row(
+              children: [
+                Expanded(
+                  child: Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      border: Border.all(color: Colors.grey.shade300),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Text(
+                      _compareRangeStart != null
+                          ? DateFormat('dd.MM.yy').format(_compareRangeStart!)
+                          : '--.--.--',
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(fontSize: 14),
+                    ),
                   ),
                 ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          _buildCalendarNavigation(),
-          const SizedBox(height: 12),
-          _buildCompareCalendar(),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      border: Border.all(color: Colors.grey.shade300),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Text(
+                      _compareRangeEnd != null
+                          ? DateFormat('dd.MM.yy').format(_compareRangeEnd!)
+                          : '--.--.--',
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(fontSize: 14),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            _buildCalendarNavigation(),
+            const SizedBox(height: 12),
+            _buildCompareCalendar(),
+          ],
         ],
       ),
     );
   }
 
-  Widget _buildCompareToDropdown(String value) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      decoration: BoxDecoration(
-        border: Border.all(color: Colors.grey.shade300),
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Row(
-        children: [
-          Icon(Icons.calendar_today, size: 20, color: Colors.orange),
-          const SizedBox(width: 12),
-          Text(
-            value,
-            style: const TextStyle(fontSize: 15),
+  void _calculateCompareDatesForCompareMode() {
+    final now = DateTime.now();
+    DateTime? currentStart;
+    DateTime? currentEnd;
+
+    // Calculate current period based on selection
+    switch (_selectedCurrentOption) {
+      case CompareToOption.today:
+        currentStart = DateTime(now.year, now.month, now.day, 0, 0);
+        currentEnd = DateTime(now.year, now.month, now.day, 23, 59);
+        break;
+      case CompareToOption.yesterday:
+        final yesterday = now.subtract(const Duration(days: 1));
+        currentStart =
+            DateTime(yesterday.year, yesterday.month, yesterday.day, 0, 0);
+        currentEnd =
+            DateTime(yesterday.year, yesterday.month, yesterday.day, 23, 59);
+        break;
+      case CompareToOption.thisWeek:
+        final monday = now.subtract(Duration(days: now.weekday - 1));
+        final sunday = monday.add(const Duration(days: 6));
+        currentStart = DateTime(monday.year, monday.month, monday.day, 0, 0);
+        currentEnd = DateTime(sunday.year, sunday.month, sunday.day, 23, 59);
+        break;
+      case CompareToOption.lastWeek:
+        final lastMonday = now.subtract(Duration(days: now.weekday - 1 + 7));
+        final lastSunday = lastMonday.add(const Duration(days: 6));
+        currentStart =
+            DateTime(lastMonday.year, lastMonday.month, lastMonday.day, 0, 0);
+        currentEnd =
+            DateTime(lastSunday.year, lastSunday.month, lastSunday.day, 23, 59);
+        break;
+      case CompareToOption.thisMonth:
+        currentStart = DateTime(now.year, now.month, 1, 0, 0);
+        currentEnd = DateTime(now.year, now.month + 1, 0, 23, 59);
+        break;
+      case CompareToOption.lastMonth:
+        currentStart = DateTime(now.year, now.month - 1, 1, 0, 0);
+        currentEnd = DateTime(now.year, now.month, 0, 23, 59);
+        break;
+      case CompareToOption.thisYear:
+        currentStart = DateTime(now.year, 1, 1, 0, 0);
+        currentEnd = DateTime(now.year, 12, 31, 23, 59);
+        break;
+      case CompareToOption.lastYear:
+        currentStart = DateTime(now.year - 1, 1, 1, 0, 0);
+        currentEnd = DateTime(now.year - 1, 12, 31, 23, 59);
+        break;
+      case CompareToOption.customRange:
+        // Don't auto-calculate for custom range - keep user's manual selection
+        // Only update the variables if they're not already set by user
+        if (_currentCompareStart != null && _currentCompareEnd != null) {
+          currentStart = _currentCompareStart;
+          currentEnd = _currentCompareEnd;
+        } else {
+          // Keep whatever values are currently set (might be partial selection)
+          currentStart = _currentCompareStart;
+          currentEnd = _currentCompareEnd;
+        }
+        break;
+    }
+
+    // Only update if not in custom range mode, or if values are valid
+    if (_selectedCurrentOption != CompareToOption.customRange) {
+      _currentCompareStart = currentStart;
+      _currentCompareEnd = currentEnd;
+    }
+
+    if (currentStart == null || currentEnd == null) return;
+
+    // Calculate comparison dates based on selected option
+    final daysDifference = currentEnd.difference(currentStart).inDays;
+
+    switch (_selectedCompareOption) {
+      case CompareToOption.yesterday:
+        _compareRangeStart = currentStart.subtract(const Duration(days: 1));
+        _compareRangeEnd = currentEnd.subtract(const Duration(days: 1));
+        break;
+      case CompareToOption.lastWeek:
+        _compareRangeStart = currentStart.subtract(const Duration(days: 7));
+        _compareRangeEnd = currentEnd.subtract(const Duration(days: 7));
+        break;
+      case CompareToOption.lastMonth:
+        _compareRangeStart = DateTime(
+            currentStart.year, currentStart.month - 1, currentStart.day, 0, 0);
+        _compareRangeEnd =
+            _compareRangeStart!.add(Duration(days: daysDifference));
+        break;
+      case CompareToOption.lastYear:
+        _compareRangeStart = DateTime(
+            currentStart.year - 1, currentStart.month, currentStart.day, 0, 0);
+        _compareRangeEnd =
+            _compareRangeStart!.add(Duration(days: daysDifference));
+        break;
+      case CompareToOption.customRange:
+        // Don't auto-calculate for custom range - let user select manually
+        // Only initialize if both are null (first time)
+        if (_compareRangeStart == null && _compareRangeEnd == null) {
+          // Leave them null so user can select on calendar
+        }
+        break;
+      default:
+        _compareRangeStart = currentStart.subtract(const Duration(days: 1));
+        _compareRangeEnd = currentEnd.subtract(const Duration(days: 1));
+    }
+  }
+
+  Widget _buildCurrentPeriodDropdown() {
+    final displayText = {
+          CompareToOption.today: 'დღეს',
+          CompareToOption.yesterday: 'გუშინ',
+          CompareToOption.thisWeek: 'ამ კვირაში',
+          CompareToOption.lastWeek: 'წინა კვირაში',
+          CompareToOption.thisMonth: 'ამ თვეში',
+          CompareToOption.lastMonth: 'წინა თვეში',
+          CompareToOption.thisYear: 'ამ წელს',
+          CompareToOption.lastYear: 'წინა წელს',
+          CompareToOption.customRange: 'პერიოდის არჩევა',
+        }[_selectedCurrentOption] ??
+        'დღეს';
+
+    return GestureDetector(
+      onTap: () {
+        showModalBottomSheet(
+          context: context,
+          backgroundColor: Colors.transparent,
+          builder: (context) => Container(
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: const BorderRadius.only(
+                topLeft: Radius.circular(16),
+                topRight: Radius.circular(16),
+              ),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Text(
+                    'პერიოდის არჩევა',
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+                ListTile(
+                  title: const Text('დღეს'),
+                  trailing: _selectedCurrentOption == CompareToOption.today
+                      ? Icon(Icons.check, color: AppTheme.primaryBlue)
+                      : null,
+                  onTap: () {
+                    setState(
+                        () => _selectedCurrentOption = CompareToOption.today);
+                    Navigator.pop(context);
+                  },
+                ),
+                ListTile(
+                  title: const Text('გუშინ'),
+                  trailing: _selectedCurrentOption == CompareToOption.yesterday
+                      ? Icon(Icons.check, color: AppTheme.primaryBlue)
+                      : null,
+                  onTap: () {
+                    setState(() =>
+                        _selectedCurrentOption = CompareToOption.yesterday);
+                    Navigator.pop(context);
+                  },
+                ),
+                ListTile(
+                  title: const Text('ამ კვირაში'),
+                  trailing: _selectedCurrentOption == CompareToOption.thisWeek
+                      ? Icon(Icons.check, color: AppTheme.primaryBlue)
+                      : null,
+                  onTap: () {
+                    setState(() =>
+                        _selectedCurrentOption = CompareToOption.thisWeek);
+                    Navigator.pop(context);
+                  },
+                ),
+                ListTile(
+                  title: const Text('წინა კვირაში'),
+                  trailing: _selectedCurrentOption == CompareToOption.lastWeek
+                      ? Icon(Icons.check, color: AppTheme.primaryBlue)
+                      : null,
+                  onTap: () {
+                    setState(() =>
+                        _selectedCurrentOption = CompareToOption.lastWeek);
+                    Navigator.pop(context);
+                  },
+                ),
+                ListTile(
+                  title: const Text('ამ თვეში'),
+                  trailing: _selectedCurrentOption == CompareToOption.thisMonth
+                      ? Icon(Icons.check, color: AppTheme.primaryBlue)
+                      : null,
+                  onTap: () {
+                    setState(() =>
+                        _selectedCurrentOption = CompareToOption.thisMonth);
+                    Navigator.pop(context);
+                  },
+                ),
+                ListTile(
+                  title: const Text('წინა თვეში'),
+                  trailing: _selectedCurrentOption == CompareToOption.lastMonth
+                      ? Icon(Icons.check, color: AppTheme.primaryBlue)
+                      : null,
+                  onTap: () {
+                    setState(() =>
+                        _selectedCurrentOption = CompareToOption.lastMonth);
+                    Navigator.pop(context);
+                  },
+                ),
+                ListTile(
+                  title: const Text('პერიოდის არჩევა'),
+                  trailing:
+                      _selectedCurrentOption == CompareToOption.customRange
+                          ? Icon(Icons.check, color: AppTheme.primaryBlue)
+                          : null,
+                  onTap: () {
+                    setState(() {
+                      _selectedCurrentOption = CompareToOption.customRange;
+                      // Reset current range for new selection
+                      _currentCompareStart = null;
+                      _currentCompareEnd = null;
+                    });
+                    Navigator.pop(context);
+                  },
+                ),
+                const SizedBox(height: 16),
+              ],
+            ),
           ),
-          const Spacer(),
-          Icon(Icons.keyboard_arrow_down, color: Colors.grey),
-        ],
+        );
+      },
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        decoration: BoxDecoration(
+          border: Border.all(color: Colors.grey.shade300),
+          borderRadius: BorderRadius.circular(8),
+          color: Colors.white,
+        ),
+        child: Row(
+          children: [
+            Icon(Icons.calendar_today, size: 20, color: AppTheme.primaryBlue),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(displayText, style: const TextStyle(fontSize: 15)),
+            ),
+            Icon(Icons.keyboard_arrow_down, color: Colors.grey),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildComparePeriodDropdown() {
+    final displayText = {
+          CompareToOption.yesterday: 'წინა დღესთან',
+          CompareToOption.lastWeek: 'წინა კვირასთან',
+          CompareToOption.lastMonth: 'წინა თვესთან',
+          CompareToOption.lastYear: 'წინა წელთან',
+          CompareToOption.customRange: 'პერიოდის არჩევა',
+        }[_selectedCompareOption] ??
+        'წინა დღესთან';
+
+    return GestureDetector(
+      onTap: () {
+        showModalBottomSheet(
+          context: context,
+          backgroundColor: Colors.transparent,
+          builder: (context) => Container(
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: const BorderRadius.only(
+                topLeft: Radius.circular(16),
+                topRight: Radius.circular(16),
+              ),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Text(
+                    'შედარების არჩევა',
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+                ListTile(
+                  title: const Text('წინა დღესთან'),
+                  trailing: _selectedCompareOption == CompareToOption.yesterday
+                      ? Icon(Icons.check, color: AppTheme.primaryBlue)
+                      : null,
+                  onTap: () {
+                    setState(() =>
+                        _selectedCompareOption = CompareToOption.yesterday);
+                    Navigator.pop(context);
+                  },
+                ),
+                ListTile(
+                  title: const Text('წინა კვირასთან'),
+                  trailing: _selectedCompareOption == CompareToOption.lastWeek
+                      ? Icon(Icons.check, color: AppTheme.primaryBlue)
+                      : null,
+                  onTap: () {
+                    setState(() =>
+                        _selectedCompareOption = CompareToOption.lastWeek);
+                    Navigator.pop(context);
+                  },
+                ),
+                ListTile(
+                  title: const Text('წინა თვესთან'),
+                  trailing: _selectedCompareOption == CompareToOption.lastMonth
+                      ? Icon(Icons.check, color: AppTheme.primaryBlue)
+                      : null,
+                  onTap: () {
+                    setState(() =>
+                        _selectedCompareOption = CompareToOption.lastMonth);
+                    Navigator.pop(context);
+                  },
+                ),
+                ListTile(
+                  title: const Text('წინა წელთან'),
+                  trailing: _selectedCompareOption == CompareToOption.lastYear
+                      ? Icon(Icons.check, color: AppTheme.primaryBlue)
+                      : null,
+                  onTap: () {
+                    setState(() =>
+                        _selectedCompareOption = CompareToOption.lastYear);
+                    Navigator.pop(context);
+                  },
+                ),
+                ListTile(
+                  title: const Text('პერიოდის არჩევა'),
+                  trailing:
+                      _selectedCompareOption == CompareToOption.customRange
+                          ? Icon(Icons.check, color: AppTheme.primaryBlue)
+                          : null,
+                  onTap: () {
+                    setState(() =>
+                        _selectedCompareOption = CompareToOption.customRange);
+                    Navigator.pop(context);
+                  },
+                ),
+                const SizedBox(height: 16),
+              ],
+            ),
+          ),
+        );
+      },
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        decoration: BoxDecoration(
+          border: Border.all(color: Colors.grey.shade300),
+          borderRadius: BorderRadius.circular(8),
+          color: Colors.white,
+        ),
+        child: Row(
+          children: [
+            Icon(Icons.calendar_today, size: 20, color: Colors.orange),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(displayText, style: const TextStyle(fontSize: 15)),
+            ),
+            Icon(Icons.keyboard_arrow_down, color: Colors.grey),
+          ],
+        ),
       ),
     );
   }
@@ -946,6 +1345,16 @@ class _DateRangePickerState extends State<DateRangePicker> {
     if (firstWeekday < 0) firstWeekday = 6;
 
     final totalCells = ((daysInMonth + firstWeekday) / 7).ceil() * 7;
+    final isCustomMode = _selectedCompareOption == CompareToOption.customRange;
+
+    // Debug: Print state at build time
+    print('🎨 Building compare calendar:');
+    print('  Current option: $_selectedCurrentOption');
+    print('  Compare option: $_selectedCompareOption');
+    print(
+        '  BLUE range: ${_currentCompareStart != null ? DateFormat('dd.MM.yy').format(_currentCompareStart!) : 'null'} to ${_currentCompareEnd != null ? DateFormat('dd.MM.yy').format(_currentCompareEnd!) : 'null'}');
+    print(
+        '  ORANGE range: ${_compareRangeStart != null ? DateFormat('dd.MM.yy').format(_compareRangeStart!) : 'null'} to ${_compareRangeEnd != null ? DateFormat('dd.MM.yy').format(_compareRangeEnd!) : 'null'}');
 
     return Column(
       children: [
@@ -972,26 +1381,63 @@ class _DateRangePickerState extends State<DateRangePicker> {
                 DateTime(_currentMonth.year, _currentMonth.month, dayNumber);
             final isToday = _isSameDay(date, DateTime.now());
 
-            // Check if in compare range (15-21 in the example)
-            final isInCompareRange = dayNumber >= 15 && dayNumber <= 21;
+            // Check BLUE range (current period)
+            final isInCurrentRange = _currentCompareStart != null &&
+                _currentCompareEnd != null &&
+                !date.isBefore(_currentCompareStart!) &&
+                !date.isAfter(_currentCompareEnd!);
+
+            final isCurrentStart = _currentCompareStart != null &&
+                _isSameDay(date, _currentCompareStart!);
+
+            final isCurrentEnd = _currentCompareEnd != null &&
+                _isSameDay(date, _currentCompareEnd!);
+
+            final isCurrentOnlyStart =
+                _selectedCurrentOption == CompareToOption.customRange &&
+                    _currentCompareStart != null &&
+                    _currentCompareEnd == null &&
+                    _isSameDay(date, _currentCompareStart!);
+
+            // Check ORANGE range (comparison period)
+            final isInCompareRange = _compareRangeStart != null &&
+                _compareRangeEnd != null &&
+                !date.isBefore(_compareRangeStart!) &&
+                !date.isAfter(_compareRangeEnd!);
+
+            final isCompareStart = _compareRangeStart != null &&
+                _isSameDay(date, _compareRangeStart!);
+
+            final isCompareEnd =
+                _compareRangeEnd != null && _isSameDay(date, _compareRangeEnd!);
+
+            final isCompareOnlyStart = isCustomMode &&
+                _compareRangeStart != null &&
+                _compareRangeEnd == null &&
+                _isSameDay(date, _compareRangeStart!);
 
             Color? backgroundColor;
             Color? textColor = Colors.black87;
             BorderRadius? borderRadius;
 
-            if (isToday) {
+            // Priority: Blue > Orange > Today
+            if (isCurrentOnlyStart) {
+              // BLUE: First date selected
+              backgroundColor = AppTheme.primaryBlue.withOpacity(0.3);
+              textColor = AppTheme.primaryBlue;
+              borderRadius = BorderRadius.circular(20);
+            } else if (isInCurrentRange) {
+              // BLUE: Full range
               backgroundColor = AppTheme.primaryBlue;
               textColor = Colors.white;
-              borderRadius = BorderRadius.circular(20);
-            } else if (isInCompareRange) {
-              backgroundColor = Colors.orange;
-              textColor = Colors.white;
-              if (dayNumber == 15) {
+              if (isCurrentStart && isCurrentEnd) {
+                borderRadius = BorderRadius.circular(20);
+              } else if (isCurrentStart) {
                 borderRadius = const BorderRadius.only(
                   topLeft: Radius.circular(20),
                   bottomLeft: Radius.circular(20),
                 );
-              } else if (dayNumber == 21) {
+              } else if (isCurrentEnd) {
                 borderRadius = const BorderRadius.only(
                   topRight: Radius.circular(20),
                   bottomRight: Radius.circular(20),
@@ -999,25 +1445,115 @@ class _DateRangePickerState extends State<DateRangePicker> {
               } else {
                 borderRadius = BorderRadius.zero;
               }
+            } else if (isCompareOnlyStart) {
+              // ORANGE: First date selected
+              backgroundColor = Colors.orange.withOpacity(0.3);
+              textColor = Colors.orange;
+              borderRadius = BorderRadius.circular(20);
+            } else if (isInCompareRange) {
+              // ORANGE: Full range
+              backgroundColor = Colors.orange;
+              textColor = Colors.white;
+              if (isCompareStart && isCompareEnd) {
+                borderRadius = BorderRadius.circular(20);
+              } else if (isCompareStart) {
+                borderRadius = const BorderRadius.only(
+                  topLeft: Radius.circular(20),
+                  bottomLeft: Radius.circular(20),
+                );
+              } else if (isCompareEnd) {
+                borderRadius = const BorderRadius.only(
+                  topRight: Radius.circular(20),
+                  bottomRight: Radius.circular(20),
+                );
+              } else {
+                borderRadius = BorderRadius.zero;
+              }
+            } else if (isToday) {
+              backgroundColor = AppTheme.primaryBlue;
+              textColor = Colors.white;
+              borderRadius = BorderRadius.circular(20);
             }
 
-            return Container(
-              margin:
-                  isInCompareRange ? EdgeInsets.zero : const EdgeInsets.all(2),
-              decoration: BoxDecoration(
-                color: backgroundColor,
-                borderRadius: borderRadius,
-                border: isToday && !isInCompareRange
-                    ? Border.all(color: AppTheme.primaryBlue, width: 2)
-                    : null,
-              ),
-              alignment: Alignment.center,
-              child: Text(
-                dayNumber.toString(),
-                style: TextStyle(
-                  fontSize: 13,
-                  color: textColor,
-                  fontWeight: isToday ? FontWeight.w600 : FontWeight.normal,
+            return GestureDetector(
+              onTap: (_selectedCurrentOption == CompareToOption.customRange ||
+                      isCustomMode)
+                  ? () {
+                      print('📅 Date clicked: $dayNumber'); // Debug
+                      setState(() {
+                        // Priority: Complete BLUE first, then ORANGE
+                        final isSelectingBlue = _selectedCurrentOption ==
+                                CompareToOption.customRange &&
+                            (_currentCompareStart == null ||
+                                _currentCompareEnd == null);
+
+                        if (isSelectingBlue) {
+                          // Selecting BLUE range
+                          if (_currentCompareStart == null ||
+                              (_currentCompareStart != null &&
+                                  _currentCompareEnd != null)) {
+                            // Start new blue selection
+                            _currentCompareStart = date;
+                            _currentCompareEnd = null;
+                            print(
+                                '🔵 BLUE Start: ${DateFormat('dd.MM.yy').format(date)}');
+                          } else if (date.isBefore(_currentCompareStart!)) {
+                            // Swap
+                            _currentCompareEnd = _currentCompareStart;
+                            _currentCompareStart = date;
+                            print(
+                                '🔵 BLUE Range: ${DateFormat('dd.MM.yy').format(_currentCompareStart!)} to ${DateFormat('dd.MM.yy').format(_currentCompareEnd!)}');
+                          } else {
+                            // Set end date
+                            _currentCompareEnd = date;
+                            print(
+                                '🔵 BLUE End: ${DateFormat('dd.MM.yy').format(date)}');
+                          }
+                        } else if (isCustomMode) {
+                          // Selecting ORANGE range
+                          if (_compareRangeStart == null ||
+                              (_compareRangeStart != null &&
+                                  _compareRangeEnd != null)) {
+                            // Start new orange selection
+                            _compareRangeStart = date;
+                            _compareRangeEnd = null;
+                            print(
+                                '🟠 ORANGE Start: ${DateFormat('dd.MM.yy').format(date)}');
+                          } else if (date.isBefore(_compareRangeStart!)) {
+                            // Swap
+                            _compareRangeEnd = _compareRangeStart;
+                            _compareRangeStart = date;
+                            print(
+                                '🟠 ORANGE Range: ${DateFormat('dd.MM.yy').format(_compareRangeStart!)} to ${DateFormat('dd.MM.yy').format(_compareRangeEnd!)}');
+                          } else {
+                            // Set end date
+                            _compareRangeEnd = date;
+                            print(
+                                '🟠 ORANGE End: ${DateFormat('dd.MM.yy').format(date)}');
+                          }
+                        }
+                      });
+                    }
+                  : null,
+              child: Container(
+                margin: (isInCompareRange || isInCurrentRange)
+                    ? EdgeInsets.zero
+                    : const EdgeInsets.all(2),
+                decoration: BoxDecoration(
+                  color: backgroundColor,
+                  borderRadius: borderRadius,
+                  border: isToday && !isInCompareRange && !isInCurrentRange
+                      ? Border.all(color: AppTheme.primaryBlue, width: 2)
+                      : null,
+                ),
+                alignment: Alignment.center,
+                child: Text(
+                  dayNumber.toString(),
+                  style: TextStyle(
+                    fontSize: 13,
+                    color: textColor,
+                    fontWeight: isToday ? FontWeight.w600 : FontWeight.normal,
+                  ),
                 ),
               ),
             );
