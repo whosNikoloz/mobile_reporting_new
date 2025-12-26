@@ -3,7 +3,11 @@
     "allow": [
       "Bash(flutter pub get:*)",
       "Bash(flutter pub run build_runner build:*)",
-      "Bash(flutter analyze:*)"
+      "Bash(flutter analyze:*)",
+      "Bash(for model in hourly_sales_response_model report_group_response_model report_list_qty_response_model report_list_response_model report_value_response_model)",
+      "Bash(do echo \"=== $model ===\")",
+      "Bash(done)",
+      "Bash(ls:*)"
     ]
   }
 }

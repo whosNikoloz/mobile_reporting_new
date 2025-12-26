@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 class AppTheme {
   // Primary blue color - lighter blue theme
-  static const Color primaryBlue = Color.fromARGB(255, 33, 150, 243);
+  static const Color primaryBlue = Color(0xFF3D5AF1);
   static const Color lightBlue = Color.fromARGB(255, 66, 165, 245);
 
   // Background colors
@@ -26,7 +26,6 @@ class AppTheme {
     scaffoldBackgroundColor: backgroundColor,
     cardColor: cardColor,
     dividerColor: dividerColor,
-
     colorScheme: const ColorScheme.light(
       primary: primaryBlue,
       secondary: lightBlue,
@@ -37,7 +36,6 @@ class AppTheme {
       onSurface: primaryTextColor,
       onBackground: primaryTextColor,
     ),
-
     appBarTheme: const AppBarTheme(
       backgroundColor: Colors.white,
       foregroundColor: primaryTextColor,
@@ -49,7 +47,6 @@ class AppTheme {
         fontWeight: FontWeight.w500,
       ),
     ),
-
     inputDecorationTheme: InputDecorationTheme(
       filled: false,
       fillColor: Colors.white,
@@ -68,7 +65,6 @@ class AppTheme {
       hintStyle: const TextStyle(color: hintTextColor),
       contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
     ),
-
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
         backgroundColor: primaryBlue,
@@ -79,7 +75,6 @@ class AppTheme {
         ),
       ),
     ),
-
     textTheme: const TextTheme(
       displayLarge: TextStyle(color: primaryTextColor),
       displayMedium: TextStyle(color: primaryTextColor),

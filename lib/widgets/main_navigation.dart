@@ -1,11 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_reporting/helpers/helpers_module.dart';
 import 'package:mobile_reporting/helpers/preferences_helper.dart';
-import 'package:mobile_reporting/screens/bills_main_screen.dart';
-import 'package:mobile_reporting/screens/finances_main_screen.dart';
-import 'package:mobile_reporting/screens/main_screen.dart';
+import 'package:mobile_reporting/screens/dashboard_screen.dart';
 import 'package:mobile_reporting/screens/splash_screen.dart';
-import 'package:mobile_reporting/screens/statistics_main_screen.dart';
 import 'package:mobile_reporting/theme/app_theme.dart';
 
 class MainNavigation extends StatefulWidget {
@@ -40,15 +37,15 @@ class _MainNavigationState extends State<MainNavigation> {
   Widget _getCurrentScreen() {
     switch (_currentIndex) {
       case 0:
-        return const MainScreen();
+        return const DashboardScreen();
       case 1:
-        return const StatisticsMainScreen();
+        return const DashboardScreen();
       case 2:
         return _userType == 'RETAIL'
-            ? const FinancesMainScreen()
-            : const BillsMainScreen();
+            ? const DashboardScreen()
+            : const DashboardScreen();
       default:
-        return const MainScreen();
+        return const DashboardScreen();
     }
   }
 
