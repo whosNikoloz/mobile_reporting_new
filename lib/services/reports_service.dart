@@ -22,19 +22,23 @@ class ReportsService {
     required int storeId,
     required DateTime startCurrentPeriod,
     required DateTime endCurrentPeriod,
-    required DateTime startOldPeriod,
-    required DateTime endOldPeriod,
-    int paramId2 = 0,
+    required DateTime startPreviousPeriod,
+    required DateTime endPreviousPeriod,
   }) async {
     try {
       final requestBody = DashboardRequest(
         paramId: storeId,
-        paramId2: paramId2,
         startCurrentPeriod: startCurrentPeriod,
         endCurrentPeriod: endCurrentPeriod,
-        startOldPeriod: startOldPeriod,
-        endOldPeriod: endOldPeriod,
+        startPreviousPeriod: startPreviousPeriod,
+        endPreviousPeriod: endPreviousPeriod,
       );
+
+      // Debug logging
+      print('📅 Dashboard API Request:');
+      print('  Current Period: ${startCurrentPeriod.toIso8601String()} to ${endCurrentPeriod.toIso8601String()}');
+      print('  Previous Period: ${startPreviousPeriod.toIso8601String()} to ${endPreviousPeriod.toIso8601String()}');
+      print('  JSON: ${requestBody.toJson()}');
 
       final serverUrl = await _getServerUrl();
       final ck = await getIt<PreferencesHelper>().getDatabase();
@@ -57,6 +61,7 @@ class ReportsService {
 
       return null;
     } catch (err) {
+      print('❌ Error in getDashboardData: $err');
       return null;
     }
   }

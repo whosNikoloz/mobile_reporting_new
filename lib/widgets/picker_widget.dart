@@ -1,11 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:jiffy/jiffy.dart';
 import 'package:mobile_reporting/application_store.dart';
-import 'package:mobile_reporting/dialogs/show_calculator_dialog.dart';
 import 'package:mobile_reporting/enums/compare_date_type.dart';
 import 'package:mobile_reporting/enums/date_type.dart';
-import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:mobile_reporting/enums/screen_type.dart';
 import 'package:mobile_reporting/models/store_model.dart';
@@ -15,32 +12,26 @@ import 'package:mobile_reporting/widgets/date_ranger_picker.dart';
 
 class PickerWidget extends StatefulWidget {
   const PickerWidget({
-    Key? key,
+    super.key,
     required this.getDate,
     required this.onlyDayPicker,
-    this.showFilterButton = false,
-    this.isDayHidden = false,
     this.showCompareDateFilter = false,
     this.showStoreFilter = false,
-    this.showOldDate = true,
-    this.showDateTypeChoose = true,
     required this.screenType,
-  }) : super(key: key);
+  });
+
   final Future<void> Function(
-      DateTime dt1,
-      DateTime dt2,
-      DateTime dt3,
-      DateTime dt4,
-      double? minAmount,
-      double? maxAmount,
-      String? billNum) getDate;
+    DateTime dt1,
+    DateTime dt2,
+    DateTime dt3,
+    DateTime dt4,
+    double? minAmount,
+    double? maxAmount,
+    String? billNum,
+  ) getDate;
   final bool onlyDayPicker;
-  final bool isDayHidden;
-  final bool showFilterButton;
   final bool showStoreFilter;
   final bool showCompareDateFilter;
-  final bool showOldDate;
-  final bool showDateTypeChoose;
   final ScreenType screenType;
 
   @override
@@ -48,27 +39,11 @@ class PickerWidget extends StatefulWidget {
 }
 
 class PickerWidgetState extends State<PickerWidget> {
-  double minimumAmount = 0;
-  double maximumAmount = 0;
-  String billNum = '';
   bool isLoading = true;
-
-  DateTime currentDate1 = DateTime(
-      DateTime.now().year, DateTime.now().month, DateTime.now().day, 00, 00);
-  DateTime currentDate2 = DateTime(
-      DateTime.now().year, DateTime.now().month, DateTime.now().day, 23, 59);
-  DateTime oldDate1 = DateTime(
-      DateTime.now().subtract(const Duration(days: 1)).year,
-      DateTime.now().subtract(const Duration(days: 1)).month,
-      DateTime.now().subtract(const Duration(days: 1)).day,
-      00,
-      00);
-  DateTime oldDate2 = DateTime(
-      DateTime.now().subtract(const Duration(days: 1)).year,
-      DateTime.now().subtract(const Duration(days: 1)).month,
-      DateTime.now().subtract(const Duration(days: 1)).day,
-      23,
-      59);
+  DateTime currentDate1 = DateTime.now();
+  DateTime currentDate2 = DateTime.now();
+  DateTime oldDate1 = DateTime.now().subtract(const Duration(days: 1));
+  DateTime oldDate2 = DateTime.now().subtract(const Duration(days: 1));
   bool firstLoad = true;
   DateType dt = DateType.day;
   CompareDateType cdt = CompareDateType.lastDay;
@@ -76,367 +51,522 @@ class PickerWidgetState extends State<PickerWidget> {
   @override
   void initState() {
     super.initState();
+    _initializeDates();
+  }
+
+  void _initializeDates() {
+    if (widget.screenType == ScreenType.dashboardScreen &&
+        application.dashboardDateType == null) {
+      _setTodayDates();
+      dt = DateType.day;
+      cdt = CompareDateType.lastDay;
+    } else if (widget.screenType == ScreenType.dashboardScreen &&
+        application.dashboardDateType != null) {
+      _loadSavedDashboardDates();
+    } else if (widget.screenType == ScreenType.reportssScreen &&
+        application.dateType == null) {
+      _setCurrentMonthDates();
+      dt = DateType.month;
+      cdt = CompareDateType.lastMonth;
+      _saveDates();
+    } else if (application.dateType != null &&
+        widget.screenType == ScreenType.reportssScreen) {
+      _loadSavedReportDates();
+    }
+  }
+
+  void _setTodayDates() {
+    final now = DateTime.now();
+    final yesterday = now.subtract(const Duration(days: 1));
+    currentDate1 = DateTime(now.year, now.month, now.day, 0, 0);
+    currentDate2 = DateTime(now.year, now.month, now.day, 23, 59);
+    oldDate1 = DateTime(yesterday.year, yesterday.month, yesterday.day, 0, 0);
+    oldDate2 = DateTime(yesterday.year, yesterday.month, yesterday.day, 23, 59);
+  }
+
+  void _setCurrentMonthDates() {
+    final now = DateTime.now();
+    currentDate1 = DateTime(now.year, now.month, 1, 0, 0);
+    currentDate2 = DateTime(now.year, now.month + 1, 0, 23, 59);
+    oldDate1 = DateTime(now.year, now.month - 1, now.day, 0, 0);
+    oldDate2 = DateTime(now.year, now.month, 0, 23, 59);
+  }
+
+  void _loadSavedDashboardDates() {
+    dt = application.dashboardDateType!;
+    cdt = application.dashboardCompareDateType!;
+    currentDate1 = application.dashboardStartCurrentPeriod!;
+    currentDate2 = application.dashboardEndCurrentPeriod!;
+    oldDate1 = application.dashboardStartOldPeriod!;
+    oldDate2 = application.dashboardEndOldPeriod!;
+  }
+
+  void _loadSavedReportDates() {
+    dt = application.dateType!;
+    cdt = application.compareDateType!;
+    currentDate1 = application.startCurrentPeriod!;
+    currentDate2 = application.endCurrentPeriod!;
+    oldDate1 = application.startOldPeriod!;
+    oldDate2 = application.endOldPeriod!;
+  }
+
+  void _saveDates() {
+    if (widget.screenType == ScreenType.dashboardScreen) {
+      application.dashboardDateType = dt;
+      application.dashboardCompareDateType = cdt;
+      application.dashboardStartCurrentPeriod = currentDate1;
+      application.dashboardEndCurrentPeriod = currentDate2;
+      application.dashboardStartOldPeriod = oldDate1;
+      application.dashboardEndOldPeriod = oldDate2;
+    } else {
+      application.startCurrentPeriod = currentDate1;
+      application.endCurrentPeriod = currentDate2;
+      application.startOldPeriod = oldDate1;
+      application.endOldPeriod = oldDate2;
+      application.dateType = dt;
+      application.compareDateType = cdt;
+    }
+  }
+
+  Future<void> _loadData() async {
+    isLoading = true;
+    setState(() {});
+    await widget.getDate(
+        currentDate1, currentDate2, oldDate1, oldDate2, null, null, null);
+    _saveDates();
+    isLoading = false;
+    setState(() {});
   }
 
   @override
   Widget build(BuildContext context) {
     if (firstLoad) {
-      if (widget.screenType == ScreenType.billsScreen ||
-          widget.screenType == ScreenType.dashboardScreen &&
-              application.dashboardDateType == null) {
-        DateTime yesterday = DateTime.now().subtract(const Duration(days: 1));
-        currentDate1 = DateTime(DateTime.now().year, DateTime.now().month,
-            DateTime.now().day, 00, 00);
-        currentDate2 = DateTime(DateTime.now().year, DateTime.now().month,
-            DateTime.now().day, 23, 59);
-        oldDate1 =
-            DateTime(yesterday.year, yesterday.month, yesterday.day, 00, 00);
-        oldDate2 =
-            DateTime(yesterday.year, yesterday.month, yesterday.day, 23, 59);
-        dt = DateType.day;
-        cdt = CompareDateType.lastDay;
-      } else if (widget.screenType == ScreenType.billsScreen ||
-          widget.screenType == ScreenType.dashboardScreen &&
-              application.dashboardDateType != null) {
-        dt = application.dashboardDateType!;
-        cdt = application.dashboardCompareDateType!;
-        currentDate1 = application.dashboardStartCurrentPeriod!;
-        currentDate2 = application.dashboardEndCurrentPeriod!;
-        oldDate1 = application.dashboardStartOldPeriod!;
-        oldDate2 = application.dashboardEndOldPeriod!;
-      } else if (widget.screenType == ScreenType.statisticsScreen &&
-          application.dateType == null) {
-        currentDate1 =
-            DateTime(DateTime.now().year, DateTime.now().month, 1, 00, 00);
-        currentDate2 =
-            DateTime(DateTime.now().year, DateTime.now().month + 1, 0, 23, 59);
-        oldDate1 = DateTime(DateTime.now().year, DateTime.now().month - 1,
-            DateTime.now().day, 00, 00);
-        oldDate2 =
-            DateTime(DateTime.now().year, DateTime.now().month, 0, 23, 59);
-        dt = DateType.month;
-        cdt = CompareDateType.lastMonth;
-        application.startCurrentPeriod = currentDate1;
-        application.endCurrentPeriod = currentDate2;
-        application.startOldPeriod = oldDate1;
-        application.endOldPeriod = oldDate2;
-        application.dateType = dt;
-        application.compareDateType = cdt;
-      } else if (application.dateType != null &&
-          widget.screenType == ScreenType.statisticsScreen) {
-        dt = application.dateType!;
-        cdt = application.compareDateType!;
-        currentDate1 = application.startCurrentPeriod!;
-        currentDate2 = application.endCurrentPeriod!;
-        oldDate1 = application.startOldPeriod!;
-        oldDate2 = application.endOldPeriod!;
-      }
       widget
           .getDate(
               currentDate1, currentDate2, oldDate1, oldDate2, null, null, null)
-          .then((value) {
+          .then((_) {
         isLoading = false;
         setState(() {});
       });
-
       firstLoad = false;
     }
-    return Column(
-      children: [
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-          decoration: BoxDecoration(
-            color: Colors.grey.shade100,
-          ),
-          child: Row(
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      decoration: BoxDecoration(color: Colors.grey.shade100),
+      child: Column(
+        children: [
+          Row(
             children: [
-              // Date Range Selector
               Expanded(
-                child: GestureDetector(
-                  onTap: () async {
-                    PeriodType initialPeriodType = PeriodType.day;
-                    if (dt == DateType.week) {
-                      initialPeriodType = PeriodType.week;
-                    } else if (dt == DateType.month) {
-                      initialPeriodType = PeriodType.month;
-                    } else if (dt == DateType.period) {
-                      initialPeriodType = PeriodType.period;
-                    }
-
-                    final result = await showDialog<DateRangePickerResult>(
-                      context: context,
-                      builder: (context) => DateRangePicker(
-                        initialStartDate: currentDate1,
-                        initialEndDate: currentDate2,
-                        initialPeriodType: initialPeriodType,
-                      ),
-                    );
-
-                    if (result == null) return;
-
-                    currentDate1 = result.startDate;
-                    currentDate2 = result.endDate;
-
-                    // Update DateType based on PeriodType
-                    switch (result.periodType) {
-                      case PeriodType.day:
-                        dt = DateType.day;
-                        break;
-                      case PeriodType.week:
-                        dt = DateType.week;
-                        break;
-                      case PeriodType.month:
-                        dt = DateType.month;
-                        break;
-                      case PeriodType.year:
-                        dt = DateType.day; // No year type in DateType enum
-                        break;
-                      case PeriodType.period:
-                        dt = DateType.period;
-                        break;
-                    }
-
-                    // Use comparison dates from picker if available, otherwise calculate
-                    if (result.compareStartDate != null &&
-                        result.compareEndDate != null) {
-                      oldDate1 = result.compareStartDate!;
-                      oldDate2 = result.compareEndDate!;
-                    } else {
-                      // Default: Calculate old dates based on current period
-                      final daysDifference =
-                          currentDate2.difference(currentDate1).inDays;
-                      oldDate1 = currentDate1
-                          .subtract(Duration(days: daysDifference + 1));
-                      oldDate2 = currentDate2
-                          .subtract(Duration(days: daysDifference + 1));
-                    }
-
-                    isLoading = true;
-                    setState(() {});
-                    await widget.getDate(currentDate1, currentDate2, oldDate1,
-                        oldDate2, null, null, null);
-                    if (widget.screenType == ScreenType.dashboardScreen) {
-                      application.dashboardDateType = dt;
-                      application.dashboardCompareDateType = cdt;
-                      application.dashboardStartCurrentPeriod = currentDate1;
-                      application.dashboardEndCurrentPeriod = currentDate2;
-                      application.dashboardStartOldPeriod = oldDate1;
-                      application.dashboardEndOldPeriod = oldDate2;
-                    }
-                    isLoading = false;
-                    setState(() {});
-                  },
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 16, vertical: 14),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(12),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.04),
-                          blurRadius: 8,
-                          offset: const Offset(0, 2),
-                        ),
-                      ],
-                    ),
-                    child: Row(
-                      children: [
-                        Icon(
-                          Icons.calendar_today,
-                          size: 20,
-                          color: AppTheme.primaryBlue,
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Text(
-                            dt == DateType.day
-                                ? DateFormat('dd.MM.yy').format(currentDate1)
-                                : dt == DateType.month
-                                    ? DateFormat('MMM-yyyy')
-                                        .format(currentDate1)
-                                    : '${DateFormat('dd.MM.yy').format(currentDate1)} - ${DateFormat('dd.MM.yy').format(currentDate2)}',
-                            style: const TextStyle(
-                              fontSize: 15,
-                              fontWeight: FontWeight.w600,
-                              color: Colors.black87,
-                              letterSpacing: 0.2,
-                            ),
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                        if (isLoading)
-                          const SizedBox(
-                            width: 16,
-                            height: 16,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              valueColor: AlwaysStoppedAnimation<Color>(
-                                  AppTheme.primaryBlue),
-                            ),
-                          ),
-                      ],
-                    ),
-                  ),
+                flex: widget.showStoreFilter ? 1 : 1,
+                child: _DateSelector(
+                  currentDate1: currentDate1,
+                  currentDate2: currentDate2,
+                  oldDate1: oldDate1,
+                  oldDate2: oldDate2,
+                  dateType: dt,
+                  isLoading: isLoading,
+                  showComparison: widget.showCompareDateFilter,
+                  onDateSelected: _handleDateSelection,
                 ),
               ),
               if (widget.showStoreFilter) const SizedBox(width: 12),
-              // Store Selector
               if (widget.showStoreFilter)
                 Expanded(
-                  child: GestureDetector(
-                    onTap: () async {
-                      bool storeChanged = await selectStore();
-                      if (storeChanged) {
-                        isLoading = true;
-                        setState(() {});
-                        await widget.getDate(currentDate1, currentDate2,
-                            oldDate1, oldDate2, null, null, null);
-                        if (dt != DateType.day) {
-                          application.startCurrentPeriod = currentDate1;
-                          application.endCurrentPeriod = currentDate2;
-                          application.startOldPeriod = oldDate1;
-                          application.endOldPeriod = oldDate2;
-                          application.dateType = dt;
-                          application.compareDateType = cdt;
-                        }
-                        isLoading = false;
-                        setState(() {});
-                      }
-                    },
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 16, vertical: 14),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(12),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.04),
-                            blurRadius: 8,
-                            offset: const Offset(0, 2),
-                          ),
-                        ],
-                      ),
-                      child: Row(
-                        children: [
-                          Icon(
-                            Icons.storefront,
-                            size: 20,
-                            color: AppTheme.primaryBlue,
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: Text(
-                              application.selectedStoreId != null
-                                  ? application.stores
-                                      .firstWhere((element) =>
-                                          element.id ==
-                                          application.selectedStoreId)
-                                      .name
-                                  : 'ყველა ფილიალი',
-                              style: const TextStyle(
-                                fontSize: 15,
-                                fontWeight: FontWeight.w600,
-                                color: Colors.black87,
-                                letterSpacing: 0.2,
-                              ),
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                          Icon(
-                            Icons.keyboard_arrow_down,
-                            size: 20,
-                            color: Colors.grey.shade600,
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
+                  child: _StoreSelector(onStoreChanged: _loadData),
                 ),
             ],
           ),
-        ),
-        // Compare Date Filter Section
-        if (widget.showCompareDateFilter)
-          Container(
-            padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
-            decoration: BoxDecoration(
-              color: Colors.grey.shade100,
+        ],
+      ),
+    );
+  }
+
+  Future<void> _handleDateSelection(
+      DateTime start, DateTime end, DateType type,
+      {DateTime? compareStart, DateTime? compareEnd}) async {
+    currentDate1 = start;
+    currentDate2 = end;
+    dt = type;
+
+    if (compareStart != null && compareEnd != null) {
+      oldDate1 = compareStart;
+      oldDate2 = compareEnd;
+    } else {
+      final daysDiff = currentDate2.difference(currentDate1).inDays;
+      oldDate1 = currentDate1.subtract(Duration(days: daysDiff + 1));
+      oldDate2 = currentDate2.subtract(Duration(days: daysDiff + 1));
+    }
+
+    await _loadData();
+  }
+
+  Future<void> _handleCompareSelection(
+      CompareDateType type, DateTime start, DateTime end) async {
+    cdt = type;
+    oldDate1 = start;
+    oldDate2 = end;
+    await _loadData();
+  }
+}
+
+// Date Selector Widget
+class _DateSelector extends StatelessWidget {
+  final DateTime currentDate1;
+  final DateTime currentDate2;
+  final DateTime oldDate1;
+  final DateTime oldDate2;
+  final DateType dateType;
+  final bool isLoading;
+  final bool showComparison;
+  final Future<void> Function(DateTime, DateTime, DateType,
+      {DateTime? compareStart, DateTime? compareEnd}) onDateSelected;
+
+  const _DateSelector({
+    required this.currentDate1,
+    required this.currentDate2,
+    required this.oldDate1,
+    required this.oldDate2,
+    required this.dateType,
+    required this.isLoading,
+    required this.showComparison,
+    required this.onDateSelected,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () => _showDatePicker(context),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.04),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
             ),
-            child: GestureDetector(
-              onTap: () async {
-                await chooseFilterOption();
-              },
-              child: Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(12),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.04),
-                      blurRadius: 8,
-                      offset: const Offset(0, 2),
+          ],
+        ),
+        child: Row(
+          children: [
+            const Icon(Icons.calendar_today, size: 18, color: AppTheme.primaryBlue),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // Current period
+                  Text(
+                    _getCurrentDateText(),
+                    style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.black87,
+                      height: 1.2,
                     ),
-                  ],
-                ),
-                child: Row(
-                  children: [
-                    Icon(
-                      Icons.compare_arrows,
-                      size: 20,
-                      color: AppTheme.primaryBlue,
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'შედარება: ${_getCompareDateText()}',
-                            style: const TextStyle(
-                              fontSize: 13,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  // Show comparison if enabled
+                  if (showComparison) ...[
+                    const SizedBox(height: 2),
+                    Row(
+                      children: [
+                        const Icon(Icons.compare_arrows, size: 12, color: Colors.orange),
+                        const SizedBox(width: 4),
+                        Expanded(
+                          child: Text(
+                            _getComparisonText(),
+                            style: TextStyle(
+                              fontSize: 11,
                               fontWeight: FontWeight.w500,
-                              color: Colors.black54,
-                            ),
-                          ),
-                          const SizedBox(height: 2),
-                          Text(
-                            dt == DateType.day
-                                ? DateFormat('dd.MM.yy').format(oldDate1)
-                                : dt == DateType.month
-                                    ? DateFormat('MMM-yyyy').format(oldDate1)
-                                    : '${DateFormat('dd.MM.yy').format(oldDate1)} - ${DateFormat('dd.MM.yy').format(oldDate2)}',
-                            style: const TextStyle(
-                              fontSize: 15,
-                              fontWeight: FontWeight.w600,
-                              color: Colors.black87,
-                              letterSpacing: 0.2,
+                              color: Colors.grey.shade600,
+                              height: 1.2,
                             ),
                             overflow: TextOverflow.ellipsis,
                           ),
-                        ],
+                        ),
+                      ],
+                    ),
+                  ],
+                ],
+              ),
+            ),
+            const SizedBox(width: 8),
+            if (isLoading)
+              const SizedBox(
+                width: 16,
+                height: 16,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  valueColor: AlwaysStoppedAnimation<Color>(AppTheme.primaryBlue),
+                ),
+              )
+            else
+              Icon(Icons.keyboard_arrow_down, size: 18, color: Colors.grey.shade600),
+          ],
+        ),
+      ),
+    );
+  }
+
+  String _getCurrentDateText() {
+    if (dateType == DateType.day) {
+      return DateFormat('dd.MM.yy').format(currentDate1);
+    } else if (dateType == DateType.month) {
+      return DateFormat('MMM yyyy').format(currentDate1);
+    } else if (dateType == DateType.year) {
+      return currentDate1.year.toString();
+    } else {
+      return '${DateFormat('dd.MM.yy').format(currentDate1)} - ${DateFormat('dd.MM.yy').format(currentDate2)}';
+    }
+  }
+
+  String _getComparisonText() {
+    // For year comparisons
+    if (dateType == DateType.year) {
+      return '${currentDate1.year} vs ${oldDate1.year}';
+    }
+
+    // For month comparisons
+    if (dateType == DateType.month) {
+      return '${DateFormat('MMM yyyy').format(currentDate1)} vs ${DateFormat('MMM yyyy').format(oldDate1)}';
+    }
+
+    // For day comparisons, show simple dates
+    if (dateType == DateType.day) {
+      // Check if it's today vs yesterday
+      final now = DateTime.now();
+      final today = DateTime(now.year, now.month, now.day);
+      final yesterday = today.subtract(const Duration(days: 1));
+
+      if (_isSameDay(currentDate1, today) && _isSameDay(oldDate1, yesterday)) {
+        return 'დღეს vs გუშინ';
+      }
+
+      return '${DateFormat('dd.MM.yy').format(currentDate1)} vs ${DateFormat('dd.MM.yy').format(oldDate1)}';
+    }
+
+    // For week/period comparisons, show date ranges
+    return '${DateFormat('dd.MM').format(oldDate1)} - ${DateFormat('dd.MM').format(oldDate2)}';
+  }
+
+  bool _isSameDay(DateTime a, DateTime b) {
+    return a.year == b.year && a.month == b.month && a.day == b.day;
+  }
+
+  Future<void> _showDatePicker(BuildContext context) async {
+    PeriodType initialPeriodType = PeriodType.day;
+    if (dateType == DateType.week) {
+      initialPeriodType = PeriodType.week;
+    } else if (dateType == DateType.month) {
+      initialPeriodType = PeriodType.month;
+    } else if (dateType == DateType.year) {
+      initialPeriodType = PeriodType.year;
+    } else if (dateType == DateType.period) {
+      initialPeriodType = PeriodType.period;
+    }
+
+    final result = await showDialog<DateRangePickerResult>(
+      context: context,
+      builder: (context) => DateRangePicker(
+        initialStartDate: currentDate1,
+        initialEndDate: currentDate2,
+        initialPeriodType: initialPeriodType,
+      ),
+    );
+
+    if (result == null) return;
+
+    DateType newDateType = DateType.day;
+    switch (result.periodType) {
+      case PeriodType.day:
+        newDateType = DateType.day;
+        break;
+      case PeriodType.week:
+        newDateType = DateType.week;
+        break;
+      case PeriodType.month:
+        newDateType = DateType.month;
+        break;
+      case PeriodType.year:
+        newDateType = DateType.year;
+        break;
+      case PeriodType.period:
+        newDateType = DateType.period;
+        break;
+    }
+
+    await onDateSelected(
+      result.startDate,
+      result.endDate,
+      newDateType,
+      compareStart: result.compareStartDate,
+      compareEnd: result.compareEndDate,
+    );
+  }
+}
+
+// Store Selector Widget
+class _StoreSelector extends StatelessWidget {
+  final VoidCallback onStoreChanged;
+
+  const _StoreSelector({required this.onStoreChanged});
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () => _showStoreDialog(context),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.04),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Row(
+          children: [
+            const Icon(Icons.storefront, size: 20, color: AppTheme.primaryBlue),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                _getStoreName(),
+                style: const TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.black87,
+                  letterSpacing: 0.2,
+                ),
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+            const SizedBox(width: 8),
+            Icon(Icons.keyboard_arrow_down, size: 20, color: Colors.grey.shade600),
+          ],
+        ),
+      ),
+    );
+  }
+
+  String _getStoreName() {
+    if (application.selectedStoreId != null) {
+      return application.stores
+          .firstWhere((element) => element.id == application.selectedStoreId)
+          .name;
+    }
+    return 'ყველა ფილიალი';
+  }
+
+  Future<void> _showStoreDialog(BuildContext context) async {
+    List<StoreModel> stores = [
+      StoreModel(id: null, name: 'ყველა ფილიალი'),
+      ...application.stores,
+    ];
+
+    final storeChanged = await showDialog<bool>(
+      context: context,
+      builder: (context) => _StoreSelectorDialog(
+        stores: stores,
+        selectedStoreId: application.selectedStoreId,
+        onStoreSelected: (storeId) {
+          application.selectedStoreId = storeId;
+        },
+      ),
+    );
+
+    if (storeChanged == true) {
+      onStoreChanged();
+    }
+  }
+}
+
+// Compare Date Filter Widget
+class _CompareDateFilter extends StatelessWidget {
+  final DateType dateType;
+  final CompareDateType compareDateType;
+  final DateTime oldDate1;
+  final DateTime oldDate2;
+  final Future<void> Function(CompareDateType, DateTime, DateTime)
+      onCompareOptionSelected;
+
+  const _CompareDateFilter({
+    required this.dateType,
+    required this.compareDateType,
+    required this.oldDate1,
+    required this.oldDate2,
+    required this.onCompareOptionSelected,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
+      decoration: BoxDecoration(color: Colors.grey.shade100),
+      child: GestureDetector(
+        onTap: () => _showCompareOptions(context),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(12),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.04),
+                blurRadius: 8,
+                offset: const Offset(0, 2),
+              ),
+            ],
+          ),
+          child: Row(
+            children: [
+              const Icon(Icons.compare_arrows, size: 20, color: AppTheme.primaryBlue),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'შედარება: ${_getCompareDateText()}',
+                      style: const TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w500,
+                        color: Colors.black54,
                       ),
                     ),
-                    Icon(
-                      Icons.keyboard_arrow_down,
-                      size: 20,
-                      color: Colors.grey.shade600,
+                    const SizedBox(height: 2),
+                    Text(
+                      _getOldDateText(),
+                      style: const TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.black87,
+                        letterSpacing: 0.2,
+                      ),
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ],
                 ),
               ),
-            ),
+              Icon(Icons.keyboard_arrow_down, size: 20, color: Colors.grey.shade600),
+            ],
           ),
-      ],
+        ),
+      ),
     );
   }
 
   String _getCompareDateText() {
-    switch (cdt) {
+    switch (compareDateType) {
       case CompareDateType.lastDay:
         return 'წინა დღესთან';
       case CompareDateType.lastWeekDay:
@@ -466,1199 +596,273 @@ class PickerWidgetState extends State<PickerWidget> {
     }
   }
 
-  Future<void> chooseDateType(
-      {required DateType dateType,
-      required CompareDateType compareDateType}) async {
-    DateType initialDateType = dateType;
-    Map<CompareDateType, String> dayOptions = {
-      CompareDateType.lastDay: 'წინა დღესთან',
-      CompareDateType.lastWeekDay: 'წინა კვირის დღესთან',
-      CompareDateType.lastMonthDay: 'წინა თვის დღესთან',
-      CompareDateType.lastYearDay: 'წინა წლის დღესთან',
-      CompareDateType.chooseDay: 'დღის არჩევა',
-    };
-
-    Map<CompareDateType, String> weekOptions = {
-      CompareDateType.lastWeek: 'წინა კვირასთან',
-      CompareDateType.chooseWeek: 'კვირის არჩევა',
-    };
-
-    Map<CompareDateType, String> monthOptions = {
-      CompareDateType.lastMonth: 'წინა თვესთან',
-      CompareDateType.lastYearMonth: 'წინა წლის თვესთან',
-      CompareDateType.chooseMonth: 'თვის არჩევა',
-    };
-
-    Map<CompareDateType, String> yearOptions = {
-      CompareDateType.lastYear: 'წინა წელთან',
-      CompareDateType.chooseYear: 'წლის არჩევა',
-    };
-
-    Map<CompareDateType, String> periodOptions = {
-      CompareDateType.period: 'პერიოდი',
-    };
-    Map<CompareDateType, String> allOptions = {};
-
-    allOptions.addAll(dayOptions);
-    allOptions.addAll(weekOptions);
-    allOptions.addAll(monthOptions);
-    allOptions.addAll(yearOptions);
-    allOptions.addAll(periodOptions);
-
-    await showModalBottomSheet(
-      backgroundColor: Colors.transparent,
-      context: context,
-      builder: (context) => StatefulBuilder(
-        builder: (context, setModalState) => Container(
-          decoration: BoxDecoration(
-            borderRadius: const BorderRadius.only(
-              topLeft: Radius.circular(20),
-              topRight: Radius.circular(20),
-            ),
-            color: Colors.grey.shade900,
-          ),
-          padding: const EdgeInsets.symmetric(
-            horizontal: 10,
-            vertical: 10,
-          ),
-          child: Wrap(
-            direction: Axis.vertical,
-            runAlignment: WrapAlignment.center,
-            children: [
-              SizedBox(
-                width: MediaQuery.of(context).size.width - 20,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Spacer(),
-                    Text(
-                      'პერიოდი',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        color: Colors.grey.shade500,
-                        fontSize: 18,
-                      ),
-                    ),
-                    Expanded(
-                      child: IconButton(
-                        alignment: Alignment.centerRight,
-                        constraints: const BoxConstraints(),
-                        padding: EdgeInsets.zero,
-                        onPressed: () {
-                          Navigator.pop(context);
-                        },
-                        icon: const Icon(
-                          Icons.close_outlined,
-                          color: AppTheme.primaryBlue,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(
-                height: 15,
-              ),
-              if (!widget.isDayHidden)
-                Container(
-                  height: 55,
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 15,
-                    vertical: 15,
-                  ),
-                  width: MediaQuery.of(context).size.width - 20,
-                  decoration: BoxDecoration(
-                    border: Border.all(
-                      color: initialDateType == DateType.day
-                          ? AppTheme.primaryBlue
-                          : Colors.grey.shade500,
-                    ),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: InkWell(
-                    onTap: () async {
-                      currentDate1 = DateTime(DateTime.now().year,
-                          DateTime.now().month, DateTime.now().day, 00, 00);
-                      currentDate2 = DateTime(DateTime.now().year,
-                          DateTime.now().month, DateTime.now().day, 23, 59);
-                      oldDate1 = DateTime(
-                          DateTime.now().subtract(const Duration(days: 1)).year,
-                          DateTime.now()
-                              .subtract(const Duration(days: 1))
-                              .month,
-                          DateTime.now().subtract(const Duration(days: 1)).day,
-                          00,
-                          00);
-                      oldDate2 = DateTime(
-                          DateTime.now().subtract(const Duration(days: 1)).year,
-                          DateTime.now()
-                              .subtract(const Duration(days: 1))
-                              .month,
-                          DateTime.now().subtract(const Duration(days: 1)).day,
-                          23,
-                          59);
-                      dt = DateType.day;
-                      cdt = CompareDateType.lastDay;
-                      if (!mounted) return;
-                      Navigator.pop(context);
-                      isLoading = true;
-                      setState(() {});
-                      await widget.getDate(currentDate1, currentDate2, oldDate1,
-                          oldDate2, null, null, null);
-                      if (dt != DateType.day) {
-                        application.startCurrentPeriod = currentDate1;
-                        application.endCurrentPeriod = currentDate2;
-                        application.startOldPeriod = oldDate1;
-                        application.endOldPeriod = oldDate2;
-                        application.dateType = dt;
-                        application.compareDateType = cdt;
-                      }
-                      isLoading = false;
-                      setState(() {});
-                    },
-                    child: Text(
-                      'დღე',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        color: Colors.grey.shade500,
-                        fontSize: 17,
-                      ),
-                    ),
-                  ),
-                ),
-              if (!widget.isDayHidden)
-                const SizedBox(
-                  height: 10,
-                ),
-              Container(
-                height: 55,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 15,
-                  vertical: 15,
-                ),
-                width: MediaQuery.of(context).size.width - 20,
-                decoration: BoxDecoration(
-                  border: Border.all(
-                    color: initialDateType == DateType.week
-                        ? AppTheme.primaryBlue
-                        : Colors.grey.shade500,
-                  ),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: InkWell(
-                  onTap: () async {
-                    currentDate1 = DateTime.now();
-                    DateTime firstDayOfWeek = currentDate1
-                        .subtract(Duration(days: currentDate1.weekday - 1));
-                    DateTime lastDayOfWeek = currentDate1.add(Duration(
-                        days: DateTime.daysPerWeek - currentDate1.weekday));
-                    currentDate1 = DateTime(firstDayOfWeek.year,
-                        firstDayOfWeek.month, firstDayOfWeek.day, 00, 00);
-                    currentDate2 = DateTime(lastDayOfWeek.year,
-                        lastDayOfWeek.month, lastDayOfWeek.day, 23, 59);
-                    oldDate1 = currentDate1.subtract(const Duration(days: 7));
-                    oldDate2 = currentDate2.subtract(const Duration(days: 7));
-                    dt = DateType.week;
-                    cdt = CompareDateType.lastWeek;
-                    if (!mounted) return;
-                    Navigator.pop(context);
-                    isLoading = true;
-                    setState(() {});
-                    await widget.getDate(currentDate1, currentDate2, oldDate1,
-                        oldDate2, null, null, null);
-                    if (dt != DateType.day) {
-                      application.startCurrentPeriod = currentDate1;
-                      application.endCurrentPeriod = currentDate2;
-                      application.startOldPeriod = oldDate1;
-                      application.endOldPeriod = oldDate2;
-                      application.dateType = dt;
-                      application.compareDateType = cdt;
-                    }
-                    isLoading = false;
-                    setState(() {});
-                  },
-                  child: Text(
-                    'კვირა',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      color: Colors.grey.shade500,
-                      fontSize: 17,
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(
-                height: 10,
-              ),
-              Container(
-                height: 55,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 15,
-                  vertical: 15,
-                ),
-                width: MediaQuery.of(context).size.width - 20,
-                decoration: BoxDecoration(
-                  border: Border.all(
-                    color: initialDateType == DateType.month
-                        ? AppTheme.primaryBlue
-                        : Colors.grey.shade500,
-                  ),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: InkWell(
-                  onTap: () async {
-                    currentDate1 = DateTime.now();
-                    currentDate1 = DateTime(
-                        currentDate1.year, currentDate1.month, 1, 00, 00);
-                    currentDate2 = DateTime(
-                        currentDate1.year, currentDate1.month + 1, 0, 23, 59);
-                    oldDate1 = Jiffy.parseFromDateTime(currentDate1)
-                        .subtract(months: 1)
-                        .dateTime;
-                    oldDate2 = Jiffy.parseFromDateTime(currentDate2)
-                        .subtract(months: 1)
-                        .dateTime;
-                    dt = DateType.month;
-                    cdt = CompareDateType.lastMonth;
-                    if (!mounted) return;
-                    Navigator.pop(context);
-                    isLoading = true;
-                    setState(() {});
-                    await widget.getDate(currentDate1, currentDate2, oldDate1,
-                        oldDate2, null, null, null);
-                    if (dt != DateType.day) {
-                      application.startCurrentPeriod = currentDate1;
-                      application.endCurrentPeriod = currentDate2;
-                      application.startOldPeriod = oldDate1;
-                      application.endOldPeriod = oldDate2;
-                      application.dateType = dt;
-                      application.compareDateType = cdt;
-                    }
-                    isLoading = false;
-                    setState(() {});
-                  },
-                  child: Text(
-                    'თვე',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      color: Colors.grey.shade500,
-                      fontSize: 17,
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(
-                height: 10,
-              ),
-              Container(
-                height: 55,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 15,
-                  vertical: 15,
-                ),
-                width: MediaQuery.of(context).size.width - 20,
-                decoration: BoxDecoration(
-                  border: Border.all(
-                    color: initialDateType == DateType.period
-                        ? AppTheme.primaryBlue
-                        : Colors.grey.shade500,
-                  ),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: InkWell(
-                  onTap: () async {
-                    DateTimeRange? picked;
-                    picked = await showDateRangePicker(
-                      context: context,
-                      firstDate: DateTime(DateTime.now().year - 5),
-                      lastDate: DateTime(DateTime.now().year,
-                          DateTime.now().month, DateTime.now().day + 1),
-                      initialDateRange: DateTimeRange(
-                        end: DateTime(DateTime.now().year, DateTime.now().month,
-                            DateTime.now().day),
-                        start: DateTime(DateTime.now().year,
-                            DateTime.now().month, DateTime.now().day - 1),
-                      ),
-                      builder: (context, child) {
-                        return Column(
-                          children: [
-                            ConstrainedBox(
-                              constraints: const BoxConstraints(
-                                maxWidth: 400.0,
-                              ),
-                              child: child,
-                            )
-                          ],
-                        );
-                      },
-                    );
-                    if (picked == null) return;
-
-                    currentDate1 = DateTime(picked.start.year,
-                        picked.start.month, picked.start.day, 00, 00);
-                    currentDate2 = DateTime(picked.end.year, picked.end.month,
-                        picked.end.day, 23, 59);
-
-                    oldDate2 = currentDate2;
-                    oldDate1 = currentDate1;
-                    dt = DateType.period;
-                    cdt = CompareDateType.period;
-                    if (!mounted) return;
-                    Navigator.pop(context);
-                    isLoading = true;
-                    setState(() {});
-                    await widget.getDate(currentDate1, currentDate2, oldDate1,
-                        oldDate2, null, null, null);
-                    if (dt != DateType.day) {
-                      application.startCurrentPeriod = currentDate1;
-                      application.endCurrentPeriod = currentDate2;
-                      application.startOldPeriod = oldDate1;
-                      application.endOldPeriod = oldDate2;
-                      application.dateType = dt;
-                      application.compareDateType = cdt;
-                    }
-                    isLoading = false;
-                    setState(() {});
-                  },
-                  child: Text(
-                    'პერიოდი',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      color: Colors.grey.shade500,
-                      fontSize: 17,
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
+  String _getOldDateText() {
+    if (dateType == DateType.day) {
+      return DateFormat('dd.MM.yy').format(oldDate1);
+    } else if (dateType == DateType.month) {
+      return DateFormat('MMM-yyyy').format(oldDate1);
+    } else {
+      return '${DateFormat('dd.MM.yy').format(oldDate1)} - ${DateFormat('dd.MM.yy').format(oldDate2)}';
+    }
   }
 
-  Future<void> showFilterDialog() async {
-    double tempMinAmount = minimumAmount;
-    double tempMaxAmount = maximumAmount;
-    String tempBillNum = billNum;
-    await showModalBottomSheet(
+  Future<void> _showCompareOptions(BuildContext context) async {
+    Map<CompareDateType, String> options = _getOptionsForDateType();
+
+    final selectedType = await showModalBottomSheet<CompareDateType>(
       backgroundColor: Colors.transparent,
       context: context,
-      builder: (context) => StatefulBuilder(
-        builder: (context, setModalState) => Container(
-          decoration: BoxDecoration(
-            borderRadius: const BorderRadius.only(
-              topLeft: Radius.circular(20),
-              topRight: Radius.circular(20),
-            ),
-            color: Colors.grey.shade900,
-          ),
-          padding: const EdgeInsets.symmetric(
-            horizontal: 10,
-            vertical: 10,
-          ),
-          child: IntrinsicHeight(
-            child: Column(
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      'მინიმალური თანხა',
-                      style: TextStyle(
-                        color: Colors.grey.shade500,
-                        fontSize: 17,
-                      ),
-                    ),
-                    Container(
-                      height: 35,
-                      width: 154,
-                      decoration: BoxDecoration(
-                        border: Border.all(
-                          color: AppTheme.primaryBlue,
-                        ),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: InkWell(
-                        customBorder: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        onTap: () async {
-                          double? temp = await showCalculatorDialog(
-                            header: 'მინიმალური თანხა',
-                            initialAmount: tempMinAmount.toStringAsFixed(2),
-                            context: context,
-                            hasDotButton: true,
-                          );
-                          if (temp == null) return;
-                          tempMinAmount = temp;
-                          setModalState(() {});
-                        },
-                        child: Center(
-                          child: Text(
-                            tempMinAmount.toStringAsFixed(2),
-                            style: TextStyle(
-                              color: Colors.grey.shade500,
-                              fontSize: 17,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(
-                  height: 10,
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      'მაქსიმალური თანხა',
-                      style: TextStyle(
-                        color: Colors.grey.shade500,
-                        fontSize: 17,
-                      ),
-                    ),
-                    Container(
-                      height: 35,
-                      width: 154,
-                      decoration: BoxDecoration(
-                        border: Border.all(
-                          color: AppTheme.primaryBlue,
-                        ),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: InkWell(
-                        customBorder: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        onTap: () async {
-                          double? temp = await showCalculatorDialog(
-                            header: 'მაქსიმალური თანხა',
-                            initialAmount: tempMaxAmount.toStringAsFixed(2),
-                            context: context,
-                            hasDotButton: true,
-                          );
-                          if (temp == null) return;
-                          tempMaxAmount = temp;
-                          setModalState(() {});
-                        },
-                        child: Center(
-                          child: Text(
-                            tempMaxAmount.toStringAsFixed(2),
-                            style: TextStyle(
-                              color: Colors.grey.shade500,
-                              fontSize: 17,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(
-                  height: 10,
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      'ჩეკის ნომერი',
-                      style: TextStyle(
-                        color: Colors.grey.shade500,
-                        fontSize: 17,
-                      ),
-                    ),
-                    const Spacer(),
-                    Container(
-                      height: 35,
-                      width: 120,
-                      decoration: BoxDecoration(
-                        border: Border.all(
-                          color: AppTheme.primaryBlue,
-                        ),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: InkWell(
-                        customBorder: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        onTap: () async {
-                          double? temp = await showCalculatorDialog(
-                            header: 'ჩეკის ნომერი',
-                            initialAmount: billNum,
-                            context: context,
-                            hasDotButton: false,
-                          );
-                          if (temp == null) return;
-                          tempBillNum = temp.toStringAsFixed(0);
-                          setModalState(() {});
-                        },
-                        child: Center(
-                          child: Text(
-                            tempBillNum,
-                            style: TextStyle(
-                              color: Colors.grey.shade500,
-                              fontSize: 17,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                    IconButton(
-                      padding: const EdgeInsets.only(left: 10),
-                      constraints: const BoxConstraints(),
-                      onPressed: () {
-                        tempBillNum = '';
-                        setState(() {});
-                      },
-                      icon: Icon(
-                        Icons.close_outlined,
-                        color: Colors.red.shade900,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(
-                  height: 20,
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Container(
-                      height: 48,
-                      width: (MediaQuery.of(context).size.width - 30) / 2,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(15),
-                        border: Border.all(color: AppTheme.primaryBlue),
-                      ),
-                      child: TextButton(
-                        child: Text(
-                          'წაშლა',
-                          style: TextStyle(
-                            fontSize: 22.0,
-                            color: Colors.red.shade900,
-                          ),
-                        ),
-                        onPressed: () async {
-                          if (!mounted) return;
-                          Navigator.pop(context);
-                          billNum = '';
-                          minimumAmount = 0;
-                          maximumAmount = 0;
-                          isLoading = true;
-                          setState(() {});
-                          await widget.getDate(currentDate1, currentDate2,
-                              oldDate1, oldDate2, null, null, null);
-                          if (dt != DateType.day) {
-                            application.startCurrentPeriod = currentDate1;
-                            application.endCurrentPeriod = currentDate2;
-                            application.startOldPeriod = oldDate1;
-                            application.endOldPeriod = oldDate2;
-                            application.dateType = dt;
-                            application.compareDateType = cdt;
-                          }
-                          isLoading = false;
-                          setState(() {});
-                        },
-                      ),
-                    ),
-                    Container(
-                      height: 48,
-                      width: (MediaQuery.of(context).size.width - 30) / 2,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(15),
-                        border: Border.all(color: AppTheme.primaryBlue),
-                      ),
-                      child: TextButton(
-                        child: Text(
-                          'შენახვა',
-                          style: TextStyle(
-                            fontSize: 22.0,
-                            color: Colors.green.shade800,
-                          ),
-                        ),
-                        onPressed: () async {
-                          if (!mounted) return;
-                          Navigator.pop(context);
-                          billNum = tempBillNum;
-                          minimumAmount = tempMinAmount;
-                          maximumAmount = tempMaxAmount;
-                          isLoading = true;
-                          setState(() {});
-                          await widget.getDate(
-                              currentDate1,
-                              currentDate2,
-                              oldDate1,
-                              oldDate2,
-                              tempMinAmount == 0 ? null : tempMinAmount,
-                              tempMaxAmount == 0 ? null : tempMaxAmount,
-                              billNum.isEmpty ? null : billNum);
-                          if (dt != DateType.day) {
-                            application.startCurrentPeriod = currentDate1;
-                            application.endCurrentPeriod = currentDate2;
-                            application.startOldPeriod = oldDate1;
-                            application.endOldPeriod = oldDate2;
-                            application.dateType = dt;
-                            application.compareDateType = cdt;
-                          }
-                          isLoading = false;
-                          setState(() {});
-                        },
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        ),
+      builder: (context) => _CompareOptionsSheet(
+        options: options,
+        selectedType: compareDateType,
       ),
     );
+
+    if (selectedType == null) return;
+
+    DateTime newOldDate1 = oldDate1;
+    DateTime newOldDate2 = oldDate2;
+
+    if (dateType == DateType.day) {
+      final dates = await _calculateDayCompareDates(context, selectedType);
+      if (dates == null) return;
+      newOldDate1 = dates.$1;
+      newOldDate2 = dates.$2;
+    } else if (dateType == DateType.week) {
+      final dates = await _calculateWeekCompareDates(context, selectedType);
+      if (dates == null) return;
+      newOldDate1 = dates.$1;
+      newOldDate2 = dates.$2;
+    } else if (dateType == DateType.month) {
+      final dates = await _calculateMonthCompareDates(context, selectedType);
+      if (dates == null) return;
+      newOldDate1 = dates.$1;
+      newOldDate2 = dates.$2;
+    }
+
+    await onCompareOptionSelected(selectedType, newOldDate1, newOldDate2);
   }
 
-  Future<CompareDateType?> chooseCompareDateType(
-      {required Map<CompareDateType, String> options,
-      required CompareDateType? initial}) async {
-    return await showModalBottomSheet(
-      backgroundColor: Colors.transparent,
-      context: context,
-      builder: (context) => StatefulBuilder(
-        builder: (context, setModalState) => Container(
-          decoration: BoxDecoration(
-            borderRadius: const BorderRadius.only(
-              topLeft: Radius.circular(20),
-              topRight: Radius.circular(20),
-            ),
-            color: Colors.grey.shade900,
-          ),
-          padding: const EdgeInsets.symmetric(
-            horizontal: 10,
-            vertical: 10,
-          ),
-          child: Wrap(
-            direction: Axis.vertical,
-            runAlignment: WrapAlignment.center,
-            children: [
-              SizedBox(
-                width: MediaQuery.of(context).size.width - 20,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Spacer(),
-                    Text(
-                      'აირჩიეთ პერიოდი',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        color: Colors.grey.shade500,
-                        fontSize: 18,
-                      ),
-                    ),
-                    Expanded(
-                      child: IconButton(
-                        alignment: Alignment.centerRight,
-                        constraints: const BoxConstraints(),
-                        padding: EdgeInsets.zero,
-                        onPressed: () {
-                          Navigator.pop(context);
-                        },
-                        icon: const Icon(
-                          Icons.close_outlined,
-                          color: AppTheme.primaryBlue,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(
-                height: 15,
-              ),
-              SizedBox(
-                width: MediaQuery.of(context).size.width - 20,
-                child: ListView.builder(
-                  padding: EdgeInsets.zero,
-                  shrinkWrap: true,
-                  itemCount: options.length,
-                  itemBuilder: (context, index) {
-                    return Container(
-                      margin: const EdgeInsets.only(bottom: 7),
-                      height: 55,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(7),
-                        border: Border.all(
-                          color: initial == options.keys.elementAt(index)
-                              ? AppTheme.primaryBlue
-                              : Colors.grey.shade500,
-                        ),
-                      ),
-                      child: InkWell(
-                        child: Center(
-                          child: Text(
-                            options.values.elementAt(index),
-                            style: TextStyle(
-                              color: Colors.grey.shade500,
-                              fontWeight: FontWeight.w300,
-                              fontSize: 17,
-                            ),
-                          ),
-                        ),
-                        onTap: () => Navigator.pop(
-                            context, options.keys.elementAt(index)),
-                      ),
-                    );
-                  },
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
+  Map<CompareDateType, String> _getOptionsForDateType() {
+    if (dateType == DateType.day) {
+      return {
+        CompareDateType.lastDay: 'წინა დღესთან',
+        CompareDateType.lastWeekDay: 'წინა კვირის დღესთან',
+        CompareDateType.lastMonthDay: 'წინა თვის დღესთან',
+        CompareDateType.lastYearDay: 'წინა წლის დღესთან',
+        CompareDateType.chooseDay: 'დღის არჩევა',
+      };
+    } else if (dateType == DateType.week) {
+      return {
+        CompareDateType.lastWeek: 'წინა კვირასთან',
+        CompareDateType.chooseWeek: 'კვირის არჩევა',
+      };
+    } else if (dateType == DateType.month) {
+      return {
+        CompareDateType.lastMonth: 'წინა თვესთან',
+        CompareDateType.lastYearMonth: 'წინა წლის თვესთან',
+        CompareDateType.chooseMonth: 'თვის არჩევა',
+      };
+    }
+    return {};
   }
 
-  Future<void> chooseFilterOption() async {
-    CompareDateType initialCompareDateType = cdt;
-    Map<CompareDateType, String> dayOptions = {
-      CompareDateType.lastDay: 'წინა დღესთან',
-      CompareDateType.lastWeekDay: 'წინა კვირის დღესთან',
-      CompareDateType.lastMonthDay: 'წინა თვის დღესთან',
-      CompareDateType.lastYearDay: 'წინა წლის დღესთან',
-      CompareDateType.chooseDay: 'დღის არჩევა',
-    };
+  Future<(DateTime, DateTime)?> _calculateDayCompareDates(
+      BuildContext context, CompareDateType type) async {
+    final now = DateTime.now();
+    DateTime start = DateTime(now.year, now.month, now.day, 0, 0);
+    DateTime end = DateTime(now.year, now.month, now.day, 23, 59);
 
-    Map<CompareDateType, String> weekOptions = {
-      CompareDateType.lastWeek: 'წინა კვირასთან',
-      CompareDateType.chooseWeek: 'კვირის არჩევა',
-    };
-
-    Map<CompareDateType, String> monthOptions = {
-      CompareDateType.lastMonth: 'წინა თვესთან',
-      CompareDateType.lastYearMonth: 'წინა წლის თვესთან',
-      CompareDateType.chooseMonth: 'თვის არჩევა',
-    };
-
-    Map<CompareDateType, String> yearOptions = {
-      CompareDateType.lastYear: 'წინა წელთან',
-      CompareDateType.chooseYear: 'წლის არჩევა',
-    };
-
-    Map<CompareDateType, String> periodOptions = {
-      CompareDateType.period: 'პერიოდი',
-    };
-    Map<CompareDateType, String> allOptions = {};
-
-    allOptions.addAll(dayOptions);
-    allOptions.addAll(weekOptions);
-    allOptions.addAll(monthOptions);
-    allOptions.addAll(yearOptions);
-    allOptions.addAll(periodOptions);
-    if (dt == DateType.day) {
-      CompareDateType? x = await chooseCompareDateType(
-          options: dayOptions, initial: initialCompareDateType);
-      if (x == null) return;
-      DateTime now = DateTime.now();
-      currentDate1 = DateTime(now.year, now.month, now.day, 00, 00);
-      currentDate2 = DateTime(now.year, now.month, now.day, 23, 59);
-      if (x == CompareDateType.lastDay) {
-        oldDate1 = currentDate1.subtract(const Duration(days: 1));
-        oldDate2 = currentDate2.subtract(const Duration(days: 1));
-      } else if (x == CompareDateType.lastWeekDay) {
-        oldDate1 =
-            Jiffy.parseFromDateTime(currentDate1).subtract(weeks: 1).dateTime;
-        oldDate2 =
-            Jiffy.parseFromDateTime(currentDate2).subtract(weeks: 1).dateTime;
-      } else if (x == CompareDateType.lastMonthDay) {
-        oldDate1 =
-            Jiffy.parseFromDateTime(currentDate1).subtract(months: 1).dateTime;
-        oldDate2 =
-            Jiffy.parseFromDateTime(currentDate2).subtract(months: 1).dateTime;
-      } else if (x == CompareDateType.lastYearDay) {
-        oldDate1 =
-            Jiffy.parseFromDateTime(currentDate1).subtract(years: 1).dateTime;
-        oldDate2 =
-            Jiffy.parseFromDateTime(currentDate2).subtract(years: 1).dateTime;
-      } else if (x == CompareDateType.lastYearDay) {
-        oldDate1 =
-            Jiffy.parseFromDateTime(currentDate1).subtract(years: 1).dateTime;
-        oldDate2 =
-            Jiffy.parseFromDateTime(currentDate2).subtract(years: 1).dateTime;
-      } else if (x == CompareDateType.chooseDay && mounted) {
-        DateTime? chosenDate = await showDatePicker(
+    switch (type) {
+      case CompareDateType.lastDay:
+        start = start.subtract(const Duration(days: 1));
+        end = end.subtract(const Duration(days: 1));
+        break;
+      case CompareDateType.lastWeekDay:
+        start = Jiffy.parseFromDateTime(start).subtract(weeks: 1).dateTime;
+        end = Jiffy.parseFromDateTime(end).subtract(weeks: 1).dateTime;
+        break;
+      case CompareDateType.lastMonthDay:
+        start = Jiffy.parseFromDateTime(start).subtract(months: 1).dateTime;
+        end = Jiffy.parseFromDateTime(end).subtract(months: 1).dateTime;
+        break;
+      case CompareDateType.lastYearDay:
+        start = Jiffy.parseFromDateTime(start).subtract(years: 1).dateTime;
+        end = Jiffy.parseFromDateTime(end).subtract(years: 1).dateTime;
+        break;
+      case CompareDateType.chooseDay:
+        final chosenDate = await showDatePicker(
           context: context,
           initialDate: DateTime.now(),
           firstDate: DateTime(DateTime.now().year - 5),
           lastDate: DateTime(DateTime.now().year + 5),
         );
-        if (chosenDate == null) {
-          return;
-        }
-        oldDate1 =
-            DateTime(chosenDate.year, chosenDate.month, chosenDate.day, 00, 00);
-        oldDate2 =
-            DateTime(chosenDate.year, chosenDate.month, chosenDate.day, 23, 59);
-      }
-      cdt = x;
-    } else if (dt == DateType.week) {
-      CompareDateType? x = await chooseCompareDateType(
-          options: weekOptions, initial: initialCompareDateType);
-      if (x == null) return;
-      DateTime now = DateTime.now();
-      DateTime startOfWeek = now.subtract(Duration(days: now.weekday - 1));
-      DateTime endOfWeek = startOfWeek.add(const Duration(days: 6));
-      currentDate1 = DateTime(
-          startOfWeek.year, startOfWeek.month, startOfWeek.day, 00, 00);
-      currentDate2 =
-          DateTime(endOfWeek.year, endOfWeek.month, endOfWeek.day, 23, 59);
-      if (x == CompareDateType.lastWeek) {
-        oldDate1 = currentDate1.subtract(const Duration(days: 7));
-        oldDate2 = currentDate2.subtract(const Duration(days: 7));
-      } else if (x == CompareDateType.chooseWeek && mounted) {
-        DateTime? chosenDate = await showDatePicker(
+        if (chosenDate == null) return null;
+        start = DateTime(chosenDate.year, chosenDate.month, chosenDate.day, 0, 0);
+        end = DateTime(chosenDate.year, chosenDate.month, chosenDate.day, 23, 59);
+        break;
+      default:
+        break;
+    }
+
+    return (start, end);
+  }
+
+  Future<(DateTime, DateTime)?> _calculateWeekCompareDates(
+      BuildContext context, CompareDateType type) async {
+    final now = DateTime.now();
+    DateTime startOfWeek = now.subtract(Duration(days: now.weekday - 1));
+    DateTime endOfWeek = startOfWeek.add(const Duration(days: 6));
+    DateTime start = DateTime(startOfWeek.year, startOfWeek.month, startOfWeek.day, 0, 0);
+    DateTime end = DateTime(endOfWeek.year, endOfWeek.month, endOfWeek.day, 23, 59);
+
+    switch (type) {
+      case CompareDateType.lastWeek:
+        start = start.subtract(const Duration(days: 7));
+        end = end.subtract(const Duration(days: 7));
+        break;
+      case CompareDateType.chooseWeek:
+        final chosenDate = await showDatePicker(
           context: context,
           initialDate: DateTime.now(),
           firstDate: DateTime(DateTime.now().year - 5),
           lastDate: DateTime(DateTime.now().year + 5),
         );
-        if (chosenDate == null) {
-          return;
-        }
+        if (chosenDate == null) return null;
         DateTime startOfWeek1 =
             chosenDate.subtract(Duration(days: chosenDate.weekday - 1));
         DateTime endOfWeek1 = startOfWeek1.add(const Duration(days: 6));
-        oldDate1 = DateTime(
-            startOfWeek1.year, startOfWeek1.month, startOfWeek1.day, 00, 00);
-        oldDate2 =
-            DateTime(endOfWeek1.year, endOfWeek1.month, endOfWeek1.day, 23, 59);
-      }
-      cdt = x;
-    } else if (dt == DateType.month) {
-      CompareDateType? x = await chooseCompareDateType(
-          options: monthOptions, initial: initialCompareDateType);
-      if (x == null) return;
-      DateTime now = DateTime.now();
-      currentDate1 = DateTime(now.year, now.month, 1, 00, 00);
-      currentDate2 = DateTime(now.year, now.month + 1, 0, 23, 59);
-      if (x == CompareDateType.lastMonth) {
-        oldDate1 =
-            Jiffy.parseFromDateTime(currentDate1).subtract(months: 1).dateTime;
-        oldDate2 = DateTime(oldDate1.year, oldDate1.month + 1, 0, 23, 59);
-      } else if (x == CompareDateType.lastYearMonth) {
-        oldDate1 =
-            Jiffy.parseFromDateTime(currentDate1).subtract(years: 1).dateTime;
-        oldDate2 = DateTime(oldDate1.year, oldDate1.month + 1, 0, 23, 59);
-      } else if (x == CompareDateType.chooseMonth && mounted) {
-        DateTime? chosenDate = await showMonthYearPicker(
+        start = DateTime(startOfWeek1.year, startOfWeek1.month, startOfWeek1.day, 0, 0);
+        end = DateTime(endOfWeek1.year, endOfWeek1.month, endOfWeek1.day, 23, 59);
+        break;
+      default:
+        break;
+    }
+
+    return (start, end);
+  }
+
+  Future<(DateTime, DateTime)?> _calculateMonthCompareDates(
+      BuildContext context, CompareDateType type) async {
+    final now = DateTime.now();
+    DateTime start = DateTime(now.year, now.month, 1, 0, 0);
+    DateTime end = DateTime(now.year, now.month + 1, 0, 23, 59);
+
+    switch (type) {
+      case CompareDateType.lastMonth:
+        start = Jiffy.parseFromDateTime(start).subtract(months: 1).dateTime;
+        end = DateTime(start.year, start.month + 1, 0, 23, 59);
+        break;
+      case CompareDateType.lastYearMonth:
+        start = Jiffy.parseFromDateTime(start).subtract(years: 1).dateTime;
+        end = DateTime(start.year, start.month + 1, 0, 23, 59);
+        break;
+      case CompareDateType.chooseMonth:
+        final chosenDate = await showMonthYearPicker(
           context: context,
           initialDate: DateTime(DateTime.now().year, DateTime.now().month),
           firstDate: DateTime(DateTime.now().year - 5),
           lastDate: DateTime(DateTime.now().year, DateTime.now().month),
         );
-        if (chosenDate == null) {
-          return;
-        }
-        oldDate1 = DateTime(chosenDate.year, chosenDate.month, 1, 00, 00);
-        oldDate2 = DateTime(chosenDate.year, chosenDate.month + 1, 0, 23, 59);
-      }
-      cdt = x;
-    }
-    if (cdt == CompareDateType.period && mounted) {
-      DateTimeRange? picked = await showDateRangePicker(
-        context: context,
-        firstDate: DateTime(DateTime.now().year - 5),
-        lastDate: DateTime(
-            DateTime.now().year, DateTime.now().month, DateTime.now().day + 1),
-        initialDateRange: DateTimeRange(
-          end: DateTime(
-              DateTime.now().year, DateTime.now().month, DateTime.now().day),
-          start: DateTime(DateTime.now().year, DateTime.now().month,
-              DateTime.now().day - 1),
-        ),
-      );
-      if (picked == null) return;
-
-      oldDate1 = DateTime(
-          picked.start.year, picked.start.month, picked.start.day, 00, 00);
-      oldDate2 =
-          DateTime(picked.end.year, picked.end.month, picked.end.day, 23, 59);
-    }
-
-    isLoading = true;
-    setState(() {});
-    await widget.getDate(
-        currentDate1, currentDate2, oldDate1, oldDate2, null, null, null);
-    if (widget.screenType == ScreenType.dashboardScreen) {
-      application.dashboardDateType = dt;
-      application.dashboardCompareDateType = cdt;
-      application.dashboardStartCurrentPeriod = currentDate1;
-      application.dashboardEndCurrentPeriod = currentDate2;
-      application.dashboardStartOldPeriod = oldDate1;
-      application.dashboardEndOldPeriod = oldDate2;
-    } else if (dt != DateType.day) {
-      application.startCurrentPeriod = currentDate1;
-      application.endCurrentPeriod = currentDate2;
-      application.startOldPeriod = oldDate1;
-      application.endOldPeriod = oldDate2;
-      application.dateType = dt;
-      application.compareDateType = cdt;
-    }
-    isLoading = false;
-    setState(() {});
-  }
-
-  Future<void> arrowForwardPress() async {
-    switch (cdt) {
-      case CompareDateType.lastDay:
-        currentDate1 = currentDate1.add(const Duration(days: 1));
-        currentDate2 = currentDate2.add(const Duration(days: 1));
-        oldDate1 = oldDate1.add(const Duration(days: 1));
-        oldDate2 = oldDate2.add(const Duration(days: 1));
+        if (chosenDate == null) return null;
+        start = DateTime(chosenDate.year, chosenDate.month, 1, 0, 0);
+        end = DateTime(chosenDate.year, chosenDate.month + 1, 0, 23, 59);
         break;
-      case CompareDateType.lastWeekDay:
-        currentDate1 =
-            Jiffy.parseFromDateTime(currentDate1).add(days: 1).dateTime;
-        currentDate2 =
-            Jiffy.parseFromDateTime(currentDate2).add(days: 1).dateTime;
-        oldDate1 = Jiffy.parseFromDateTime(currentDate1).add(weeks: 1).dateTime;
-        oldDate2 = Jiffy.parseFromDateTime(currentDate2).add(weeks: 1).dateTime;
-        break;
-      case CompareDateType.lastMonthDay:
-        currentDate1 =
-            Jiffy.parseFromDateTime(currentDate1).add(days: 1).dateTime;
-        currentDate2 =
-            Jiffy.parseFromDateTime(currentDate2).add(days: 1).dateTime;
-        oldDate1 =
-            Jiffy.parseFromDateTime(currentDate1).add(months: 1).dateTime;
-        oldDate2 =
-            Jiffy.parseFromDateTime(currentDate2).add(months: 1).dateTime;
-        break;
-      case CompareDateType.lastYearDay:
-        currentDate1 =
-            Jiffy.parseFromDateTime(currentDate1).add(days: 1).dateTime;
-        currentDate2 =
-            Jiffy.parseFromDateTime(currentDate2).add(days: 1).dateTime;
-        oldDate1 = Jiffy.parseFromDateTime(currentDate1).add(years: 1).dateTime;
-        oldDate2 = Jiffy.parseFromDateTime(currentDate2).add(years: 1).dateTime;
-        break;
-      case CompareDateType.chooseDay:
-        currentDate1 =
-            Jiffy.parseFromDateTime(currentDate1).add(days: 1).dateTime;
-        currentDate2 =
-            Jiffy.parseFromDateTime(currentDate2).add(days: 1).dateTime;
-        break;
-      case CompareDateType.lastWeek:
-        currentDate1 = currentDate1.add(const Duration(days: 7));
-        currentDate2 = currentDate2.add(const Duration(days: 7));
-        oldDate1 = oldDate1.add(const Duration(days: 7));
-        oldDate2 = oldDate2.add(const Duration(days: 7));
-        break;
-      case CompareDateType.chooseWeek:
-        currentDate1 = currentDate1.add(const Duration(days: 7));
-        currentDate2 = currentDate2.add(const Duration(days: 7));
-        break;
-      case CompareDateType.lastMonth:
-        currentDate1 =
-            Jiffy.parseFromDateTime(currentDate1).add(months: 1).dateTime;
-        currentDate2 =
-            Jiffy.parseFromDateTime(currentDate2).add(months: 1).dateTime;
-        oldDate1 = Jiffy.parseFromDateTime(oldDate1).add(months: 1).dateTime;
-        oldDate2 = Jiffy.parseFromDateTime(oldDate2).add(months: 1).dateTime;
-        break;
-      case CompareDateType.lastYearMonth:
-        currentDate1 =
-            Jiffy.parseFromDateTime(currentDate1).add(months: 1).dateTime;
-        currentDate2 =
-            Jiffy.parseFromDateTime(currentDate2).add(months: 1).dateTime;
-        oldDate1 = Jiffy.parseFromDateTime(currentDate1).add(years: 1).dateTime;
-        oldDate2 = Jiffy.parseFromDateTime(currentDate2).add(years: 1).dateTime;
-        break;
-      case CompareDateType.chooseMonth:
-        currentDate1 =
-            Jiffy.parseFromDateTime(currentDate1).add(months: 1).dateTime;
-        currentDate2 =
-            Jiffy.parseFromDateTime(currentDate2).add(months: 1).dateTime;
-        break;
-      case CompareDateType.lastYear:
-        currentDate1 =
-            Jiffy.parseFromDateTime(currentDate1).add(years: 1).dateTime;
-        currentDate2 =
-            Jiffy.parseFromDateTime(currentDate2).add(years: 1).dateTime;
-        oldDate1 = Jiffy.parseFromDateTime(currentDate1).add(years: 1).dateTime;
-        oldDate2 = Jiffy.parseFromDateTime(currentDate2).add(years: 1).dateTime;
-        break;
-      case CompareDateType.chooseYear:
-        // TODO: Handle this case.
-        break;
-      case CompareDateType.period:
-        // TODO: Handle this case.
+      default:
         break;
     }
 
-    isLoading = true;
-    setState(() {});
-    await widget.getDate(
-        currentDate1, currentDate2, oldDate1, oldDate2, null, null, null);
-    if (dt != DateType.day) {
-      application.startCurrentPeriod = currentDate1;
-      application.endCurrentPeriod = currentDate2;
-      application.startOldPeriod = oldDate1;
-      application.endOldPeriod = oldDate2;
-      application.dateType = dt;
-      application.compareDateType = cdt;
-    }
-    isLoading = false;
-    setState(() {});
-  }
-
-  Future<void> arrowBackwardPress() async {
-    switch (cdt) {
-      case CompareDateType.lastDay:
-        currentDate1 = currentDate1.subtract(const Duration(days: 1));
-        currentDate2 = currentDate2.subtract(const Duration(days: 1));
-        oldDate1 = oldDate1.subtract(const Duration(days: 1));
-        oldDate2 = oldDate2.subtract(const Duration(days: 1));
-        break;
-      case CompareDateType.lastWeekDay:
-        currentDate1 =
-            Jiffy.parseFromDateTime(currentDate1).subtract(days: 1).dateTime;
-        currentDate2 =
-            Jiffy.parseFromDateTime(currentDate2).subtract(days: 1).dateTime;
-        oldDate1 =
-            Jiffy.parseFromDateTime(currentDate1).subtract(weeks: 1).dateTime;
-        oldDate2 =
-            Jiffy.parseFromDateTime(currentDate2).subtract(weeks: 1).dateTime;
-        break;
-      case CompareDateType.lastMonthDay:
-        currentDate1 =
-            Jiffy.parseFromDateTime(currentDate1).subtract(days: 1).dateTime;
-        currentDate2 =
-            Jiffy.parseFromDateTime(currentDate2).subtract(days: 1).dateTime;
-        oldDate1 =
-            Jiffy.parseFromDateTime(currentDate1).subtract(months: 1).dateTime;
-        oldDate2 =
-            Jiffy.parseFromDateTime(currentDate2).subtract(months: 1).dateTime;
-        break;
-      case CompareDateType.lastYearDay:
-        currentDate1 =
-            Jiffy.parseFromDateTime(currentDate1).subtract(days: 1).dateTime;
-        currentDate2 =
-            Jiffy.parseFromDateTime(currentDate2).subtract(days: 1).dateTime;
-        oldDate1 =
-            Jiffy.parseFromDateTime(currentDate1).subtract(years: 1).dateTime;
-        oldDate2 =
-            Jiffy.parseFromDateTime(currentDate2).subtract(years: 1).dateTime;
-        break;
-      case CompareDateType.chooseDay:
-        currentDate1 =
-            Jiffy.parseFromDateTime(currentDate1).subtract(days: 1).dateTime;
-        currentDate2 =
-            Jiffy.parseFromDateTime(currentDate2).subtract(days: 1).dateTime;
-        break;
-      case CompareDateType.lastWeek:
-        currentDate1 = currentDate1.subtract(const Duration(days: 7));
-        currentDate2 = currentDate2.subtract(const Duration(days: 7));
-        oldDate1 = oldDate1.subtract(const Duration(days: 7));
-        oldDate2 = oldDate2.subtract(const Duration(days: 7));
-        break;
-      case CompareDateType.chooseWeek:
-        currentDate1 = currentDate1.subtract(const Duration(days: 7));
-        currentDate2 = currentDate2.subtract(const Duration(days: 7));
-        break;
-      case CompareDateType.lastMonth:
-        currentDate1 =
-            Jiffy.parseFromDateTime(currentDate1).subtract(months: 1).dateTime;
-        currentDate2 =
-            Jiffy.parseFromDateTime(currentDate2).subtract(months: 1).dateTime;
-        oldDate1 =
-            Jiffy.parseFromDateTime(oldDate1).subtract(months: 1).dateTime;
-        oldDate2 =
-            Jiffy.parseFromDateTime(oldDate2).subtract(months: 1).dateTime;
-        break;
-      case CompareDateType.lastYearMonth:
-        currentDate1 =
-            Jiffy.parseFromDateTime(currentDate1).subtract(months: 1).dateTime;
-        currentDate2 =
-            Jiffy.parseFromDateTime(currentDate2).subtract(months: 1).dateTime;
-        oldDate1 =
-            Jiffy.parseFromDateTime(currentDate1).subtract(years: 1).dateTime;
-        oldDate2 =
-            Jiffy.parseFromDateTime(currentDate2).subtract(years: 1).dateTime;
-        break;
-      case CompareDateType.chooseMonth:
-        currentDate1 =
-            Jiffy.parseFromDateTime(currentDate1).subtract(months: 1).dateTime;
-        currentDate2 =
-            Jiffy.parseFromDateTime(currentDate2).subtract(months: 1).dateTime;
-        break;
-      case CompareDateType.lastYear:
-        currentDate1 =
-            Jiffy.parseFromDateTime(currentDate1).subtract(years: 1).dateTime;
-        currentDate2 =
-            Jiffy.parseFromDateTime(currentDate2).subtract(years: 1).dateTime;
-        oldDate1 =
-            Jiffy.parseFromDateTime(currentDate1).subtract(years: 1).dateTime;
-        oldDate2 =
-            Jiffy.parseFromDateTime(currentDate2).subtract(years: 1).dateTime;
-        break;
-      case CompareDateType.chooseYear:
-        // TODO: Handle this case.
-        break;
-      case CompareDateType.period:
-        // TODO: Handle this case.
-        break;
-    }
-
-    isLoading = true;
-    setState(() {});
-    await widget.getDate(
-        currentDate1, currentDate2, oldDate1, oldDate2, null, null, null);
-    if (dt != DateType.day) {
-      application.startCurrentPeriod = currentDate1;
-      application.endCurrentPeriod = currentDate2;
-      application.startOldPeriod = oldDate1;
-      application.endOldPeriod = oldDate2;
-      application.dateType = dt;
-      application.compareDateType = cdt;
-    }
-    isLoading = false;
-    setState(() {});
-  }
-
-  Future<bool> selectStore() async {
-    bool res = false;
-    List<StoreModel> stores = [];
-    stores.add(StoreModel(id: null, name: 'ყველა ფილიალი'));
-    for (var element in application.stores) {
-      stores.add(StoreModel(id: element.id, name: element.name));
-    }
-
-    await showDialog(
-      context: context,
-      builder: (context) => _StoreSelectorDialog(
-        stores: stores,
-        selectedStoreId: application.selectedStoreId,
-        onStoreSelected: (storeId) {
-          application.selectedStoreId = storeId;
-          res = true;
-        },
-      ),
-    );
-    return res;
+    return (start, end);
   }
 }
 
+// Compare Options Sheet
+class _CompareOptionsSheet extends StatelessWidget {
+  final Map<CompareDateType, String> options;
+  final CompareDateType selectedType;
+
+  const _CompareOptionsSheet({
+    required this.options,
+    required this.selectedType,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: const BorderRadius.only(
+          topLeft: Radius.circular(20),
+          topRight: Radius.circular(20),
+        ),
+        color: Colors.grey.shade900,
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+      child: SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Spacer(),
+                Text(
+                  'აირჩიეთ პერიოდი',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(color: Colors.grey.shade500, fontSize: 18),
+                ),
+                Expanded(
+                  child: IconButton(
+                    alignment: Alignment.centerRight,
+                    onPressed: () => Navigator.pop(context),
+                    icon: const Icon(Icons.close_outlined, color: AppTheme.primaryBlue),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 15),
+            ...options.entries.map((entry) => Container(
+                  margin: const EdgeInsets.only(bottom: 7),
+                  height: 55,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(7),
+                    border: Border.all(
+                      color: selectedType == entry.key
+                          ? AppTheme.primaryBlue
+                          : Colors.grey.shade500,
+                    ),
+                  ),
+                  child: InkWell(
+                    onTap: () => Navigator.pop(context, entry.key),
+                    child: Center(
+                      child: Text(
+                        entry.value,
+                        style: TextStyle(
+                          color: Colors.grey.shade500,
+                          fontWeight: FontWeight.w300,
+                          fontSize: 17,
+                        ),
+                      ),
+                    ),
+                  ),
+                )),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// Store Selector Dialog
 class _StoreSelectorDialog extends StatefulWidget {
   final List<StoreModel> stores;
   final int? selectedStoreId;
   final Function(int?) onStoreSelected;
 
   const _StoreSelectorDialog({
-    Key? key,
     required this.stores,
     required this.selectedStoreId,
     required this.onStoreSelected,
-  }) : super(key: key);
+  });
 
   @override
   State<_StoreSelectorDialog> createState() => _StoreSelectorDialogState();
@@ -1685,13 +889,11 @@ class _StoreSelectorDialogState extends State<_StoreSelectorDialog> {
   void _filterStores() {
     setState(() {
       final query = _searchController.text.toLowerCase();
-      if (query.isEmpty) {
-        _filteredStores = widget.stores;
-      } else {
-        _filteredStores = widget.stores
-            .where((store) => store.name.toLowerCase().contains(query))
-            .toList();
-      }
+      _filteredStores = query.isEmpty
+          ? widget.stores
+          : widget.stores
+              .where((store) => store.name.toLowerCase().contains(query))
+              .toList();
     });
   }
 
@@ -1709,7 +911,6 @@ class _StoreSelectorDialogState extends State<_StoreSelectorDialog> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            // Header
             Padding(
               padding: const EdgeInsets.all(20),
               child: Row(
@@ -1727,20 +928,11 @@ class _StoreSelectorDialogState extends State<_StoreSelectorDialog> {
                   ),
                   GestureDetector(
                     onTap: () => Navigator.of(context).pop(),
-                    child: Container(
-                      padding: const EdgeInsets.all(4),
-                      child: Icon(
-                        Icons.close,
-                        size: 20,
-                        color: Colors.grey.shade600,
-                      ),
-                    ),
+                    child: Icon(Icons.close, size: 20, color: Colors.grey.shade600),
                   ),
                 ],
               ),
             ),
-
-            // Search Field
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: Container(
@@ -1753,28 +945,15 @@ class _StoreSelectorDialogState extends State<_StoreSelectorDialog> {
                   controller: _searchController,
                   decoration: InputDecoration(
                     hintText: 'ძიება',
-                    hintStyle: TextStyle(
-                      color: Colors.grey.shade400,
-                      fontSize: 15,
-                    ),
-                    prefixIcon: Icon(
-                      Icons.search,
-                      color: AppTheme.primaryBlue,
-                      size: 20,
-                    ),
+                    hintStyle: TextStyle(color: Colors.grey.shade400, fontSize: 15),
+                    prefixIcon: const Icon(Icons.search, color: AppTheme.primaryBlue, size: 20),
                     border: InputBorder.none,
-                    contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 12,
-                    ),
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                   ),
                 ),
               ),
             ),
-
             const SizedBox(height: 8),
-
-            // Store List
             Flexible(
               child: ListView.builder(
                 shrinkWrap: true,
@@ -1786,27 +965,21 @@ class _StoreSelectorDialogState extends State<_StoreSelectorDialog> {
                   return InkWell(
                     onTap: () {
                       widget.onStoreSelected(store.id);
-                      Navigator.of(context).pop();
+                      Navigator.of(context).pop(true);
                     },
                     child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 20,
-                        vertical: 16,
-                      ),
+                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
                       decoration: BoxDecoration(
                         color: isSelected
-                            ? AppTheme.primaryBlue.withOpacity(0.1)
+                            ? AppTheme.primaryBlue.withValues(alpha: 0.1)
                             : Colors.transparent,
                       ),
                       child: Text(
                         store.name,
                         style: TextStyle(
                           fontSize: 15,
-                          fontWeight:
-                              isSelected ? FontWeight.w600 : FontWeight.w400,
-                          color: isSelected
-                              ? AppTheme.primaryBlue
-                              : Colors.black87,
+                          fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+                          color: isSelected ? AppTheme.primaryBlue : Colors.black87,
                         ),
                         textAlign: TextAlign.center,
                       ),
@@ -1815,7 +988,6 @@ class _StoreSelectorDialogState extends State<_StoreSelectorDialog> {
                 },
               ),
             ),
-
             const SizedBox(height: 8),
           ],
         ),

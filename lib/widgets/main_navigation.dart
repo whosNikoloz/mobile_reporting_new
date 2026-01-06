@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:mobile_reporting/helpers/helpers_module.dart';
 import 'package:mobile_reporting/helpers/preferences_helper.dart';
 import 'package:mobile_reporting/screens/dashboard_screen.dart';
+import 'package:mobile_reporting/screens/reports_screen.dart';
 import 'package:mobile_reporting/screens/splash_screen.dart';
 import 'package:mobile_reporting/theme/app_theme.dart';
 
@@ -39,7 +40,7 @@ class _MainNavigationState extends State<MainNavigation> {
       case 0:
         return const DashboardScreen();
       case 1:
-        return const DashboardScreen();
+        return const ReportsScreen();
       case 2:
         return _userType == 'RETAIL'
             ? const DashboardScreen()
@@ -54,7 +55,7 @@ class _MainNavigationState extends State<MainNavigation> {
       case 0:
         return 'დეშბორდი';
       case 1:
-        return 'სტატისტიკა';
+        return 'რეპორტები';
       case 2:
         return _userType == 'RETAIL' ? 'ფინანსები' : 'ჩეკები';
       default:

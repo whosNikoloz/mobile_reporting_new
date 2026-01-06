@@ -35,13 +35,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
     23,
     59,
   );
-  DateTime startOldPeriod = DateTime(
+  DateTime startPreviousPeriod = DateTime(
       DateTime.now().subtract(const Duration(days: 1)).year,
       DateTime.now().subtract(const Duration(days: 1)).month,
       DateTime.now().subtract(const Duration(days: 1)).day,
       00,
       00);
-  DateTime endOldPeriod = DateTime(
+  DateTime endPreviousPeriod = DateTime(
     DateTime.now().subtract(const Duration(days: 1)).year,
     DateTime.now().subtract(const Duration(days: 1)).month,
     DateTime.now().subtract(const Duration(days: 1)).day,
@@ -64,8 +64,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
         storeId: storeId,
         startCurrentPeriod: startCurrentPeriod,
         endCurrentPeriod: endCurrentPeriod,
-        startOldPeriod: startOldPeriod,
-        endOldPeriod: endOldPeriod,
+        startPreviousPeriod: startPreviousPeriod,
+        endPreviousPeriod: endPreviousPeriod,
       );
 
       setState(() {
@@ -104,8 +104,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         String? billNum) async {
                       startCurrentPeriod = dt1;
                       endCurrentPeriod = dt2;
-                      startOldPeriod = dt3;
-                      endOldPeriod = dt4;
+                      startPreviousPeriod = dt3;
+                      endPreviousPeriod = dt4;
 
                       firstLoad = false;
 
@@ -284,9 +284,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   Widget _buildSalesByHoursChart() {
     final salesByHours = _dashboardData!.current.salesByHours;
-    final maxAmount = salesByHours
-        .map((e) => e.amount)
-        .reduce((a, b) => a > b ? a : b);
+    final maxAmount =
+        salesByHours.map((e) => e.amount).reduce((a, b) => a > b ? a : b);
 
     return Container(
       padding: const EdgeInsets.all(16),
@@ -442,5 +441,4 @@ class _DashboardScreenState extends State<DashboardScreen> {
       ),
     );
   }
-
 }

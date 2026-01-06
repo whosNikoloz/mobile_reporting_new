@@ -198,6 +198,11 @@ class _DateRangePickerState extends State<DateRangePicker> {
       }
     }
 
+    print('🗓️ Date Picker Result:');
+    print('  Current: $startDate to $endDate');
+    print('  Compare: $_compareRangeStart to $_compareRangeEnd');
+    print('  Period Type: $_selectedPeriodType');
+
     Navigator.of(context).pop(
       DateRangePickerResult(
         startDate: startDate,
@@ -686,9 +691,9 @@ class _DateRangePickerState extends State<DateRangePicker> {
       physics: const NeverScrollableScrollPhysics(),
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 7,
-        childAspectRatio: 1.3,
+        childAspectRatio: 1.5,
         crossAxisSpacing: 0,
-        mainAxisSpacing: 3,
+        mainAxisSpacing: 0,
       ),
       itemCount: totalCells,
       itemBuilder: (context, index) {
@@ -1032,8 +1037,6 @@ class _DateRangePickerState extends State<DateRangePicker> {
     if (currentStart == null || currentEnd == null) return;
 
     // Calculate comparison dates based on selected option
-    final daysDifference = currentEnd.difference(currentStart).inDays;
-
     switch (_selectedCompareOption) {
       case CompareToOption.yesterday:
         _compareRangeStart = currentStart.subtract(const Duration(days: 1));
@@ -1044,16 +1047,47 @@ class _DateRangePickerState extends State<DateRangePicker> {
         _compareRangeEnd = currentEnd.subtract(const Duration(days: 7));
         break;
       case CompareToOption.lastMonth:
-        _compareRangeStart = DateTime(
-            currentStart.year, currentStart.month - 1, currentStart.day, 0, 0);
-        _compareRangeEnd =
-            _compareRangeStart!.add(Duration(days: daysDifference));
+        try {
+          _compareRangeStart = DateTime(
+              currentStart.year, currentStart.month - 1, currentStart.day,
+              currentStart.hour, currentStart.minute);
+          _compareRangeEnd = DateTime(
+              currentEnd.year, currentEnd.month - 1, currentEnd.day,
+              currentEnd.hour, currentEnd.minute);
+        } catch (e) {
+          // Handle invalid dates (e.g., Jan 31 -> Feb 31 doesn't exist)
+          final lastDayOfPrevMonth = DateTime(currentStart.year, currentStart.month, 0);
+          _compareRangeStart = DateTime(
+              lastDayOfPrevMonth.year, lastDayOfPrevMonth.month,
+              currentStart.day > lastDayOfPrevMonth.day ? lastDayOfPrevMonth.day : currentStart.day,
+              currentStart.hour, currentStart.minute);
+          _compareRangeEnd = DateTime(
+              lastDayOfPrevMonth.year, lastDayOfPrevMonth.month,
+              currentEnd.day > lastDayOfPrevMonth.day ? lastDayOfPrevMonth.day : currentEnd.day,
+              currentEnd.hour, currentEnd.minute);
+        }
         break;
       case CompareToOption.lastYear:
-        _compareRangeStart = DateTime(
-            currentStart.year - 1, currentStart.month, currentStart.day, 0, 0);
-        _compareRangeEnd =
-            _compareRangeStart!.add(Duration(days: daysDifference));
+        try {
+          _compareRangeStart = DateTime(
+              currentStart.year - 1, currentStart.month, currentStart.day,
+              currentStart.hour, currentStart.minute);
+          _compareRangeEnd = DateTime(
+              currentEnd.year - 1, currentEnd.month, currentEnd.day,
+              currentEnd.hour, currentEnd.minute);
+        } catch (e) {
+          // Handle invalid dates (e.g., Feb 29 in leap year -> Feb 29 in non-leap year)
+          print('⚠️ Invalid date for last year comparison: $e');
+          final lastDayOfMonth = DateTime(currentStart.year - 1, currentStart.month + 1, 0);
+          _compareRangeStart = DateTime(
+              currentStart.year - 1, currentStart.month,
+              currentStart.day > lastDayOfMonth.day ? lastDayOfMonth.day : currentStart.day,
+              currentStart.hour, currentStart.minute);
+          _compareRangeEnd = DateTime(
+              currentEnd.year - 1, currentEnd.month,
+              currentEnd.day > lastDayOfMonth.day ? lastDayOfMonth.day : currentEnd.day,
+              currentEnd.hour, currentEnd.minute);
+        }
         break;
       case CompareToOption.customRange:
         // Don't auto-calculate for custom range - let user select manually
@@ -1066,6 +1100,13 @@ class _DateRangePickerState extends State<DateRangePicker> {
         _compareRangeStart = currentStart.subtract(const Duration(days: 1));
         _compareRangeEnd = currentEnd.subtract(const Duration(days: 1));
     }
+
+    // Debug logging
+    print('🔄 Compare Dates Calculated:');
+    print('  Current option: $_selectedCurrentOption');
+    print('  Compare option: $_selectedCompareOption');
+    print('  Current period: ${_currentCompareStart?.toIso8601String()} to ${_currentCompareEnd?.toIso8601String()}');
+    print('  Compare period: ${_compareRangeStart?.toIso8601String()} to ${_compareRangeEnd?.toIso8601String()}');
   }
 
   Widget _buildCurrentPeriodDropdown() {
