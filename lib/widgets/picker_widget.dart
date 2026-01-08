@@ -4,6 +4,8 @@ import 'package:mobile_reporting/application_store.dart';
 import 'package:mobile_reporting/enums/compare_date_type.dart';
 import 'package:mobile_reporting/enums/date_type.dart';
 import 'package:intl/intl.dart';
+import 'package:mobile_reporting/localization/generated/l10n.dart';
+
 import 'package:mobile_reporting/enums/screen_type.dart';
 import 'package:mobile_reporting/models/store_model.dart';
 import 'package:month_year_picker/month_year_picker.dart';
@@ -151,55 +153,115 @@ class PickerWidgetState extends State<PickerWidget> {
       firstLoad = false;
     }
 
+    final bool showStore =
+        widget.showStoreFilter && application.stores.length > 1;
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(color: Colors.grey.shade100),
       child: Column(
         children: [
-          Row(
-            children: [
-              Expanded(
-                flex: widget.showStoreFilter ? 1 : 1,
-                child: _DateSelector(
-                  currentDate1: currentDate1,
-                  currentDate2: currentDate2,
-                  oldDate1: oldDate1,
-                  oldDate2: oldDate2,
-                  dateType: dt,
-                  isLoading: isLoading,
-                  showComparison: widget.showCompareDateFilter,
-                  onDateSelected: _handleDateSelection,
-                ),
-              ),
-              if (widget.showStoreFilter) const SizedBox(width: 12),
-              if (widget.showStoreFilter)
-                Expanded(
-                  child: _StoreSelector(onStoreChanged: _loadData),
-                ),
+          // If comparison is enabled, stack vertically with full width
+          if (widget.showCompareDateFilter) ...[
+            _DateSelector(
+              currentDate1: currentDate1,
+              currentDate2: currentDate2,
+              oldDate1: oldDate1,
+              oldDate2: oldDate2,
+              dateType: dt,
+              isLoading: isLoading,
+              showComparison: widget.showCompareDateFilter,
+              onDateSelected: _handleDateSelection,
+            ),
+            if (showStore) ...[
+              const SizedBox(height: 12),
+              _StoreSelector(onStoreChanged: _loadData),
             ],
-          ),
+          ]
+          // If no comparison, keep them in a row as before
+          else ...[
+            Row(
+              children: [
+                Expanded(
+                  child: _DateSelector(
+                    currentDate1: currentDate1,
+                    currentDate2: currentDate2,
+                    oldDate1: oldDate1,
+                    oldDate2: oldDate2,
+                    dateType: dt,
+                    isLoading: isLoading,
+                    showComparison: widget.showCompareDateFilter,
+                    onDateSelected: _handleDateSelection,
+                  ),
+                ),
+                if (showStore) const SizedBox(width: 12),
+                if (showStore)
+                  Expanded(
+                    child: _StoreSelector(onStoreChanged: _loadData),
+                  ),
+              ],
+            ),
+          ],
         ],
       ),
     );
   }
 
-  Future<void> _handleDateSelection(
-      DateTime start, DateTime end, DateType type,
+  Future<void> _handleDateSelection(DateTime start, DateTime end, DateType type,
       {DateTime? compareStart, DateTime? compareEnd}) async {
+    final bool periodChanged =
+        dt != type || currentDate1 != start || currentDate2 != end;
+
     currentDate1 = start;
     currentDate2 = end;
     dt = type;
 
     if (compareStart != null && compareEnd != null) {
+      // Use the comparison dates from the picker
       oldDate1 = compareStart;
       oldDate2 = compareEnd;
-    } else {
-      final daysDiff = currentDate2.difference(currentDate1).inDays;
-      oldDate1 = currentDate1.subtract(Duration(days: daysDiff + 1));
-      oldDate2 = currentDate2.subtract(Duration(days: daysDiff + 1));
+    } else if (periodChanged) {
+      // Calculate default comparison based on period type
+      _calculateDefaultComparison();
     }
 
     await _loadData();
+  }
+
+  void _calculateDefaultComparison() {
+    switch (dt) {
+      case DateType.day:
+        // Previous day
+        oldDate1 = currentDate1.subtract(const Duration(days: 1));
+        oldDate2 = currentDate2.subtract(const Duration(days: 1));
+        break;
+      case DateType.week:
+        // Previous week (7 days back)
+        oldDate1 = currentDate1.subtract(const Duration(days: 7));
+        oldDate2 = currentDate2.subtract(const Duration(days: 7));
+        break;
+      case DateType.month:
+        // Previous month
+        oldDate1 = DateTime(
+            currentDate1.year, currentDate1.month - 1, currentDate1.day, 0, 0);
+        oldDate2 = DateTime(currentDate2.year, currentDate2.month - 1,
+            currentDate2.day, 23, 59);
+        break;
+      case DateType.year:
+        // Previous year
+        oldDate1 = DateTime(
+            currentDate1.year - 1, currentDate1.month, currentDate1.day, 0, 0);
+        oldDate2 = DateTime(currentDate2.year - 1, currentDate2.month,
+            currentDate2.day, 23, 59);
+        break;
+      case DateType.period:
+        // Same duration back
+        final duration = currentDate2.difference(currentDate1);
+        oldDate1 =
+            currentDate1.subtract(duration).subtract(const Duration(days: 1));
+        oldDate2 = currentDate1.subtract(const Duration(days: 1));
+        break;
+    }
   }
 
   Future<void> _handleCompareSelection(
@@ -253,47 +315,20 @@ class _DateSelector extends StatelessWidget {
         ),
         child: Row(
           children: [
-            const Icon(Icons.calendar_today, size: 18, color: AppTheme.primaryBlue),
+            const Icon(Icons.calendar_today,
+                size: 18, color: AppTheme.primaryBlue),
             const SizedBox(width: 10),
             Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  // Current period
-                  Text(
-                    _getCurrentDateText(),
-                    style: const TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.black87,
-                      height: 1.2,
-                    ),
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  // Show comparison if enabled
-                  if (showComparison) ...[
-                    const SizedBox(height: 2),
-                    Row(
-                      children: [
-                        const Icon(Icons.compare_arrows, size: 12, color: Colors.orange),
-                        const SizedBox(width: 4),
-                        Expanded(
-                          child: Text(
-                            _getComparisonText(),
-                            style: TextStyle(
-                              fontSize: 11,
-                              fontWeight: FontWeight.w500,
-                              color: Colors.grey.shade600,
-                              height: 1.2,
-                            ),
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ],
+              child: Text(
+                showComparison ? _getCombinedDateText() : _getCurrentDateText(),
+                style: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.black87,
+                  height: 1.2,
+                ),
+                overflow: TextOverflow.ellipsis,
+                maxLines: 1,
               ),
             ),
             const SizedBox(width: 8),
@@ -303,11 +338,13 @@ class _DateSelector extends StatelessWidget {
                 height: 16,
                 child: CircularProgressIndicator(
                   strokeWidth: 2,
-                  valueColor: AlwaysStoppedAnimation<Color>(AppTheme.primaryBlue),
+                  valueColor:
+                      AlwaysStoppedAnimation<Color>(AppTheme.primaryBlue),
                 ),
               )
             else
-              Icon(Icons.keyboard_arrow_down, size: 18, color: Colors.grey.shade600),
+              Icon(Icons.keyboard_arrow_down,
+                  size: 18, color: Colors.grey.shade600),
           ],
         ),
       ),
@@ -326,7 +363,31 @@ class _DateSelector extends StatelessWidget {
     }
   }
 
-  String _getComparisonText() {
+  String _getCombinedDateText() {
+    String currentPeriod;
+    String comparisonPeriod;
+
+    if (dateType == DateType.day) {
+      currentPeriod = DateFormat('dd.MM.yy').format(currentDate1);
+      comparisonPeriod = DateFormat('dd.MM.yy').format(oldDate1);
+    } else if (dateType == DateType.month) {
+      currentPeriod = DateFormat('MMM yyyy').format(currentDate1);
+      comparisonPeriod = DateFormat('MMM yyyy').format(oldDate1);
+    } else if (dateType == DateType.year) {
+      currentPeriod = currentDate1.year.toString();
+      comparisonPeriod = oldDate1.year.toString();
+    } else {
+      // For week/period, show date ranges
+      currentPeriod =
+          '${DateFormat('dd.MM.yy').format(currentDate1)} - ${DateFormat('dd.MM.yy').format(currentDate2)}';
+      comparisonPeriod =
+          '${DateFormat('dd.MM.yy').format(oldDate1)} - ${DateFormat('dd.MM.yy').format(oldDate2)}';
+    }
+
+    return '$currentPeriod to $comparisonPeriod';
+  }
+
+  String _getComparisonText(BuildContext context) {
     // For year comparisons
     if (dateType == DateType.year) {
       return '${currentDate1.year} vs ${oldDate1.year}';
@@ -345,7 +406,7 @@ class _DateSelector extends StatelessWidget {
       final yesterday = today.subtract(const Duration(days: 1));
 
       if (_isSameDay(currentDate1, today) && _isSameDay(oldDate1, yesterday)) {
-        return 'დღეს vs გუშინ';
+        return S.of(context).todayVsYesterday;
       }
 
       return '${DateFormat('dd.MM.yy').format(currentDate1)} vs ${DateFormat('dd.MM.yy').format(oldDate1)}';
@@ -377,6 +438,8 @@ class _DateSelector extends StatelessWidget {
         initialStartDate: currentDate1,
         initialEndDate: currentDate2,
         initialPeriodType: initialPeriodType,
+        initialCompareStartDate: oldDate1,
+        initialCompareEndDate: oldDate2,
       ),
     );
 
@@ -440,7 +503,7 @@ class _StoreSelector extends StatelessWidget {
             const SizedBox(width: 12),
             Expanded(
               child: Text(
-                _getStoreName(),
+                _getStoreName(context),
                 style: const TextStyle(
                   fontSize: 15,
                   fontWeight: FontWeight.w600,
@@ -451,25 +514,26 @@ class _StoreSelector extends StatelessWidget {
               ),
             ),
             const SizedBox(width: 8),
-            Icon(Icons.keyboard_arrow_down, size: 20, color: Colors.grey.shade600),
+            Icon(Icons.keyboard_arrow_down,
+                size: 20, color: Colors.grey.shade600),
           ],
         ),
       ),
     );
   }
 
-  String _getStoreName() {
+  String _getStoreName(BuildContext context) {
     if (application.selectedStoreId != null) {
       return application.stores
           .firstWhere((element) => element.id == application.selectedStoreId)
           .name;
     }
-    return 'ყველა ფილიალი';
+    return S.of(context).allBranches;
   }
 
   Future<void> _showStoreDialog(BuildContext context) async {
     List<StoreModel> stores = [
-      StoreModel(id: null, name: 'ყველა ფილიალი'),
+      StoreModel(id: null, name: S.of(context).allBranches),
       ...application.stores,
     ];
 
@@ -529,14 +593,15 @@ class _CompareDateFilter extends StatelessWidget {
           ),
           child: Row(
             children: [
-              const Icon(Icons.compare_arrows, size: 20, color: AppTheme.primaryBlue),
+              const Icon(Icons.compare_arrows,
+                  size: 20, color: AppTheme.primaryBlue),
               const SizedBox(width: 12),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'შედარება: ${_getCompareDateText()}',
+                      '${S.of(context).comparisonLabel}: ${_getCompareDateText(context)}',
                       style: const TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.w500,
@@ -557,7 +622,8 @@ class _CompareDateFilter extends StatelessWidget {
                   ],
                 ),
               ),
-              Icon(Icons.keyboard_arrow_down, size: 20, color: Colors.grey.shade600),
+              Icon(Icons.keyboard_arrow_down,
+                  size: 20, color: Colors.grey.shade600),
             ],
           ),
         ),
@@ -565,34 +631,34 @@ class _CompareDateFilter extends StatelessWidget {
     );
   }
 
-  String _getCompareDateText() {
+  String _getCompareDateText(BuildContext context) {
     switch (compareDateType) {
       case CompareDateType.lastDay:
-        return 'წინა დღესთან';
+        return S.of(context).lastDay;
       case CompareDateType.lastWeekDay:
-        return 'წინა კვირის დღესთან';
+        return S.of(context).lastWeekDay;
       case CompareDateType.lastMonthDay:
-        return 'წინა თვის დღესთან';
+        return S.of(context).lastMonthDay;
       case CompareDateType.lastYearDay:
-        return 'წინა წლის დღესთან';
+        return S.of(context).lastYearDay;
       case CompareDateType.chooseDay:
-        return 'დღის არჩევა';
+        return S.of(context).chooseDay;
       case CompareDateType.lastWeek:
-        return 'წინა კვირასთან';
+        return S.of(context).lastWeek;
       case CompareDateType.chooseWeek:
-        return 'კვირის არჩევა';
+        return S.of(context).chooseWeek;
       case CompareDateType.lastMonth:
-        return 'წინა თვესთან';
+        return S.of(context).lastMonth;
       case CompareDateType.lastYearMonth:
-        return 'წინა წლის თვესთან';
+        return S.of(context).lastYearMonth;
       case CompareDateType.chooseMonth:
-        return 'თვის არჩევა';
+        return S.of(context).chooseMonth;
       case CompareDateType.lastYear:
-        return 'წინა წელთან';
+        return S.of(context).lastYear;
       case CompareDateType.chooseYear:
-        return 'წლის არჩევა';
+        return S.of(context).chooseYear;
       case CompareDateType.period:
-        return 'პერიოდი';
+        return S.of(context).period;
     }
   }
 
@@ -607,7 +673,7 @@ class _CompareDateFilter extends StatelessWidget {
   }
 
   Future<void> _showCompareOptions(BuildContext context) async {
-    Map<CompareDateType, String> options = _getOptionsForDateType();
+    Map<CompareDateType, String> options = _getOptionsForDateType(context);
 
     final selectedType = await showModalBottomSheet<CompareDateType>(
       backgroundColor: Colors.transparent,
@@ -643,25 +709,25 @@ class _CompareDateFilter extends StatelessWidget {
     await onCompareOptionSelected(selectedType, newOldDate1, newOldDate2);
   }
 
-  Map<CompareDateType, String> _getOptionsForDateType() {
+  Map<CompareDateType, String> _getOptionsForDateType(BuildContext context) {
     if (dateType == DateType.day) {
       return {
-        CompareDateType.lastDay: 'წინა დღესთან',
-        CompareDateType.lastWeekDay: 'წინა კვირის დღესთან',
-        CompareDateType.lastMonthDay: 'წინა თვის დღესთან',
-        CompareDateType.lastYearDay: 'წინა წლის დღესთან',
-        CompareDateType.chooseDay: 'დღის არჩევა',
+        CompareDateType.lastDay: S.of(context).lastDay,
+        CompareDateType.lastWeekDay: S.of(context).lastWeekDay,
+        CompareDateType.lastMonthDay: S.of(context).lastMonthDay,
+        CompareDateType.lastYearDay: S.of(context).lastYearDay,
+        CompareDateType.chooseDay: S.of(context).chooseDay,
       };
     } else if (dateType == DateType.week) {
       return {
-        CompareDateType.lastWeek: 'წინა კვირასთან',
-        CompareDateType.chooseWeek: 'კვირის არჩევა',
+        CompareDateType.lastWeek: S.of(context).lastWeek,
+        CompareDateType.chooseWeek: S.of(context).chooseWeek,
       };
     } else if (dateType == DateType.month) {
       return {
-        CompareDateType.lastMonth: 'წინა თვესთან',
-        CompareDateType.lastYearMonth: 'წინა წლის თვესთან',
-        CompareDateType.chooseMonth: 'თვის არჩევა',
+        CompareDateType.lastMonth: S.of(context).lastMonth,
+        CompareDateType.lastYearMonth: S.of(context).lastYearMonth,
+        CompareDateType.chooseMonth: S.of(context).chooseMonth,
       };
     }
     return {};
@@ -698,8 +764,10 @@ class _CompareDateFilter extends StatelessWidget {
           lastDate: DateTime(DateTime.now().year + 5),
         );
         if (chosenDate == null) return null;
-        start = DateTime(chosenDate.year, chosenDate.month, chosenDate.day, 0, 0);
-        end = DateTime(chosenDate.year, chosenDate.month, chosenDate.day, 23, 59);
+        start =
+            DateTime(chosenDate.year, chosenDate.month, chosenDate.day, 0, 0);
+        end =
+            DateTime(chosenDate.year, chosenDate.month, chosenDate.day, 23, 59);
         break;
       default:
         break;
@@ -713,8 +781,10 @@ class _CompareDateFilter extends StatelessWidget {
     final now = DateTime.now();
     DateTime startOfWeek = now.subtract(Duration(days: now.weekday - 1));
     DateTime endOfWeek = startOfWeek.add(const Duration(days: 6));
-    DateTime start = DateTime(startOfWeek.year, startOfWeek.month, startOfWeek.day, 0, 0);
-    DateTime end = DateTime(endOfWeek.year, endOfWeek.month, endOfWeek.day, 23, 59);
+    DateTime start =
+        DateTime(startOfWeek.year, startOfWeek.month, startOfWeek.day, 0, 0);
+    DateTime end =
+        DateTime(endOfWeek.year, endOfWeek.month, endOfWeek.day, 23, 59);
 
     switch (type) {
       case CompareDateType.lastWeek:
@@ -732,8 +802,10 @@ class _CompareDateFilter extends StatelessWidget {
         DateTime startOfWeek1 =
             chosenDate.subtract(Duration(days: chosenDate.weekday - 1));
         DateTime endOfWeek1 = startOfWeek1.add(const Duration(days: 6));
-        start = DateTime(startOfWeek1.year, startOfWeek1.month, startOfWeek1.day, 0, 0);
-        end = DateTime(endOfWeek1.year, endOfWeek1.month, endOfWeek1.day, 23, 59);
+        start = DateTime(
+            startOfWeek1.year, startOfWeek1.month, startOfWeek1.day, 0, 0);
+        end =
+            DateTime(endOfWeek1.year, endOfWeek1.month, endOfWeek1.day, 23, 59);
         break;
       default:
         break;
@@ -806,7 +878,7 @@ class _CompareOptionsSheet extends StatelessWidget {
               children: [
                 const Spacer(),
                 Text(
-                  'აირჩიეთ პერიოდი',
+                  S.of(context).selectPeriod,
                   textAlign: TextAlign.center,
                   style: TextStyle(color: Colors.grey.shade500, fontSize: 18),
                 ),
@@ -814,7 +886,8 @@ class _CompareOptionsSheet extends StatelessWidget {
                   child: IconButton(
                     alignment: Alignment.centerRight,
                     onPressed: () => Navigator.pop(context),
-                    icon: const Icon(Icons.close_outlined, color: AppTheme.primaryBlue),
+                    icon: const Icon(Icons.close_outlined,
+                        color: AppTheme.primaryBlue),
                   ),
                 ),
               ],
@@ -915,10 +988,10 @@ class _StoreSelectorDialogState extends State<_StoreSelectorDialog> {
               padding: const EdgeInsets.all(20),
               child: Row(
                 children: [
-                  const Expanded(
+                  Expanded(
                     child: Text(
-                      'ფილიალები',
-                      style: TextStyle(
+                      S.of(context).branches,
+                      style: const TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.w600,
                         color: Colors.black,
@@ -928,32 +1001,37 @@ class _StoreSelectorDialogState extends State<_StoreSelectorDialog> {
                   ),
                   GestureDetector(
                     onTap: () => Navigator.of(context).pop(),
-                    child: Icon(Icons.close, size: 20, color: Colors.grey.shade600),
+                    child: Icon(Icons.close,
+                        size: 20, color: Colors.grey.shade600),
                   ),
                 ],
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: Container(
-                decoration: BoxDecoration(
-                  color: Colors.grey.shade50,
-                  borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: Colors.grey.shade200),
-                ),
-                child: TextField(
-                  controller: _searchController,
-                  decoration: InputDecoration(
-                    hintText: 'ძიება',
-                    hintStyle: TextStyle(color: Colors.grey.shade400, fontSize: 15),
-                    prefixIcon: const Icon(Icons.search, color: AppTheme.primaryBlue, size: 20),
-                    border: InputBorder.none,
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            if (widget.stores.length > 6)
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade50,
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(color: Colors.grey.shade200),
+                  ),
+                  child: TextField(
+                    controller: _searchController,
+                    decoration: InputDecoration(
+                      hintText: S.of(context).search,
+                      hintStyle:
+                          TextStyle(color: Colors.grey.shade400, fontSize: 15),
+                      prefixIcon: const Icon(Icons.search,
+                          color: AppTheme.primaryBlue, size: 20),
+                      border: InputBorder.none,
+                      contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 12),
+                    ),
                   ),
                 ),
               ),
-            ),
-            const SizedBox(height: 8),
+            if (widget.stores.length > 6) const SizedBox(height: 8),
             Flexible(
               child: ListView.builder(
                 shrinkWrap: true,
@@ -968,7 +1046,8 @@ class _StoreSelectorDialogState extends State<_StoreSelectorDialog> {
                       Navigator.of(context).pop(true);
                     },
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 20, vertical: 16),
                       decoration: BoxDecoration(
                         color: isSelected
                             ? AppTheme.primaryBlue.withValues(alpha: 0.1)
@@ -978,8 +1057,11 @@ class _StoreSelectorDialogState extends State<_StoreSelectorDialog> {
                         store.name,
                         style: TextStyle(
                           fontSize: 15,
-                          fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
-                          color: isSelected ? AppTheme.primaryBlue : Colors.black87,
+                          fontWeight:
+                              isSelected ? FontWeight.w600 : FontWeight.w400,
+                          color: isSelected
+                              ? AppTheme.primaryBlue
+                              : Colors.black87,
                         ),
                         textAlign: TextAlign.center,
                       ),

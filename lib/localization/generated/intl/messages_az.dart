@@ -21,5 +21,87 @@ class MessageLookup extends MessageLookupByLibrary {
   String get localeName => 'az';
 
   final messages = _notInlinedMessages(_notInlinedMessages);
-  static Map<String, Function> _notInlinedMessages(_) => <String, Function>{};
+  static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
+        "allBranches": MessageLookupByLibrary.simpleMessage("Bütün filiallar"),
+        "aprShort": MessageLookupByLibrary.simpleMessage("Apr"),
+        "augShort": MessageLookupByLibrary.simpleMessage("Avq"),
+        "avgCheck": MessageLookupByLibrary.simpleMessage("Ort. çek"),
+        "bills": MessageLookupByLibrary.simpleMessage("Çeklər"),
+        "branches": MessageLookupByLibrary.simpleMessage("Filiallar"),
+        "cancel": MessageLookupByLibrary.simpleMessage("İmtina"),
+        "card": MessageLookupByLibrary.simpleMessage("Kart"),
+        "cash": MessageLookupByLibrary.simpleMessage("Nağd"),
+        "chooseDay": MessageLookupByLibrary.simpleMessage("Günü seçin"),
+        "chooseMonth": MessageLookupByLibrary.simpleMessage("Ayı seçin"),
+        "chooseWeek": MessageLookupByLibrary.simpleMessage("Həftəni seçin"),
+        "chooseYear": MessageLookupByLibrary.simpleMessage("İli seçin"),
+        "comparisonLabel": MessageLookupByLibrary.simpleMessage("Müqayisə"),
+        "confirm": MessageLookupByLibrary.simpleMessage("Təsdiqlə"),
+        "consignation": MessageLookupByLibrary.simpleMessage("Konsiqnasiya"),
+        "day": MessageLookupByLibrary.simpleMessage("Gün"),
+        "decShort": MessageLookupByLibrary.simpleMessage("Dek"),
+        "discount": MessageLookupByLibrary.simpleMessage("Endirim"),
+        "febShort": MessageLookupByLibrary.simpleMessage("Fev"),
+        "fri": MessageLookupByLibrary.simpleMessage("C."),
+        "general": MessageLookupByLibrary.simpleMessage("Ümumi"),
+        "janShort": MessageLookupByLibrary.simpleMessage("Yan"),
+        "julShort": MessageLookupByLibrary.simpleMessage("İyul"),
+        "junShort": MessageLookupByLibrary.simpleMessage("İyun"),
+        "lastDay": MessageLookupByLibrary.simpleMessage("Keçən gün"),
+        "lastMonth": MessageLookupByLibrary.simpleMessage("Keçən ay"),
+        "lastMonthDay": MessageLookupByLibrary.simpleMessage(
+          "Keçən ayın eyni günü",
+        ),
+        "lastMonthOption": MessageLookupByLibrary.simpleMessage("Bir ay geri"),
+        "lastWeek": MessageLookupByLibrary.simpleMessage("Keçən həftə"),
+        "lastWeekDay": MessageLookupByLibrary.simpleMessage(
+          "Keçən həftənin eyni günü",
+        ),
+        "lastWeekOption":
+            MessageLookupByLibrary.simpleMessage("Bir həftə geri"),
+        "lastYear": MessageLookupByLibrary.simpleMessage("Keçən il"),
+        "lastYearDay":
+            MessageLookupByLibrary.simpleMessage("Keçən ilin eyni günü"),
+        "lastYearMonth": MessageLookupByLibrary.simpleMessage(
+          "Keçən ilin eyni ayı",
+        ),
+        "lastYearOption": MessageLookupByLibrary.simpleMessage("Bir il geri"),
+        "loyalty": MessageLookupByLibrary.simpleMessage("Loyallıq"),
+        "marShort": MessageLookupByLibrary.simpleMessage("Mar"),
+        "mayShort": MessageLookupByLibrary.simpleMessage("May"),
+        "mon": MessageLookupByLibrary.simpleMessage("B.e."),
+        "month": MessageLookupByLibrary.simpleMessage("Ay"),
+        "noDataAvailable":
+            MessageLookupByLibrary.simpleMessage("Məlumat yoxdur"),
+        "novShort": MessageLookupByLibrary.simpleMessage("Noy"),
+        "octShort": MessageLookupByLibrary.simpleMessage("Okt"),
+        "payments": MessageLookupByLibrary.simpleMessage("Ödənişlər"),
+        "period": MessageLookupByLibrary.simpleMessage("Dövr"),
+        "profit": MessageLookupByLibrary.simpleMessage("Mənfəət"),
+        "profitPercent": MessageLookupByLibrary.simpleMessage("Mənfəət %"),
+        "refund": MessageLookupByLibrary.simpleMessage("Geri qaytarma"),
+        "sales": MessageLookupByLibrary.simpleMessage("Satışlar"),
+        "salesByHours": MessageLookupByLibrary.simpleMessage(
+          "Saatlara görə satışlar",
+        ),
+        "sameDurationBack": MessageLookupByLibrary.simpleMessage(
+          "Eyni müddət geri",
+        ),
+        "sat": MessageLookupByLibrary.simpleMessage("Ş."),
+        "search": MessageLookupByLibrary.simpleMessage("Axtarış"),
+        "selectPeriod": MessageLookupByLibrary.simpleMessage("Dövrü seçin"),
+        "selectedPeriod": MessageLookupByLibrary.simpleMessage("Seçilmiş dövr"),
+        "selfcost": MessageLookupByLibrary.simpleMessage("Özü dəyəri"),
+        "sepShort": MessageLookupByLibrary.simpleMessage("Sen"),
+        "sun": MessageLookupByLibrary.simpleMessage("B."),
+        "thu": MessageLookupByLibrary.simpleMessage("C.a."),
+        "todayVsYesterday":
+            MessageLookupByLibrary.simpleMessage("Bu gün vs Dünən"),
+        "totalAmount": MessageLookupByLibrary.simpleMessage("Ümumi məbləğ"),
+        "totalBills": MessageLookupByLibrary.simpleMessage("Ümumi çeklər"),
+        "tue": MessageLookupByLibrary.simpleMessage("Ç.a."),
+        "wed": MessageLookupByLibrary.simpleMessage("Ç."),
+        "week": MessageLookupByLibrary.simpleMessage("Həftə"),
+        "year": MessageLookupByLibrary.simpleMessage("İl"),
+      };
 }
