@@ -159,11 +159,10 @@ class PickerWidgetState extends State<PickerWidget> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(color: Colors.grey.shade100),
-      child: Column(
+      child: Row(
         children: [
-          // If comparison is enabled, stack vertically with full width
-          if (widget.showCompareDateFilter) ...[
-            _DateSelector(
+          Expanded(
+            child: _DateSelector(
               currentDate1: currentDate1,
               currentDate2: currentDate2,
               oldDate1: oldDate1,
@@ -173,35 +172,12 @@ class PickerWidgetState extends State<PickerWidget> {
               showComparison: widget.showCompareDateFilter,
               onDateSelected: _handleDateSelection,
             ),
-            if (showStore) ...[
-              const SizedBox(height: 12),
-              _StoreSelector(onStoreChanged: _loadData),
-            ],
-          ]
-          // If no comparison, keep them in a row as before
-          else ...[
-            Row(
-              children: [
-                Expanded(
-                  child: _DateSelector(
-                    currentDate1: currentDate1,
-                    currentDate2: currentDate2,
-                    oldDate1: oldDate1,
-                    oldDate2: oldDate2,
-                    dateType: dt,
-                    isLoading: isLoading,
-                    showComparison: widget.showCompareDateFilter,
-                    onDateSelected: _handleDateSelection,
-                  ),
-                ),
-                if (showStore) const SizedBox(width: 12),
-                if (showStore)
-                  Expanded(
-                    child: _StoreSelector(onStoreChanged: _loadData),
-                  ),
-              ],
+          ),
+          if (showStore) const SizedBox(width: 12),
+          if (showStore)
+            Expanded(
+              child: _StoreSelector(onStoreChanged: _loadData),
             ),
-          ],
         ],
       ),
     );
@@ -485,7 +461,7 @@ class _StoreSelector extends StatelessWidget {
     return GestureDetector(
       onTap: () => _showStoreDialog(context),
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(12),
@@ -499,23 +475,24 @@ class _StoreSelector extends StatelessWidget {
         ),
         child: Row(
           children: [
-            const Icon(Icons.storefront, size: 20, color: AppTheme.primaryBlue),
-            const SizedBox(width: 12),
+            const Icon(Icons.storefront, size: 18, color: AppTheme.primaryBlue),
+            const SizedBox(width: 10),
             Expanded(
               child: Text(
                 _getStoreName(context),
                 style: const TextStyle(
-                  fontSize: 15,
+                  fontSize: 14,
                   fontWeight: FontWeight.w600,
                   color: Colors.black87,
-                  letterSpacing: 0.2,
+                  height: 1.2,
                 ),
                 overflow: TextOverflow.ellipsis,
+                maxLines: 1,
               ),
             ),
             const SizedBox(width: 8),
             Icon(Icons.keyboard_arrow_down,
-                size: 20, color: Colors.grey.shade600),
+                size: 18, color: Colors.grey.shade600),
           ],
         ),
       ),

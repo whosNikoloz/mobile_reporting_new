@@ -7,7 +7,11 @@
       "Bash(for model in hourly_sales_response_model report_group_response_model report_list_qty_response_model report_list_response_model report_value_response_model)",
       "Bash(do echo \"=== $model ===\")",
       "Bash(done)",
-      "Bash(ls:*)"
+      "Bash(ls:*)",
+      "Bash(adb logcat:*)",
+      "Bash(dir:*)",
+      "Bash(flutter run:*)",
+      "Bash(Select-String -Pattern \"error|exception|crash|fatal\" -Context 2,2)"
     ]
   }
 }

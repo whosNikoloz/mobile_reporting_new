@@ -74,14 +74,12 @@ class DashboardMetricCard extends StatelessWidget {
   }
 
   @override
-  @override
   Widget build(BuildContext context) {
     final isPositive = deltaPercent > 0;
-    final arrowSize = isLarge ? 44.0 : 20.0;
-    final valueSize = isLarge ? 68.0 : 24.0;
+    final valueSize = isLarge ? 48.0 : 22.0;
 
     return Container(
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
@@ -99,26 +97,22 @@ class DashboardMetricCard extends StatelessWidget {
           // Icon and Title Row
           Row(
             children: [
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFF1F5F9),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Icon(
-                  icon,
-                  size: isLarge ? 22 : 20,
-                  color: const Color(0xFF64748B),
-                ),
+              if (isLarge) ...[
+                const SizedBox(height: 70),
+              ],
+              Icon(
+                icon,
+                size: isLarge ? 30 : 20,
+                color: const Color(0xFF64748B),
               ),
-              const SizedBox(width: 12),
+              const SizedBox(width: 10),
               Expanded(
                 child: Text(
                   title,
                   style: TextStyle(
-                    fontSize: isLarge ? 20 : 15,
-                    color: const Color(0xFF64748B),
-                    fontWeight: FontWeight.w600,
+                    fontSize: isLarge ? 20 : 13,
+                    color: const Color(0xFF1E293B),
+                    fontWeight: isLarge ? FontWeight.w700 : FontWeight.w600,
                   ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
@@ -126,33 +120,34 @@ class DashboardMetricCard extends StatelessWidget {
               ),
             ],
           ),
-          
+
           if (isLarge) ...[
-            const SizedBox(height: 20),
             const Divider(height: 1, thickness: 1, color: Color(0xFFE2E8F0)),
           ] else
-            const SizedBox(height: 12),
-          
+            const SizedBox(height: 6),
+
           Expanded(
             child: Column(
-              mainAxisAlignment: isLarge ? MainAxisAlignment.center : MainAxisAlignment.end,
+              mainAxisAlignment:
+                  isLarge ? MainAxisAlignment.center : MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 // Value with arrow
                 Row(
+                  mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     if (hasChange) ...[
                       Icon(
                         isPositive ? Icons.arrow_upward : Icons.arrow_downward,
-                        size: arrowSize,
+                        size: isLarge ? 28 : 16,
                         color: isPositive
                             ? const Color(0xFF10B981)
                             : const Color(0xFFEF4444),
                       ),
-                      const SizedBox(width: 8),
+                      const SizedBox(width: 4),
                     ],
-                    Expanded(
+                    Flexible(
                       child: FittedBox(
                         fit: BoxFit.scaleDown,
                         alignment: Alignment.centerLeft,
@@ -169,20 +164,23 @@ class DashboardMetricCard extends StatelessWidget {
                     ),
                   ],
                 ),
-                // Percentage change
-                if (hasChange) ...[
-                  const SizedBox(height: 4),
-                  Text(
-                    '${isPositive ? '+' : '-'}${deltaPercent.abs().toStringAsFixed(0)}%',
+                // Percentage change below value (always reserve space)
+                const SizedBox(height: 2),
+                Padding(
+                  padding: const EdgeInsets.only(left: 20),
+                  child: Text(
+                    hasChange
+                        ? '${isPositive ? '+' : '-'}${deltaPercent.abs().toStringAsFixed(0)}%'
+                        : '',
                     style: TextStyle(
-                      fontSize: isLarge ? 20 : 12,
+                      fontSize: isLarge ? 14 : 11,
                       color: isPositive
                           ? const Color(0xFF10B981)
                           : const Color(0xFFEF4444),
                       fontWeight: FontWeight.w600,
                     ),
                   ),
-                ],
+                ),
               ],
             ),
           ),

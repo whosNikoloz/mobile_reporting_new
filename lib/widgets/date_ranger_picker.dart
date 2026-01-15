@@ -595,6 +595,8 @@ class _DateRangePickerState extends State<DateRangePicker> {
   }
 
   Widget _buildYearSelector() {
+    final now = DateTime.now();
+
     return GridView.builder(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
@@ -607,8 +609,10 @@ class _DateRangePickerState extends State<DateRangePicker> {
       itemCount: 12,
       itemBuilder: (context, index) {
         final year = _currentYear + index - 5;
+        final isFuture = year > now.year;
+
         return GestureDetector(
-          onTap: () {
+          onTap: isFuture ? null : () {
             setState(() {
               // Reset custom comparison when selecting new period
               _hasCustomComparison = false;
@@ -629,9 +633,11 @@ class _DateRangePickerState extends State<DateRangePicker> {
               year.toString(),
               style: TextStyle(
                 fontSize: 15,
-                color: year == _selectedDate.year
-                    ? AppTheme.primaryBlue
-                    : Colors.black87,
+                color: isFuture
+                    ? Colors.grey.shade300
+                    : year == _selectedDate.year
+                        ? AppTheme.primaryBlue
+                        : Colors.black87,
               ),
             ),
           ),
@@ -656,6 +662,8 @@ class _DateRangePickerState extends State<DateRangePicker> {
       S.of(context).decShort,
     ];
 
+    final now = DateTime.now();
+
     return GridView.builder(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
@@ -667,21 +675,25 @@ class _DateRangePickerState extends State<DateRangePicker> {
       ),
       itemCount: 12,
       itemBuilder: (context, index) {
+        final monthIndex = index + 1;
+        final isFuture = _currentYear > now.year ||
+            (_currentYear == now.year && monthIndex > now.month);
+
         return GestureDetector(
-          onTap: () {
+          onTap: isFuture ? null : () {
             setState(() {
               // Reset custom comparison when selecting new period
               _hasCustomComparison = false;
               _comparisonOffsetDays = null;
 
-              _selectedDate = DateTime(_currentYear, index + 1);
+              _selectedDate = DateTime(_currentYear, monthIndex);
             });
           },
           child: Container(
             alignment: Alignment.center,
             decoration: BoxDecoration(
               color: _selectedDate.year == _currentYear &&
-                      _selectedDate.month == index + 1
+                      _selectedDate.month == monthIndex
                   ? AppTheme.primaryBlue.withOpacity(0.1)
                   : Colors.transparent,
               borderRadius: BorderRadius.circular(8),
@@ -690,10 +702,12 @@ class _DateRangePickerState extends State<DateRangePicker> {
               months[index],
               style: TextStyle(
                 fontSize: 15,
-                color: _selectedDate.year == _currentYear &&
-                        _selectedDate.month == index + 1
-                    ? AppTheme.primaryBlue
-                    : Colors.black87,
+                color: isFuture
+                    ? Colors.grey.shade300
+                    : _selectedDate.year == _currentYear &&
+                            _selectedDate.month == monthIndex
+                        ? AppTheme.primaryBlue
+                        : Colors.black87,
               ),
             ),
           ),
@@ -773,7 +787,9 @@ class _DateRangePickerState extends State<DateRangePicker> {
 
         final date =
             DateTime(_currentMonth.year, _currentMonth.month, dayNumber);
-        final isToday = _isSameDay(date, DateTime.now());
+        final today = DateTime.now();
+        final isToday = _isSameDay(date, today);
+        final isFuture = date.isAfter(DateTime(today.year, today.month, today.day));
         final isSelected = _selectedPeriodType == PeriodType.day &&
             _isSameDay(date, _selectedDate);
 
@@ -818,10 +834,13 @@ class _DateRangePickerState extends State<DateRangePicker> {
                 _isSameDay(date, _rangeStart!);
 
         Color? backgroundColor;
-        Color? textColor = Colors.black87;
+        Color textColor = Colors.black87;
         BorderRadius? borderRadius;
 
-        if (isSelected) {
+        // Disable future dates
+        if (isFuture) {
+          textColor = Colors.grey.shade300;
+        } else if (isSelected) {
           backgroundColor = AppTheme.primaryBlue;
           textColor = Colors.white;
           borderRadius = BorderRadius.circular(20);
@@ -935,7 +954,7 @@ class _DateRangePickerState extends State<DateRangePicker> {
         }
 
         return GestureDetector(
-          onTap: () {
+          onTap: isFuture ? null : () {
             setState(() {
               // Reset custom comparison when selecting new period date
               // This ensures default comparison is used unless user explicitly sets custom
@@ -969,48 +988,415 @@ class _DateRangePickerState extends State<DateRangePicker> {
   }
 
   Widget _buildCompareToContent() {
-    // Calculate compare dates automatically
-    _calculateCompareDates();
-
     return Padding(
       padding: const EdgeInsets.all(12),
       child: Column(
         children: [
-          // Read-only display of selected period from Period tab
-          _buildSelectedPeriodDisplay(),
-          const SizedBox(height: 16),
-
-          // Divider with "Compare To" text
-          Row(
-            children: [
-              const Expanded(child: Divider()),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 12),
-                child: Text(
-                  S.of(context).comparisonLabel,
-                  style: TextStyle(
-                    fontSize: 13,
-                    color: Colors.grey.shade600,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ),
-              const Expanded(child: Divider()),
-            ],
-          ),
-          const SizedBox(height: 16),
-
-          // Comparison period selector
-          _buildComparisonOptions(),
-
-          // Always show calendar
+          _buildPeriodTypeSelector(),
           const SizedBox(height: 12),
-          _buildCalendarNavigation(),
+          _buildCompareCalendarNavigation(),
           const SizedBox(height: 12),
-          _buildCompareCalendar(),
+          _buildCompareCalendarView(),
         ],
       ),
     );
+  }
+
+  Widget _buildComparePeriodTypeSelector() {
+    return Column(
+      children: [
+        Row(
+          children: [
+            Expanded(
+              child: _buildComparePeriodTypeButton(S.of(context).day, PeriodType.day),
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: _buildComparePeriodTypeButton(S.of(context).week, PeriodType.week),
+            ),
+          ],
+        ),
+        const SizedBox(height: 8),
+        Row(
+          children: [
+            Expanded(
+              child: _buildComparePeriodTypeButton(S.of(context).month, PeriodType.month),
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: _buildComparePeriodTypeButton(S.of(context).year, PeriodType.year),
+            ),
+          ],
+        ),
+        const SizedBox(height: 8),
+        _buildComparePeriodButtonWithDisplay(),
+      ],
+    );
+  }
+
+  Widget _buildComparePeriodTypeButton(String text, PeriodType type) {
+    final isSelected = _selectedPeriodType == type;
+    return GestureDetector(
+      onTap: () {
+        setState(() {
+          _selectedPeriodType = type;
+          _hasCustomComparison = true;
+          if (type == PeriodType.week) {
+            _setCompareWeekRange(_compareRangeStart ?? DateTime.now());
+          } else if (type == PeriodType.period) {
+            _compareRangeStart = null;
+            _compareRangeEnd = null;
+          }
+        });
+      },
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 5),
+        decoration: BoxDecoration(
+          color: isSelected
+              ? Colors.orange.withOpacity(0.1)
+              : Colors.transparent,
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Text(
+          text,
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            fontSize: 14,
+            color: isSelected ? Colors.orange : Colors.black87,
+            fontWeight: isSelected ? FontWeight.w500 : FontWeight.normal,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildComparePeriodButtonWithDisplay() {
+    final isSelected = _selectedPeriodType == PeriodType.period;
+    final formatter = DateFormat('MMM d');
+    final hasDateRange = _compareRangeStart != null && _compareRangeEnd != null;
+
+    return Row(
+      children: [
+        Expanded(
+          flex: hasDateRange ? 2 : 1,
+          child: GestureDetector(
+            onTap: () {
+              setState(() {
+                _hasCustomComparison = true;
+                _selectedPeriodType = PeriodType.period;
+                _compareRangeStart = null;
+                _compareRangeEnd = null;
+              });
+            },
+            child: Container(
+              padding: const EdgeInsets.symmetric(vertical: 10),
+              decoration: BoxDecoration(
+                color: isSelected
+                    ? Colors.orange.withOpacity(0.1)
+                    : Colors.transparent,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    S.of(context).period,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: isSelected ? Colors.orange : Colors.black87,
+                      fontWeight: isSelected ? FontWeight.w500 : FontWeight.normal,
+                    ),
+                  ),
+                  if (isSelected && !hasDateRange)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 4),
+                      child: Text(
+                        'Click calendar dates',
+                        style: TextStyle(
+                          fontSize: 10,
+                          color: Colors.orange,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+            ),
+          ),
+        ),
+        if (hasDateRange && isSelected) ...[
+          const SizedBox(width: 8),
+          Expanded(
+            flex: 3,
+            child: Container(
+              padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
+              decoration: BoxDecoration(
+                color: Colors.orange.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Text(
+                '${formatter.format(_compareRangeStart!)} - ${formatter.format(_compareRangeEnd!)}',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 13,
+                  color: Colors.orange,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ],
+    );
+  }
+
+  Widget _buildCompareCalendarNavigation() {
+    String title = '';
+    switch (_selectedPeriodType) {
+      case PeriodType.year:
+        title = _currentYear.toString();
+        break;
+      case PeriodType.month:
+        title = _currentYear.toString();
+        break;
+      default:
+        title = DateFormat('MMM yyyy').format(_currentMonth);
+    }
+
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        IconButton(
+          icon: const Icon(Icons.chevron_left),
+          onPressed: _previousPeriod,
+        ),
+        Text(
+          title,
+          style: const TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+        IconButton(
+          icon: const Icon(Icons.chevron_right),
+          onPressed: _nextPeriod,
+        ),
+      ],
+    );
+  }
+
+  Widget _buildCompareCalendarView() {
+    switch (_selectedPeriodType) {
+      case PeriodType.year:
+        return _buildCompareYearSelector();
+      case PeriodType.month:
+        return _buildCompareMonthSelector();
+      default:
+        return _buildCompareNewDayCalendar();
+    }
+  }
+
+  Widget _buildCompareNewDayCalendar() {
+    final firstDay = DateTime(_currentMonth.year, _currentMonth.month, 1);
+    final lastDay = DateTime(_currentMonth.year, _currentMonth.month + 1, 0);
+    final daysInMonth = lastDay.day;
+
+    int firstWeekday = firstDay.weekday - 1;
+    if (firstWeekday < 0) firstWeekday = 6;
+
+    final totalCells = ((daysInMonth + firstWeekday) / 7).ceil() * 7;
+
+    // Get the BLUE period from Period tab (read-only display)
+    DateTime? bluePeriodStart;
+    DateTime? bluePeriodEnd;
+
+    switch (_selectedPeriodType) {
+      case PeriodType.day:
+        bluePeriodStart = DateTime(_selectedDate.year, _selectedDate.month, _selectedDate.day, 0, 0);
+        bluePeriodEnd = DateTime(_selectedDate.year, _selectedDate.month, _selectedDate.day, 23, 59);
+        break;
+      case PeriodType.week:
+      case PeriodType.period:
+        if (_rangeStart != null && _rangeEnd != null) {
+          bluePeriodStart = _rangeStart;
+          bluePeriodEnd = _rangeEnd;
+        }
+        break;
+      case PeriodType.month:
+        bluePeriodStart = DateTime(_selectedDate.year, _selectedDate.month, 1, 0, 0);
+        bluePeriodEnd = DateTime(_selectedDate.year, _selectedDate.month + 1, 0, 23, 59);
+        break;
+      case PeriodType.year:
+        bluePeriodStart = DateTime(_selectedDate.year, 1, 1, 0, 0);
+        bluePeriodEnd = DateTime(_selectedDate.year, 12, 31, 23, 59);
+        break;
+    }
+
+    return Column(
+      children: [
+        _buildWeekDayHeaders(),
+        const SizedBox(height: 4),
+        GridView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 7,
+            childAspectRatio: 1.5,
+            crossAxisSpacing: 0,
+            mainAxisSpacing: 0,
+          ),
+          itemCount: totalCells,
+          itemBuilder: (context, index) {
+            final dayNumber = index - firstWeekday + 1;
+
+            if (dayNumber < 1 || dayNumber > daysInMonth) {
+              return const SizedBox.shrink();
+            }
+
+            final date = DateTime(_currentMonth.year, _currentMonth.month, dayNumber);
+            final today = DateTime.now();
+            final isToday = _isSameDay(date, today);
+
+            // Check if date is disabled (future or same/after period start)
+            final isFuture = date.isAfter(DateTime(today.year, today.month, today.day));
+            final isInOrAfterPeriod = bluePeriodStart != null && !date.isBefore(bluePeriodStart);
+            final isDisabled = isFuture || isInOrAfterPeriod;
+
+            // BLUE: Check if date is in the Period tab selection (read-only)
+            final isInBlueRange = bluePeriodStart != null &&
+                bluePeriodEnd != null &&
+                !date.isBefore(bluePeriodStart) &&
+                !date.isAfter(bluePeriodEnd);
+            final isBlueStart = bluePeriodStart != null && _isSameDay(date, bluePeriodStart);
+            final isBlueEnd = bluePeriodEnd != null && _isSameDay(date, bluePeriodEnd);
+
+            // ORANGE: Check if date is in the compare selection
+            final isInOrangeRange = _compareRangeStart != null &&
+                _compareRangeEnd != null &&
+                !date.isBefore(_compareRangeStart!) &&
+                !date.isAfter(_compareRangeEnd!);
+            final isOrangeStart = _compareRangeStart != null && _isSameDay(date, _compareRangeStart!);
+            final isOrangeEnd = _compareRangeEnd != null && _isSameDay(date, _compareRangeEnd!);
+            final isOrangeFirstOnly = _compareRangeStart != null &&
+                _compareRangeEnd == null &&
+                _isSameDay(date, _compareRangeStart!);
+
+            Color? backgroundColor;
+            Color textColor = Colors.black87;
+            BorderRadius? borderRadius;
+
+            // Disabled dates (future or same/after period)
+            if (isDisabled && !isInBlueRange) {
+              textColor = Colors.grey.shade300;
+            }
+            // Priority: Blue first, then Orange
+            else if (isInBlueRange) {
+              backgroundColor = AppTheme.primaryBlue;
+              textColor = Colors.white;
+              if (isBlueStart && isBlueEnd) {
+                borderRadius = BorderRadius.circular(20);
+              } else if (isBlueStart) {
+                borderRadius = const BorderRadius.only(
+                  topLeft: Radius.circular(20),
+                  bottomLeft: Radius.circular(20),
+                );
+              } else if (isBlueEnd) {
+                borderRadius = const BorderRadius.only(
+                  topRight: Radius.circular(20),
+                  bottomRight: Radius.circular(20),
+                );
+              } else {
+                borderRadius = BorderRadius.zero;
+              }
+            } else if (isOrangeFirstOnly) {
+              backgroundColor = Colors.orange.withOpacity(0.3);
+              textColor = Colors.orange;
+              borderRadius = BorderRadius.circular(20);
+            } else if (isInOrangeRange) {
+              backgroundColor = Colors.orange;
+              textColor = Colors.white;
+              if (isOrangeStart && isOrangeEnd) {
+                borderRadius = BorderRadius.circular(20);
+              } else if (isOrangeStart) {
+                borderRadius = const BorderRadius.only(
+                  topLeft: Radius.circular(20),
+                  bottomLeft: Radius.circular(20),
+                );
+              } else if (isOrangeEnd) {
+                borderRadius = const BorderRadius.only(
+                  topRight: Radius.circular(20),
+                  bottomRight: Radius.circular(20),
+                );
+              } else {
+                borderRadius = BorderRadius.zero;
+              }
+            }
+
+            final hasMargin = !isInBlueRange && !isInOrangeRange && !isOrangeFirstOnly;
+
+            if (isToday && !isInBlueRange && !isInOrangeRange && !isDisabled && borderRadius == null) {
+              borderRadius = BorderRadius.circular(20);
+            }
+
+            return GestureDetector(
+              onTap: isDisabled ? null : () {
+                setState(() {
+                  _hasCustomComparison = true;
+                  // Set compare range based on period type
+                  if (_selectedPeriodType == PeriodType.day) {
+                    _compareRangeStart = DateTime(date.year, date.month, date.day, 0, 0);
+                    _compareRangeEnd = DateTime(date.year, date.month, date.day, 23, 59);
+                  } else if (_selectedPeriodType == PeriodType.week) {
+                    _setCompareWeekRange(date);
+                  } else if (_selectedPeriodType == PeriodType.month) {
+                    _compareRangeStart = DateTime(date.year, date.month, 1, 0, 0);
+                    _compareRangeEnd = DateTime(date.year, date.month + 1, 0, 23, 59);
+                  } else if (_selectedPeriodType == PeriodType.period) {
+                    if (_compareRangeStart == null || (_compareRangeStart != null && _compareRangeEnd != null)) {
+                      _compareRangeStart = date;
+                      _compareRangeEnd = null;
+                    } else if (date.isBefore(_compareRangeStart!)) {
+                      _compareRangeEnd = _compareRangeStart;
+                      _compareRangeStart = date;
+                    } else {
+                      _compareRangeEnd = date;
+                    }
+                  }
+                });
+              },
+              child: Container(
+                margin: hasMargin ? const EdgeInsets.all(2) : EdgeInsets.zero,
+                decoration: BoxDecoration(
+                  color: backgroundColor,
+                  borderRadius: borderRadius,
+                  border: isToday && !isInBlueRange && !isInOrangeRange && !isDisabled
+                      ? Border.all(color: AppTheme.primaryBlue, width: 2)
+                      : null,
+                ),
+                alignment: Alignment.center,
+                child: Text(
+                  dayNumber.toString(),
+                  style: TextStyle(
+                    fontSize: 13,
+                    color: textColor,
+                    fontWeight: isToday ? FontWeight.w600 : FontWeight.normal,
+                  ),
+                ),
+              ),
+            );
+          },
+        ),
+      ],
+    );
+  }
+
+  void _setCompareWeekRange(DateTime date) {
+    final weekday = date.weekday;
+    final monday = date.subtract(Duration(days: weekday - 1));
+    final sunday = monday.add(const Duration(days: 6));
+    _compareRangeStart = monday;
+    _compareRangeEnd = sunday;
   }
 
   Widget _buildSelectedPeriodDisplay() {
@@ -1769,6 +2155,7 @@ class _DateRangePickerState extends State<DateRangePicker> {
     // Get selected month from Period tab (BLUE)
     final selectedMonth = _selectedDate.month;
     final selectedYear = _selectedDate.year;
+    final now = DateTime.now();
 
     // Get comparison month (ORANGE)
     DateTime? compareMonth;
@@ -1794,8 +2181,15 @@ class _DateRangePickerState extends State<DateRangePicker> {
             _currentYear == compareMonth.year &&
             monthIndex == compareMonth.month;
 
+        // Disable future months and months >= selected period
+        final isFuture = _currentYear > now.year ||
+            (_currentYear == now.year && monthIndex > now.month);
+        final isAfterOrSamePeriod = _currentYear > selectedYear ||
+            (_currentYear == selectedYear && monthIndex >= selectedMonth);
+        final isDisabled = isFuture || isAfterOrSamePeriod;
+
         return GestureDetector(
-          onTap: () {
+          onTap: isDisabled ? null : () {
             setState(() {
               _selectedCompareOption = CompareToOption.customRange;
               _hasCustomComparison = true;
@@ -1822,11 +2216,13 @@ class _DateRangePickerState extends State<DateRangePicker> {
               months[index],
               style: TextStyle(
                 fontSize: 15,
-                color: isSelectedPeriod
-                    ? AppTheme.primaryBlue
-                    : isCompareMonth
-                        ? Colors.orange
-                        : Colors.black87,
+                color: isDisabled && !isSelectedPeriod
+                    ? Colors.grey.shade300
+                    : isSelectedPeriod
+                        ? AppTheme.primaryBlue
+                        : isCompareMonth
+                            ? Colors.orange
+                            : Colors.black87,
                 fontWeight: isSelectedPeriod || isCompareMonth
                     ? FontWeight.w600
                     : FontWeight.normal,
@@ -1841,6 +2237,7 @@ class _DateRangePickerState extends State<DateRangePicker> {
   Widget _buildCompareYearSelector() {
     // Get selected year from Period tab (BLUE)
     final selectedYear = _selectedDate.year;
+    final now = DateTime.now();
 
     // Get comparison year (ORANGE)
     int? compareYear;
@@ -1863,8 +2260,13 @@ class _DateRangePickerState extends State<DateRangePicker> {
         final isSelectedPeriod = year == selectedYear;
         final isCompareYear = year == compareYear;
 
+        // Disable future years and years >= selected period
+        final isFuture = year > now.year;
+        final isAfterOrSamePeriod = year >= selectedYear;
+        final isDisabled = isFuture || isAfterOrSamePeriod;
+
         return GestureDetector(
-          onTap: () {
+          onTap: isDisabled ? null : () {
             setState(() {
               _selectedCompareOption = CompareToOption.customRange;
               _hasCustomComparison = true;
@@ -1890,11 +2292,13 @@ class _DateRangePickerState extends State<DateRangePicker> {
               year.toString(),
               style: TextStyle(
                 fontSize: 15,
-                color: isSelectedPeriod
-                    ? AppTheme.primaryBlue
-                    : isCompareYear
-                        ? Colors.orange
-                        : Colors.black87,
+                color: isDisabled && !isSelectedPeriod
+                    ? Colors.grey.shade300
+                    : isSelectedPeriod
+                        ? AppTheme.primaryBlue
+                        : isCompareYear
+                            ? Colors.orange
+                            : Colors.black87,
                 fontWeight: isSelectedPeriod || isCompareYear
                     ? FontWeight.w600
                     : FontWeight.normal,
