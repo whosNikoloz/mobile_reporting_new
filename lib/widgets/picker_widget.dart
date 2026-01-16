@@ -66,14 +66,15 @@ class PickerWidgetState extends State<PickerWidget> {
         application.dashboardDateType != null) {
       _loadSavedDashboardDates();
     } else if (widget.screenType == ScreenType.reportssScreen &&
-        application.dateType == null) {
-      _setCurrentMonthDates();
-      dt = DateType.month;
-      cdt = CompareDateType.lastMonth;
+        application.dashboardDateType != null) {
+      // Use dashboard dates for reports screen
+      _loadSavedDashboardDates();
       _saveDates();
-    } else if (application.dateType != null &&
-        widget.screenType == ScreenType.reportssScreen) {
-      _loadSavedReportDates();
+    } else if (widget.screenType == ScreenType.reportssScreen) {
+      _setTodayDates();
+      dt = DateType.day;
+      cdt = CompareDateType.lastDay;
+      _saveDates();
     }
   }
 
@@ -143,14 +144,16 @@ class PickerWidgetState extends State<PickerWidget> {
   @override
   Widget build(BuildContext context) {
     if (firstLoad) {
-      widget
-          .getDate(
-              currentDate1, currentDate2, oldDate1, oldDate2, null, null, null)
-          .then((_) {
-        isLoading = false;
-        setState(() {});
-      });
       firstLoad = false;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        widget
+            .getDate(
+                currentDate1, currentDate2, oldDate1, oldDate2, null, null, null)
+            .then((_) {
+          isLoading = false;
+          setState(() {});
+        });
+      });
     }
 
     final bool showStore =

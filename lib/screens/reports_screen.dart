@@ -9,27 +9,108 @@ class ReportsScreen extends StatefulWidget {
 }
 
 class _ReportsScreenState extends State<ReportsScreen> {
-  String _selectedTab = 'Finances';
+  String _selectedTab = 'Sales';
+  final ScrollController _scrollController = ScrollController();
+  bool _isScrollingToSection = false;
+  DateTime _lastScrollUpdate = DateTime.now();
+
+  // GlobalKeys for each section to scroll to
+  final Map<String, GlobalKey> _sectionKeys = {
+    'Sales': GlobalKey(),
+    'Finances': GlobalKey(),
+    'Staff': GlobalKey(),
+    'Stock': GlobalKey(),
+  };
 
   final Map<String, List<String>> _reports = {
+    'Sales': [
+      'Sales by Day',
+      'Sales by Hour',
+      'Sales by Weekday',
+      'Sales by Month',
+    ],
     'Finances': [
-      'Sales Summary',
-      'Sales Summary',
-      'Sales Summary',
+      'Revenue Report',
+      'Expense Report',
+      'Profit & Loss',
     ],
     'Staff': [
-      'Sales Summary',
-      'Sales Summary',
-      'Sales Summary',
-      'Sales Summary',
-      'Sales Summary',
-      'Sales Summary',
+      'Staff Performance',
+      'Attendance Report',
+      'Commission Report',
+      'Shift Report',
+      'Hours Worked',
+      'Productivity Report',
     ],
     'Stock': [
-      'Sales Summary',
-      'Sales Summary',
+      'Inventory Report',
+      'Stock Movement',
     ],
   };
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController.addListener(_onScroll);
+  }
+
+  @override
+  void dispose() {
+    _scrollController.removeListener(_onScroll);
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _onScroll() {
+    // Skip if we're animating to a section
+    if (_isScrollingToSection) return;
+
+    // Throttle updates to every 100ms
+    final now = DateTime.now();
+    if (now.difference(_lastScrollUpdate).inMilliseconds < 100) return;
+    _lastScrollUpdate = now;
+
+    // Find which section is currently most visible
+    String? visibleSection;
+    double minDistance = double.infinity;
+
+    for (final entry in _sectionKeys.entries) {
+      final key = entry.value;
+      if (key.currentContext != null) {
+        final RenderBox? renderBox =
+            key.currentContext!.findRenderObject() as RenderBox?;
+        if (renderBox != null) {
+          final position = renderBox.localToGlobal(Offset.zero);
+          // Check distance from top of the visible area (accounting for tabs)
+          final distance = (position.dy - 150).abs();
+          if (position.dy <= 200 && distance < minDistance) {
+            minDistance = distance;
+            visibleSection = entry.key;
+          }
+        }
+      }
+    }
+
+    // Update selected tab if we found a visible section
+    if (visibleSection != null && visibleSection != _selectedTab) {
+      setState(() {
+        _selectedTab = visibleSection!;
+      });
+    }
+  }
+
+  Future<void> _scrollToSection(String section) async {
+    final key = _sectionKeys[section];
+    if (key?.currentContext != null) {
+      _isScrollingToSection = true;
+      await Scrollable.ensureVisible(
+        key!.currentContext!,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeOut,
+      );
+      _isScrollingToSection = false;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -44,6 +125,8 @@ class _ReportsScreenState extends State<ReportsScreen> {
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             child: Row(
               children: [
+                _buildTab('Sales'),
+                const SizedBox(width: 12),
                 _buildTab('Finances'),
                 const SizedBox(width: 12),
                 _buildTab('Staff'),
@@ -57,11 +140,13 @@ class _ReportsScreenState extends State<ReportsScreen> {
           // Content
           Expanded(
             child: ListView(
+              controller: _scrollController,
               padding: const EdgeInsets.all(16),
               children: [
                 ..._reports.keys.map((category) {
                   final reports = _reports[category]!;
                   return Column(
+                    key: _sectionKeys[category],
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       // Category Title
@@ -99,6 +184,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
         setState(() {
           _selectedTab = title;
         });
+        _scrollToSection(title);
       },
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),

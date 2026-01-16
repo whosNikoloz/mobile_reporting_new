@@ -1,9 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:intl/intl.dart';
+import 'package:mobile_reporting/api/response_models/daily_sales_response_model.dart';
+import 'package:mobile_reporting/api/response_models/hourly_sales_response_model.dart';
+import 'package:mobile_reporting/api/response_models/monthly_sales_response_model.dart';
+import 'package:mobile_reporting/api/response_models/weekday_sales_response_model.dart';
+import 'package:mobile_reporting/application_store.dart';
 import 'package:mobile_reporting/enums/screen_type.dart';
 import 'package:mobile_reporting/helpers/helpers_module.dart';
 import 'package:mobile_reporting/helpers/preferences_helper.dart';
 import 'package:mobile_reporting/screens/splash_screen.dart';
+import 'package:mobile_reporting/services/reports_service.dart';
 import 'package:mobile_reporting/theme/app_theme.dart';
 import 'package:mobile_reporting/widgets/picker_widget.dart';
 
@@ -20,6 +27,8 @@ class SalesSummaryScreen extends StatefulWidget {
 }
 
 class _SalesSummaryScreenState extends State<SalesSummaryScreen> {
+  final ReportsService _reportsService = ReportsService();
+
   bool isLoading = false;
   DateTime startCurrentPeriod = DateTime.now();
   DateTime endCurrentPeriod = DateTime.now();
@@ -29,23 +38,196 @@ class _SalesSummaryScreenState extends State<SalesSummaryScreen> {
   String? _companyName;
   String? _email;
 
-  String _selectedColumn = 'Column 1';
-  int _currentPage = 1;
-  final int _totalPages = 10;
+  String _selectedFilter = 'Income';
+  final List<String> _filterOptions = ['Income', 'Checks', 'Average Check'];
 
-  final List<Map<String, String>> _tableData = List.generate(
-    10,
-    (index) => {
-      'column1': 'Text\nText 2',
-      'column2': '14\nText Text',
-      'column3': '12 Aug - 24',
-    },
-  );
+  // Data from API
+  List<DailySalesResponseModel> _dailySalesData = [];
+  List<HourlySalesResponseModel> _hourlySalesData = [];
+  List<WeekdaySalesResponseModel> _weekdaySalesData = [];
+  List<MonthlySalesResponseModel> _monthlySalesData = [];
 
-  final List<String> _months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'];
-  final List<double> _productAData = [40, 30, 20, 30, 20, 25];
-  final List<double> _productBData = [25, 50, 30, 25, 60, 55];
-  final List<double> _productCData = [15, 10, 30, 25, 10, 10];
+  // Chart data based on report type
+  List<String> get _chartLabels {
+    if (widget.reportTitle.contains('Hour')) {
+      return _hourlySalesData.map((e) => e.hourRange).toList();
+    } else if (widget.reportTitle.contains('Weekday')) {
+      return _weekdaySalesData.map((e) => _getLocalizedDayName(e.name)).toList();
+    } else if (widget.reportTitle.contains('Day')) {
+      return _dailySalesData
+          .map((e) => DateFormat('dd.MM').format(e.date))
+          .toList();
+    } else if (widget.reportTitle.contains('Month')) {
+      return _monthlySalesData.map((e) => e.month).toList();
+    }
+    return [];
+  }
+
+  List<double> get _salesData {
+    if (widget.reportTitle.contains('Hour')) {
+      return _hourlySalesData.map((e) => e.currentSalesPercent).toList();
+    } else if (widget.reportTitle.contains('Weekday')) {
+      return _weekdaySalesData.map((e) => e.currentSalesPercent).toList();
+    } else if (widget.reportTitle.contains('Day')) {
+      return _dailySalesData.map((e) => e.currentSalesPercent).toList();
+    } else if (widget.reportTitle.contains('Month')) {
+      return _monthlySalesData.map((e) => e.currentSalesPercent).toList();
+    }
+    return [];
+  }
+
+  List<double> get _comparisonData {
+    if (widget.reportTitle.contains('Hour')) {
+      return _hourlySalesData.map((e) => e.previousSalesPercent).toList();
+    } else if (widget.reportTitle.contains('Weekday')) {
+      return _weekdaySalesData.map((e) => e.previousSalesPercent).toList();
+    } else if (widget.reportTitle.contains('Day')) {
+      return _dailySalesData.map((e) => e.previousSalesPercent).toList();
+    } else if (widget.reportTitle.contains('Month')) {
+      return _monthlySalesData.map((e) => e.previousSalesPercent).toList();
+    }
+    return [];
+  }
+
+  // Percentage data for chart (current period %)
+  List<double> get _currentPercentData {
+    if (widget.reportTitle.contains('Hour')) {
+      return _hourlySalesData.map((e) => e.currentSalesPercent).toList();
+    } else if (widget.reportTitle.contains('Weekday')) {
+      return _weekdaySalesData.map((e) => e.currentSalesPercent).toList();
+    } else if (widget.reportTitle.contains('Day')) {
+      return _dailySalesData.map((e) => e.currentSalesPercent).toList();
+    }
+    return [];
+  }
+
+  // Percentage data for chart (previous period %)
+  List<double> get _previousPercentData {
+    if (widget.reportTitle.contains('Hour')) {
+      return _hourlySalesData.map((e) => e.previousSalesPercent).toList();
+    } else if (widget.reportTitle.contains('Weekday')) {
+      return _weekdaySalesData.map((e) => e.previousSalesPercent).toList();
+    } else if (widget.reportTitle.contains('Day')) {
+      return _dailySalesData.map((e) => e.previousSalesPercent).toList();
+    }
+    return [];
+  }
+
+  // Georgian Weekdays Map
+  final Map<String, String> _geoWeekdays = {
+    // English Full
+    'Monday': 'ორშ',
+    'Tuesday': 'სამ',
+    'Wednesday': 'ოთხ',
+    'Thursday': 'ხუთ',
+    'Friday': 'პარ',
+    'Saturday': 'შაბ',
+    'Sunday': 'კვი',
+    // English Short
+    'Mon': 'ორშ',
+    'Tue': 'სამ',
+    'Wed': 'ოთხ',
+    'Thu': 'ხუთ',
+    'Fri': 'პარ',
+    'Sat': 'შაბ',
+    'Sun': 'კვი',
+    // Georgian Full
+    'ორშაბათი': 'ორშ',
+    'სამშაბათი': 'სამ',
+    'ოთხშაბათი': 'ოთხ',
+    'ხუთშაბათი': 'ხუთ',
+    'პარასკევი': 'პარ',
+    'შაბათი': 'შაბ',
+    'კვირა': 'კვი',
+  };
+
+  String _getLocalizedDayName(String? name) {
+    if (name == null) return '';
+    // Normalize input: trim and match against keys
+    final key = name.trim();
+    return _geoWeekdays[key] ?? _geoWeekdays[key.split(',')[0].trim()] ?? name;
+  }
+
+  String get _chartTitle {
+    if (widget.reportTitle.contains('Hour')) {
+      return 'Hourly Sales Overview';
+    } else if (widget.reportTitle.contains('Weekday')) {
+      return 'Weekday Sales Overview';
+    } else if (widget.reportTitle.contains('Day')) {
+      return 'Daily Sales Overview';
+    } else if (widget.reportTitle.contains('Month')) {
+      return 'Monthly Sales Overview';
+    }
+    return 'Sales Overview';
+  }
+
+  String get _listHeaderLabel {
+    if (widget.reportTitle.contains('Hour')) {
+      return 'Hour';
+    } else if (widget.reportTitle.contains('Weekday')) {
+      return 'Weekday';
+    } else if (widget.reportTitle.contains('Month')) {
+      return 'Month';
+    }
+    return 'Day';
+  }
+
+  List<Map<String, dynamic>> get _listData {
+    if (widget.reportTitle.contains('Hour')) {
+      return _hourlySalesData.map((e) {
+        double percentChange = 0;
+        if (e.previousSales > 0) {
+          percentChange =
+              ((e.currentSales - e.previousSales) / e.previousSales) * 100;
+        }
+        return {
+          'label': e.hourRange,
+          'value': e.currentSales,
+          'percentChange': percentChange,
+        };
+      }).toList();
+    } else if (widget.reportTitle.contains('Weekday')) {
+      return _weekdaySalesData.map((e) {
+        double percentChange = 0;
+        if (e.previousSales > 0) {
+          percentChange =
+              ((e.currentSales - e.previousSales) / e.previousSales) * 100;
+        }
+        return {
+          'label': _getLocalizedDayName(e.name),
+          'value': e.currentSales,
+          'percentChange': percentChange,
+        };
+      }).toList();
+    } else if (widget.reportTitle.contains('Day')) {
+      return _dailySalesData.map((e) {
+        double percentChange = 0;
+        if (e.previousSales > 0) {
+          percentChange =
+              ((e.currentSales - e.previousSales) / e.previousSales) * 100;
+        }
+        return {
+          'label': _getLocalizedDayName(DateFormat('EEEE').format(e.date)),
+          'value': e.currentSales,
+          'percentChange': percentChange,
+        };
+      }).toList();
+    } else if (widget.reportTitle.contains('Month')) {
+      return _monthlySalesData.map((e) {
+        double percentChange = 0;
+        if (e.previousSales > 0) {
+          percentChange =
+              ((e.currentSales - e.previousSales) / e.previousSales) * 100;
+        }
+        return {
+          'label': e.month,
+          'value': e.currentSales,
+          'percentChange': percentChange,
+        };
+      }).toList();
+    }
+    return [];
+  }
 
   @override
   void initState() {
@@ -306,7 +488,7 @@ class _SalesSummaryScreenState extends State<SalesSummaryScreen> {
           // Date and Store Pickers
           PickerWidget(
             screenType: ScreenType.reportssScreen,
-            showCompareDateFilter: false,
+            showCompareDateFilter: true,
             showStoreFilter: true,
             getDate: (DateTime dt1, DateTime dt2, DateTime dt3, DateTime dt4,
                 double? minAmount, double? maxAmount, String? billNum) async {
@@ -319,16 +501,7 @@ class _SalesSummaryScreenState extends State<SalesSummaryScreen> {
             onlyDayPicker: false,
           ),
 
-          // Column Filter
-          Container(
-            color: Colors.white,
-            padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-            child: _buildFilterDropdown(
-              Icons.view_column_outlined,
-              _selectedColumn,
-              () => _showColumnSelector(),
-            ),
-          ),
+
 
           Expanded(
             child: isLoading
@@ -336,188 +509,102 @@ class _SalesSummaryScreenState extends State<SalesSummaryScreen> {
                 : ListView(
                     padding: const EdgeInsets.all(16),
                     children: [
+                      // Filter Dropdown
+                      Container(
+                        margin: const EdgeInsets.only(bottom: 16),
+                        child: _buildFilterDropdown(
+                          Icons.tune,
+                          _selectedFilter,
+                          () => _showFilterSelector(),
+                        ),
+                      ),
+
                       // Chart Section
                       Container(
                         padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
                           color: Colors.white,
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius: BorderRadius.circular(16),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black.withValues(alpha: 0.03),
-                              blurRadius: 4,
-                              offset: const Offset(0, 1),
+                              color: Colors.black.withValues(alpha: 0.05),
+                              blurRadius: 10,
+                              offset: const Offset(0, 2),
                             ),
                           ],
                         ),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Text(
-                              'Sales Overview',
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w600,
-                                color: Colors.black87,
-                              ),
-                            ),
-                            const SizedBox(height: 16),
                             SizedBox(
-                              height: 200,
-                              child: _buildChart(),
+                              height: 280,
+                              child: _buildSalesChart(),
                             ),
-                            const SizedBox(height: 16),
-                            _buildLegend(),
                           ],
                         ),
                       ),
 
                       const SizedBox(height: 16),
 
-                      // Table Section
+                      // List Section
                       Container(
                         decoration: BoxDecoration(
                           color: Colors.white,
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius: BorderRadius.circular(16),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black.withValues(alpha: 0.03),
-                              blurRadius: 4,
-                              offset: const Offset(0, 1),
+                              color: Colors.black.withValues(alpha: 0.05),
+                              blurRadius: 10,
+                              offset: const Offset(0, 2),
                             ),
                           ],
                         ),
                         child: Column(
                           children: [
-                            // Table Header
+                            // List Header
                             Container(
                               padding: const EdgeInsets.symmetric(
-                                horizontal: 16,
-                                vertical: 12,
+                                horizontal: 20,
+                                vertical: 16,
                               ),
                               decoration: BoxDecoration(
-                                color: AppTheme.primaryBlue
-                                    .withValues(alpha: 0.08),
-                                borderRadius: const BorderRadius.only(
-                                  topLeft: Radius.circular(12),
-                                  topRight: Radius.circular(12),
+                                border: Border(
+                                  bottom: BorderSide(
+                                    color: Colors.grey.shade200,
+                                    width: 1,
+                                  ),
                                 ),
-                              ),
-                              child: const Row(
-                                children: [
-                                  Expanded(
-                                    child: Text(
-                                      'Column 1',
-                                      style: TextStyle(
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w600,
-                                        color: Colors.black87,
-                                      ),
-                                    ),
-                                  ),
-                                  Expanded(
-                                    child: Text(
-                                      'Column 2',
-                                      style: TextStyle(
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w600,
-                                        color: Colors.black87,
-                                      ),
-                                    ),
-                                  ),
-                                  Expanded(
-                                    child: Text(
-                                      'Column 3',
-                                      style: TextStyle(
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w600,
-                                        color: Colors.black87,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-
-                            // Table Rows
-                            ..._tableData.map((row) => _buildTableRow(row)),
-
-                            // Pagination
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 16,
-                                vertical: 16,
                               ),
                               child: Row(
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceBetween,
                                 children: [
-                                  GestureDetector(
-                                    onTap: _currentPage > 1
-                                        ? () {
-                                            setState(() {
-                                              _currentPage--;
-                                            });
-                                          }
-                                        : null,
-                                    child: Row(
-                                      children: [
-                                        Icon(
-                                          Icons.chevron_left,
-                                          color: _currentPage > 1
-                                              ? Colors.black87
-                                              : Colors.grey[400],
-                                        ),
-                                        Text(
-                                          'Prev',
-                                          style: TextStyle(
-                                            fontSize: 14,
-                                            color: _currentPage > 1
-                                                ? Colors.black87
-                                                : Colors.grey[400],
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
                                   Text(
-                                    'Page $_currentPage of $_totalPages',
+                                    _listHeaderLabel,
                                     style: const TextStyle(
-                                      fontSize: 14,
-                                      color: Colors.black87,
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.w600,
+                                      color: Colors.black54,
                                     ),
                                   ),
-                                  GestureDetector(
-                                    onTap: _currentPage < _totalPages
-                                        ? () {
-                                            setState(() {
-                                              _currentPage++;
-                                            });
-                                          }
-                                        : null,
-                                    child: Row(
-                                      children: [
-                                        Text(
-                                          'Next',
-                                          style: TextStyle(
-                                            fontSize: 14,
-                                            color: _currentPage < _totalPages
-                                                ? Colors.black87
-                                                : Colors.grey[400],
-                                          ),
-                                        ),
-                                        Icon(
-                                          Icons.chevron_right,
-                                          color: _currentPage < _totalPages
-                                              ? Colors.black87
-                                              : Colors.grey[400],
-                                        ),
-                                      ],
+                                  const Text(
+                                    'Income',
+                                    style: TextStyle(
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.w600,
+                                      color: Colors.black54,
                                     ),
                                   ),
                                 ],
                               ),
                             ),
+
+                            // List Items
+                            ..._listData.map((item) => _buildListItem(
+                                  item['label'],
+                                  item['value'],
+                                  item['percentChange'],
+                                )),
                           ],
                         ),
                       ),
@@ -534,21 +621,71 @@ class _SalesSummaryScreenState extends State<SalesSummaryScreen> {
       isLoading = true;
     });
 
-    // Simulate loading data
-    await Future.delayed(const Duration(milliseconds: 500));
+    try {
+      final storeId = application.selectedStoreId ?? 0;
+
+      if (widget.reportTitle.contains('Hour')) {
+        final response = await _reportsService.getHourlySalesReport(
+          storeId: storeId,
+          startCurrentPeriod: startCurrentPeriod,
+          endCurrentPeriod: endCurrentPeriod,
+          startPreviousPeriod: startOldPeriod,
+          endPreviousPeriod: endOldPeriod,
+        );
+        if (response != null) {
+          _hourlySalesData = response;
+        }
+      } else if (widget.reportTitle.contains('Weekday')) {
+        final response = await _reportsService.getWeekdaySalesReport(
+          storeId: storeId,
+          startCurrentPeriod: startCurrentPeriod,
+          endCurrentPeriod: endCurrentPeriod,
+          startPreviousPeriod: startOldPeriod,
+          endPreviousPeriod: endOldPeriod,
+        );
+        if (response != null) {
+          _weekdaySalesData = response;
+        }
+
+      } else if (widget.reportTitle.contains('Day')) {
+        final response = await _reportsService.getDailySalesReport(
+          storeId: storeId,
+          startCurrentPeriod: startCurrentPeriod,
+          endCurrentPeriod: endCurrentPeriod,
+          startPreviousPeriod: startOldPeriod,
+          endPreviousPeriod: endOldPeriod,
+        );
+        if (response != null) {
+          _dailySalesData = response;
+        }
+      } else if (widget.reportTitle.contains('Month')) {
+        final response = await _reportsService.getMonthlySalesReport(
+          storeId: storeId,
+          startCurrentPeriod: startCurrentPeriod,
+          endCurrentPeriod: endCurrentPeriod,
+          startPreviousPeriod: startOldPeriod,
+          endPreviousPeriod: endOldPeriod,
+        );
+        if (response != null) {
+          _monthlySalesData = response;
+        }
+      }
+    } catch (err) {
+      print('❌ Error loading report data: $err');
+    }
 
     setState(() {
       isLoading = false;
     });
   }
 
-  void _showColumnSelector() {
+  void _showFilterSelector() {
     showModalBottomSheet(
       backgroundColor: Colors.transparent,
       context: context,
       builder: (context) => Container(
-        decoration: BoxDecoration(
-          borderRadius: const BorderRadius.only(
+        decoration: const BoxDecoration(
+          borderRadius: BorderRadius.only(
             topLeft: Radius.circular(20),
             topRight: Radius.circular(20),
           ),
@@ -565,7 +702,7 @@ class _SalesSummaryScreenState extends State<SalesSummaryScreen> {
                 children: [
                   const SizedBox(width: 40),
                   const Text(
-                    'Select Column',
+                    'Select Filter',
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       fontSize: 18,
@@ -580,9 +717,9 @@ class _SalesSummaryScreenState extends State<SalesSummaryScreen> {
                 ],
               ),
               const SizedBox(height: 16),
-              // Column options
-              ...['Column 1', 'Column 2', 'Column 3'].map((column) {
-                final isSelected = _selectedColumn == column;
+              // Filter options
+              ..._filterOptions.map((filter) {
+                final isSelected = _selectedFilter == filter;
                 return Container(
                   margin: const EdgeInsets.only(bottom: 8),
                   decoration: BoxDecoration(
@@ -600,7 +737,7 @@ class _SalesSummaryScreenState extends State<SalesSummaryScreen> {
                   child: InkWell(
                     onTap: () {
                       setState(() {
-                        _selectedColumn = column;
+                        _selectedFilter = filter;
                       });
                       Navigator.pop(context);
                     },
@@ -611,7 +748,7 @@ class _SalesSummaryScreenState extends State<SalesSummaryScreen> {
                       child: Row(
                         children: [
                           Icon(
-                            Icons.view_column,
+                            Icons.attach_money,
                             color: isSelected
                                 ? AppTheme.primaryBlue
                                 : Colors.grey.shade600,
@@ -620,7 +757,7 @@ class _SalesSummaryScreenState extends State<SalesSummaryScreen> {
                           const SizedBox(width: 12),
                           Expanded(
                             child: Text(
-                              column,
+                              filter,
                               style: TextStyle(
                                 color: isSelected
                                     ? AppTheme.primaryBlue
@@ -656,7 +793,7 @@ class _SalesSummaryScreenState extends State<SalesSummaryScreen> {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
         decoration: BoxDecoration(
           color: Colors.white,
           border: Border.all(color: Colors.grey[300]!),
@@ -683,26 +820,83 @@ class _SalesSummaryScreenState extends State<SalesSummaryScreen> {
     );
   }
 
-  Widget _buildChart() {
+  Widget _buildSalesChart() {
+    if (_salesData.isEmpty) {
+      return const Center(
+        child: Text(
+          'No data available',
+          style: TextStyle(color: Colors.grey),
+        ),
+      );
+    }
+
+    final dataMax = _salesData.reduce((a, b) => a > b ? a : b);
+    final comparisonMax = _comparisonData.reduce((a, b) => a > b ? a : b);
+    final maxValue = dataMax > comparisonMax ? dataMax : comparisonMax;
+    final maxY = maxValue > 0 ? maxValue * 1.2 : 100.0;
+    final labels = _chartLabels;
+
     return BarChart(
       BarChartData(
         alignment: BarChartAlignment.spaceAround,
-        maxY: 100,
-        barTouchData: BarTouchData(enabled: false),
+        maxY: maxY,
+        barTouchData: BarTouchData(
+          enabled: true,
+          touchTooltipData: BarTouchTooltipData(
+            getTooltipColor: (group) => Colors.black87,
+            tooltipPadding: const EdgeInsets.all(8),
+            tooltipMargin: 8,
+            getTooltipItem: (group, groupIndex, rod, rodIndex) {
+              return BarTooltipItem(
+                '${labels[group.x]}\n',
+                const TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 12,
+                ),
+                children: [
+                  TextSpan(
+                    text: rodIndex == 0
+                        ? '${_salesData[group.x].toStringAsFixed(1)}%'
+                        : '${_comparisonData[group.x].toStringAsFixed(1)}%',
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
+              );
+            },
+          ),
+        ),
         titlesData: FlTitlesData(
           show: true,
           bottomTitles: AxisTitles(
             sideTitles: SideTitles(
               showTitles: true,
               getTitlesWidget: (value, meta) {
-                if (value.toInt() >= 0 && value.toInt() < _months.length) {
+                if (value.toInt() >= 0 && value.toInt() < labels.length) {
+                  // Label skipping logic to prevent overlap
+                  int interval = 1;
+                  if (labels.length > 15) {
+                    interval = 5;
+                  } else if (labels.length > 10) {
+                    interval = 2;
+                  }
+
+                  if (value.toInt() % interval != 0) {
+                    return const Text('');
+                  }
+
                   return Padding(
                     padding: const EdgeInsets.only(top: 8),
                     child: Text(
-                      _months[value.toInt()],
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Colors.grey[700],
+                      labels[value.toInt()],
+                      style: const TextStyle(
+                        fontSize: 10,
+                        color: Colors.black54,
+                        fontWeight: FontWeight.w500,
                       ),
                     ),
                   );
@@ -714,13 +908,14 @@ class _SalesSummaryScreenState extends State<SalesSummaryScreen> {
           leftTitles: AxisTitles(
             sideTitles: SideTitles(
               showTitles: true,
-              reservedSize: 40,
+              reservedSize: 50,
               getTitlesWidget: (value, meta) {
+                if (value == 0) return const Text('');
                 return Text(
                   '${value.toInt()}%',
-                  style: TextStyle(
-                    fontSize: 11,
-                    color: Colors.grey[600],
+                  style: const TextStyle(
+                    fontSize: 10,
+                    color: Colors.black45,
                   ),
                 );
               },
@@ -736,45 +931,33 @@ class _SalesSummaryScreenState extends State<SalesSummaryScreen> {
         gridData: FlGridData(
           show: true,
           drawVerticalLine: false,
-          horizontalInterval: 25,
+          horizontalInterval: maxY / 5,
           getDrawingHorizontalLine: (value) {
             return FlLine(
               color: Colors.grey[200],
               strokeWidth: 1,
+              dashArray: [5, 5],
             );
           },
         ),
         borderData: FlBorderData(show: false),
-        barGroups: List.generate(_months.length, (index) {
+        barGroups: List.generate(labels.length, (index) {
           return BarChartGroupData(
             x: index,
             barRods: [
               BarChartRodData(
-                toY: _productAData[index] +
-                    _productBData[index] +
-                    _productCData[index],
-                width: 24,
+                toY: _salesData[index],
+                width: 12, // Adjusted for better fitting
                 borderRadius:
                     const BorderRadius.vertical(top: Radius.circular(4)),
-                rodStackItems: [
-                  BarChartRodStackItem(
-                    0,
-                    _productAData[index],
-                    AppTheme.primaryBlue,
-                  ),
-                  BarChartRodStackItem(
-                    _productAData[index],
-                    _productAData[index] + _productBData[index],
-                    AppTheme.primaryBlue.withValues(alpha: 0.6),
-                  ),
-                  BarChartRodStackItem(
-                    _productAData[index] + _productBData[index],
-                    _productAData[index] +
-                        _productBData[index] +
-                        _productCData[index],
-                    AppTheme.primaryBlue.withValues(alpha: 0.3),
-                  ),
-                ],
+                color: AppTheme.primaryBlue, // User requested primary blue
+              ),
+              BarChartRodData(
+                toY: _comparisonData[index],
+                width: 12, // Adjusted for better fitting
+                borderRadius:
+                    const BorderRadius.vertical(top: Radius.circular(4)),
+                color: const Color(0xFFFFA726), // User requested Orange
               ),
             ],
           );
@@ -783,84 +966,49 @@ class _SalesSummaryScreenState extends State<SalesSummaryScreen> {
     );
   }
 
-  Widget _buildLegend() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        _buildLegendItem(AppTheme.primaryBlue, 'Product A'),
-        const SizedBox(width: 16),
-        _buildLegendItem(
-            AppTheme.primaryBlue.withValues(alpha: 0.6), 'Product B'),
-        const SizedBox(width: 16),
-        _buildLegendItem(
-            AppTheme.primaryBlue.withValues(alpha: 0.3), 'Product C'),
-      ],
-    );
-  }
+  Widget _buildListItem(String day, double value, double percentChange) {
+    final isPositive = percentChange >= 0;
+    final color = isPositive ? Colors.green : Colors.red;
 
-  Widget _buildLegendItem(Color color, String label) {
-    return Row(
-      children: [
-        Container(
-          width: 8,
-          height: 8,
-          decoration: BoxDecoration(
-            color: color,
-            shape: BoxShape.circle,
-          ),
-        ),
-        const SizedBox(width: 6),
-        Text(
-          label,
-          style: TextStyle(
-            fontSize: 12,
-            color: Colors.grey[700],
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildTableRow(Map<String, String> row) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
       decoration: BoxDecoration(
         border: Border(
-          bottom: BorderSide(color: Colors.grey[200]!),
+          bottom: BorderSide(color: Colors.grey.shade100),
         ),
       ),
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Expanded(
-            child: Text(
-              row['column1']!,
-              style: TextStyle(
-                fontSize: 13,
-                color: Colors.grey[700],
-                height: 1.4,
-              ),
+          Text(
+            day,
+            style: const TextStyle(
+              fontSize: 15,
+              color: Colors.black87,
+              fontWeight: FontWeight.w500,
             ),
           ),
-          Expanded(
-            child: Text(
-              row['column2']!,
-              style: TextStyle(
-                fontSize: 13,
-                color: Colors.grey[700],
-                height: 1.4,
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Text(
+                '${value.toStringAsFixed(2)}₾',
+                style: const TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.black87,
+                ),
               ),
-            ),
-          ),
-          Expanded(
-            child: Text(
-              row['column3']!,
-              style: const TextStyle(
-                fontSize: 13,
-                color: Colors.black87,
-                height: 1.4,
+              const SizedBox(height: 2),
+              Text(
+                '${isPositive ? '+' : ''}${percentChange.toStringAsFixed(0)}%',
+                style: TextStyle(
+                  fontSize: 12,
+                  color: color,
+                  fontWeight: FontWeight.w500,
+                ),
               ),
-            ),
+            ],
           ),
         ],
       ),
