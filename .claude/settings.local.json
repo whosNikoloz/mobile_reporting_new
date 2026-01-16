@@ -11,7 +11,8 @@
       "Bash(adb logcat:*)",
       "Bash(dir:*)",
       "Bash(flutter run:*)",
-      "Bash(Select-String -Pattern \"error|exception|crash|fatal\" -Context 2,2)"
+      "Bash(Select-String -Pattern \"error|exception|crash|fatal\" -Context 2,2)",
+      "Bash(dart run:*)"
     ]
   }
 }

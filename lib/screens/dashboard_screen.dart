@@ -125,7 +125,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             Padding(
               padding: const EdgeInsets.symmetric(
                 horizontal: 16,
-                vertical: 16,
+                vertical: 0,
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -302,7 +302,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           child: DashboardMetricCard.fromDecimal(
                             title: S.of(context).consignation,
                             icon: Icons.handshake_outlined,
-                            metric: _dashboardData!.current.payments.consignation,
+                            metric:
+                                _dashboardData!.current.payments.consignation,
                             currency: CurrencyHelper.getCurrencySymbol(),
                           ),
                         ),

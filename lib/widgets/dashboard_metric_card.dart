@@ -110,7 +110,7 @@ class DashboardMetricCard extends StatelessWidget {
                 child: Text(
                   title,
                   style: TextStyle(
-                    fontSize: isLarge ? 20 : 13,
+                    fontSize: isLarge ? 17 : 13,
                     color: const Color(0xFF1E293B),
                     fontWeight: isLarge ? FontWeight.w700 : FontWeight.w600,
                   ),

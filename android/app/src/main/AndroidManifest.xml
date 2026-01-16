@@ -2,7 +2,7 @@
     package="fina.mobile.mobile_reporting_new">
     <uses-permission android:name="android.permission.INTERNET"/>
     <application
-        android:label="Fina Dashboard"
+        android:label="FINA Mobile Reporting Dashboard"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity

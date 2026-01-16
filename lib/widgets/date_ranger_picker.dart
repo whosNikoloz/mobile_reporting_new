@@ -597,6 +597,12 @@ class _DateRangePickerState extends State<DateRangePicker> {
   Widget _buildYearSelector() {
     final now = DateTime.now();
 
+    // Calculate automatic comparison year (ORANGE) - previous year
+    int? autoCompareYear;
+    if (_selectedPeriodType == PeriodType.year) {
+      autoCompareYear = _selectedDate.year - 1;
+    }
+
     return GridView.builder(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
@@ -611,6 +617,12 @@ class _DateRangePickerState extends State<DateRangePicker> {
         final year = _currentYear + index - 5;
         final isFuture = year > now.year;
 
+        // Check if this is the selected year (BLUE)
+        final isSelected = year == _selectedDate.year;
+
+        // Check if this is the auto-comparison year (ORANGE)
+        final isAutoCompare = autoCompareYear != null && year == autoCompareYear;
+
         return GestureDetector(
           onTap: isFuture ? null : () {
             setState(() {
@@ -624,9 +636,11 @@ class _DateRangePickerState extends State<DateRangePicker> {
           child: Container(
             alignment: Alignment.center,
             decoration: BoxDecoration(
-              color: year == _selectedDate.year
+              color: isSelected
                   ? AppTheme.primaryBlue.withOpacity(0.1)
-                  : Colors.transparent,
+                  : isAutoCompare
+                      ? Colors.orange.withOpacity(0.1)
+                      : Colors.transparent,
               borderRadius: BorderRadius.circular(8),
             ),
             child: Text(
@@ -635,9 +649,12 @@ class _DateRangePickerState extends State<DateRangePicker> {
                 fontSize: 15,
                 color: isFuture
                     ? Colors.grey.shade300
-                    : year == _selectedDate.year
+                    : isSelected
                         ? AppTheme.primaryBlue
-                        : Colors.black87,
+                        : isAutoCompare
+                            ? Colors.orange
+                            : Colors.black87,
+                fontWeight: isSelected || isAutoCompare ? FontWeight.w600 : FontWeight.normal,
               ),
             ),
           ),
@@ -664,6 +681,12 @@ class _DateRangePickerState extends State<DateRangePicker> {
 
     final now = DateTime.now();
 
+    // Calculate automatic comparison month (ORANGE) - previous month
+    DateTime? autoCompareMonth;
+    if (_selectedPeriodType == PeriodType.month) {
+      autoCompareMonth = DateTime(_selectedDate.year, _selectedDate.month - 1, 1);
+    }
+
     return GridView.builder(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
@@ -679,6 +702,15 @@ class _DateRangePickerState extends State<DateRangePicker> {
         final isFuture = _currentYear > now.year ||
             (_currentYear == now.year && monthIndex > now.month);
 
+        // Check if this is the selected month (BLUE)
+        final isSelected = _selectedDate.year == _currentYear &&
+            _selectedDate.month == monthIndex;
+
+        // Check if this is the auto-comparison month (ORANGE)
+        final isAutoCompare = autoCompareMonth != null &&
+            _currentYear == autoCompareMonth.year &&
+            monthIndex == autoCompareMonth.month;
+
         return GestureDetector(
           onTap: isFuture ? null : () {
             setState(() {
@@ -692,10 +724,11 @@ class _DateRangePickerState extends State<DateRangePicker> {
           child: Container(
             alignment: Alignment.center,
             decoration: BoxDecoration(
-              color: _selectedDate.year == _currentYear &&
-                      _selectedDate.month == monthIndex
+              color: isSelected
                   ? AppTheme.primaryBlue.withOpacity(0.1)
-                  : Colors.transparent,
+                  : isAutoCompare
+                      ? Colors.orange.withOpacity(0.1)
+                      : Colors.transparent,
               borderRadius: BorderRadius.circular(8),
             ),
             child: Text(
@@ -704,10 +737,12 @@ class _DateRangePickerState extends State<DateRangePicker> {
                 fontSize: 15,
                 color: isFuture
                     ? Colors.grey.shade300
-                    : _selectedDate.year == _currentYear &&
-                            _selectedDate.month == monthIndex
+                    : isSelected
                         ? AppTheme.primaryBlue
-                        : Colors.black87,
+                        : isAutoCompare
+                            ? Colors.orange
+                            : Colors.black87,
+                fontWeight: isSelected || isAutoCompare ? FontWeight.w600 : FontWeight.normal,
               ),
             ),
           ),
@@ -768,6 +803,25 @@ class _DateRangePickerState extends State<DateRangePicker> {
 
     final totalCells = ((daysInMonth + firstWeekday) / 7).ceil() * 7;
 
+    // Calculate automatic comparison dates (ORANGE) based on current selection (BLUE)
+    DateTime? autoCompareStart;
+    DateTime? autoCompareEnd;
+
+    if (_selectedPeriodType == PeriodType.period && _rangeStart != null && _rangeEnd != null) {
+      // For period type, calculate comparison based on duration
+      final duration = _rangeEnd!.difference(_rangeStart!);
+      autoCompareEnd = _rangeStart!.subtract(const Duration(days: 1));
+      autoCompareStart = autoCompareEnd.subtract(duration);
+    } else if (_selectedPeriodType == PeriodType.day) {
+      // For day type, show previous day
+      autoCompareStart = _selectedDate.subtract(const Duration(days: 1));
+      autoCompareEnd = autoCompareStart;
+    } else if (_selectedPeriodType == PeriodType.week && _rangeStart != null && _rangeEnd != null) {
+      // For week type, show previous week
+      autoCompareStart = _rangeStart!.subtract(const Duration(days: 7));
+      autoCompareEnd = _rangeEnd!.subtract(const Duration(days: 7));
+    }
+
     return GridView.builder(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
@@ -793,7 +847,7 @@ class _DateRangePickerState extends State<DateRangePicker> {
         final isSelected = _selectedPeriodType == PeriodType.day &&
             _isSameDay(date, _selectedDate);
 
-        // Week selection logic
+        // Week selection logic (BLUE)
         final isInWeekRange = _selectedPeriodType == PeriodType.week &&
             _rangeStart != null &&
             _rangeEnd != null &&
@@ -809,7 +863,7 @@ class _DateRangePickerState extends State<DateRangePicker> {
             _rangeEnd != null &&
             _isSameDay(date, _rangeEnd!);
 
-        // Period (custom range) selection logic
+        // Period (custom range) selection logic (BLUE)
         final isPeriodStart = _selectedPeriodType == PeriodType.period &&
             _rangeStart != null &&
             _isSameDay(date, _rangeStart!);
@@ -833,6 +887,15 @@ class _DateRangePickerState extends State<DateRangePicker> {
                 _rangeEnd == null &&
                 _isSameDay(date, _rangeStart!);
 
+        // ORANGE: Automatic comparison range (only show when period selection is complete)
+        final isInAutoCompareRange = autoCompareStart != null &&
+            autoCompareEnd != null &&
+            !date.isBefore(autoCompareStart) &&
+            !date.isAfter(autoCompareEnd);
+
+        final isAutoCompareStart = autoCompareStart != null && _isSameDay(date, autoCompareStart);
+        final isAutoCompareEnd = autoCompareEnd != null && _isSameDay(date, autoCompareEnd);
+
         Color? backgroundColor;
         Color textColor = Colors.black87;
         BorderRadius? borderRadius;
@@ -841,10 +904,12 @@ class _DateRangePickerState extends State<DateRangePicker> {
         if (isFuture) {
           textColor = Colors.grey.shade300;
         } else if (isSelected) {
+          // BLUE: Day selection
           backgroundColor = AppTheme.primaryBlue;
           textColor = Colors.white;
           borderRadius = BorderRadius.circular(20);
         } else if (isInWeekRange) {
+          // BLUE: Week selection
           backgroundColor = AppTheme.primaryBlue;
           textColor = Colors.white;
           if (isWeekStart && isWeekEnd) {
@@ -863,11 +928,12 @@ class _DateRangePickerState extends State<DateRangePicker> {
             borderRadius = BorderRadius.zero;
           }
         } else if (isPeriodFirstDateOnly) {
-          // First date selected in period mode - show with lighter blue
+          // BLUE: First date selected in period mode - show with lighter blue
           backgroundColor = AppTheme.primaryBlue.withOpacity(0.3);
           textColor = AppTheme.primaryBlue;
           borderRadius = BorderRadius.circular(20);
         } else if (isPeriodStart || isPeriodEnd || isInPeriodRange) {
+          // BLUE: Period selection
           backgroundColor = AppTheme.primaryBlue;
           textColor = Colors.white;
           if (isPeriodStart && isPeriodEnd) {
@@ -885,6 +951,25 @@ class _DateRangePickerState extends State<DateRangePicker> {
           } else {
             borderRadius = BorderRadius.zero;
           }
+        } else if (isInAutoCompareRange && !isFuture) {
+          // ORANGE: Automatic comparison range (read-only display)
+          backgroundColor = Colors.orange;
+          textColor = Colors.white;
+          if (isAutoCompareStart && isAutoCompareEnd) {
+            borderRadius = BorderRadius.circular(20);
+          } else if (isAutoCompareStart) {
+            borderRadius = const BorderRadius.only(
+              topLeft: Radius.circular(20),
+              bottomLeft: Radius.circular(20),
+            );
+          } else if (isAutoCompareEnd) {
+            borderRadius = const BorderRadius.only(
+              topRight: Radius.circular(20),
+              bottomRight: Radius.circular(20),
+            );
+          } else {
+            borderRadius = BorderRadius.zero;
+          }
         }
 
         // Show week numbers for week view
@@ -895,13 +980,15 @@ class _DateRangePickerState extends State<DateRangePicker> {
             !isPeriodEnd &&
             !isPeriodFirstDateOnly &&
             !isWeekStart &&
-            !isWeekEnd;
+            !isWeekEnd &&
+            !isInAutoCompareRange;
 
         // Make today rounded when it's not part of any selection
         if (isToday &&
             !isSelected &&
             !isInWeekRange &&
             !isInPeriodRange &&
+            !isInAutoCompareRange &&
             borderRadius == null) {
           borderRadius = BorderRadius.circular(20);
         }
@@ -916,7 +1003,8 @@ class _DateRangePickerState extends State<DateRangePicker> {
                     !isInWeekRange &&
                     !isInPeriodRange &&
                     !isPeriodStart &&
-                    !isPeriodEnd
+                    !isPeriodEnd &&
+                    !isInAutoCompareRange
                 ? Border.all(color: AppTheme.primaryBlue, width: 2)
                 : null,
           ),

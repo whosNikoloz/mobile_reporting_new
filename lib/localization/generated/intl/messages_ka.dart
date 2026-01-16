@@ -89,7 +89,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "selectPeriod": MessageLookupByLibrary.simpleMessage("აირჩიეთ პერიოდი"),
         "selectedPeriod":
             MessageLookupByLibrary.simpleMessage("არჩეული პერიოდი"),
-        "selfcost": MessageLookupByLibrary.simpleMessage("თვითღირებულება"),
+        "selfcost": MessageLookupByLibrary.simpleMessage("თ/ღ"),
         "sepShort": MessageLookupByLibrary.simpleMessage("სექ"),
         "sun": MessageLookupByLibrary.simpleMessage("კვი"),
         "thu": MessageLookupByLibrary.simpleMessage("ხუთ"),
