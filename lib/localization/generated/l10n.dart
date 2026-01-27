@@ -54,6 +54,91 @@ class S {
     return Localizations.of<S>(context, S);
   }
 
+  /// `Log In`
+  String get logIn {
+    return Intl.message('Log In', name: 'logIn', desc: '', args: []);
+  }
+
+  /// `Username`
+  String get username {
+    return Intl.message('Username', name: 'username', desc: '', args: []);
+  }
+
+  /// `Password`
+  String get password {
+    return Intl.message('Password', name: 'password', desc: '', args: []);
+  }
+
+  /// `Language`
+  String get language {
+    return Intl.message('Language', name: 'language', desc: '', args: []);
+  }
+
+  /// `English`
+  String get english {
+    return Intl.message('English', name: 'english', desc: '', args: []);
+  }
+
+  /// `Georgian`
+  String get georgian {
+    return Intl.message('Georgian', name: 'georgian', desc: '', args: []);
+  }
+
+  /// `Close`
+  String get close {
+    return Intl.message('Close', name: 'close', desc: '', args: []);
+  }
+
+  /// `Log Out`
+  String get logout {
+    return Intl.message('Log Out', name: 'logout', desc: '', args: []);
+  }
+
+  /// `Your profile information`
+  String get profileInfo {
+    return Intl.message(
+      'Your profile information',
+      name: 'profileInfo',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Dashboard`
+  String get dashboard {
+    return Intl.message('Dashboard', name: 'dashboard', desc: '', args: []);
+  }
+
+  /// `Reports`
+  String get reports {
+    return Intl.message('Reports', name: 'reports', desc: '', args: []);
+  }
+
+  /// `Statistics`
+  String get statistics {
+    return Intl.message('Statistics', name: 'statistics', desc: '', args: []);
+  }
+
+  /// `Finances`
+  String get finances {
+    return Intl.message('Finances', name: 'finances', desc: '', args: []);
+  }
+
+  /// `Checks`
+  String get checks {
+    return Intl.message('Checks', name: 'checks', desc: '', args: []);
+  }
+
+  /// `Username or password is incorrect!`
+  String get incorrectCredentials {
+    return Intl.message(
+      'Username or password is incorrect!',
+      name: 'incorrectCredentials',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `General`
   String get general {
     return Intl.message('General', name: 'general', desc: '', args: []);
@@ -477,6 +562,231 @@ class S {
   /// `Dec`
   String get decShort {
     return Intl.message('Dec', name: 'decShort', desc: '', args: []);
+  }
+
+  /// `Staff`
+  String get staff {
+    return Intl.message('Staff', name: 'staff', desc: '', args: []);
+  }
+
+  /// `Stock`
+  String get stock {
+    return Intl.message('Stock', name: 'stock', desc: '', args: []);
+  }
+
+  /// `Sales by Day`
+  String get salesByDay {
+    return Intl.message('Sales by Day', name: 'salesByDay', desc: '', args: []);
+  }
+
+  /// `Sales by Weekday`
+  String get salesByWeekday {
+    return Intl.message(
+      'Sales by Weekday',
+      name: 'salesByWeekday',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Revenue Report`
+  String get revenueReport {
+    return Intl.message(
+      'Revenue Report',
+      name: 'revenueReport',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Expense Report`
+  String get expenseReport {
+    return Intl.message(
+      'Expense Report',
+      name: 'expenseReport',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Profit & Loss`
+  String get profitAndLoss {
+    return Intl.message(
+      'Profit & Loss',
+      name: 'profitAndLoss',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Staff Performance`
+  String get staffPerformance {
+    return Intl.message(
+      'Staff Performance',
+      name: 'staffPerformance',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Attendance Report`
+  String get attendanceReport {
+    return Intl.message(
+      'Attendance Report',
+      name: 'attendanceReport',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Commission Report`
+  String get commissionReport {
+    return Intl.message(
+      'Commission Report',
+      name: 'commissionReport',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Shift Report`
+  String get shiftReport {
+    return Intl.message(
+      'Shift Report',
+      name: 'shiftReport',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Hours Worked`
+  String get hoursWorked {
+    return Intl.message(
+      'Hours Worked',
+      name: 'hoursWorked',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Productivity Report`
+  String get productivityReport {
+    return Intl.message(
+      'Productivity Report',
+      name: 'productivityReport',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Inventory Report`
+  String get inventoryReport {
+    return Intl.message(
+      'Inventory Report',
+      name: 'inventoryReport',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Stock Movement`
+  String get stockMovement {
+    return Intl.message(
+      'Stock Movement',
+      name: 'stockMovement',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Income`
+  String get income {
+    return Intl.message('Income', name: 'income', desc: '', args: []);
+  }
+
+  /// `Checks`
+  String get checksFilter {
+    return Intl.message('Checks', name: 'checksFilter', desc: '', args: []);
+  }
+
+  /// `Average Check`
+  String get averageCheck {
+    return Intl.message(
+      'Average Check',
+      name: 'averageCheck',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Hourly Sales Overview`
+  String get hourlySalesOverview {
+    return Intl.message(
+      'Hourly Sales Overview',
+      name: 'hourlySalesOverview',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Weekday Sales Overview`
+  String get weekdaySalesOverview {
+    return Intl.message(
+      'Weekday Sales Overview',
+      name: 'weekdaySalesOverview',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Daily Sales Overview`
+  String get dailySalesOverview {
+    return Intl.message(
+      'Daily Sales Overview',
+      name: 'dailySalesOverview',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Monthly Sales Overview`
+  String get monthlySalesOverview {
+    return Intl.message(
+      'Monthly Sales Overview',
+      name: 'monthlySalesOverview',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Sales Overview`
+  String get salesOverview {
+    return Intl.message(
+      'Sales Overview',
+      name: 'salesOverview',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Select Filter`
+  String get selectFilter {
+    return Intl.message(
+      'Select Filter',
+      name: 'selectFilter',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Hour`
+  String get hour {
+    return Intl.message('Hour', name: 'hour', desc: '', args: []);
+  }
+
+  /// `Weekday`
+  String get weekday {
+    return Intl.message('Weekday', name: 'weekday', desc: '', args: []);
   }
 }
 

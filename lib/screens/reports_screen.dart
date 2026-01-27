@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mobile_reporting/localization/generated/l10n.dart';
 import 'package:mobile_reporting/screens/sales_summary_screen.dart';
 
 class ReportsScreen extends StatefulWidget {
@@ -22,12 +23,19 @@ class _ReportsScreenState extends State<ReportsScreen> {
     'Stock': GlobalKey(),
   };
 
+  // Icons for each category
+  final Map<String, IconData> _categoryIcons = {
+    'Sales': Icons.point_of_sale,
+    'Finances': Icons.account_balance_wallet,
+    'Staff': Icons.people,
+    'Stock': Icons.inventory_2,
+  };
+
   final Map<String, List<String>> _reports = {
     'Sales': [
       'Sales by Day',
       'Sales by Hour',
       'Sales by Weekday',
-      'Sales by Month',
     ],
     'Finances': [
       'Revenue Report',
@@ -47,6 +55,58 @@ class _ReportsScreenState extends State<ReportsScreen> {
       'Stock Movement',
     ],
   };
+
+  String _getCategoryTitle(BuildContext context, String category) {
+    final l10n = S.of(context);
+    switch (category) {
+      case 'Sales':
+        return l10n.sales;
+      case 'Finances':
+        return l10n.finances;
+      case 'Staff':
+        return l10n.staff;
+      case 'Stock':
+        return l10n.stock;
+      default:
+        return category;
+    }
+  }
+
+  String _getReportTitle(BuildContext context, String report) {
+    final l10n = S.of(context);
+    switch (report) {
+      case 'Sales by Day':
+        return l10n.salesByDay;
+      case 'Sales by Hour':
+        return l10n.salesByHours;
+      case 'Sales by Weekday':
+        return l10n.salesByWeekday;
+      case 'Revenue Report':
+        return l10n.revenueReport;
+      case 'Expense Report':
+        return l10n.expenseReport;
+      case 'Profit & Loss':
+        return l10n.profitAndLoss;
+      case 'Staff Performance':
+        return l10n.staffPerformance;
+      case 'Attendance Report':
+        return l10n.attendanceReport;
+      case 'Commission Report':
+        return l10n.commissionReport;
+      case 'Shift Report':
+        return l10n.shiftReport;
+      case 'Hours Worked':
+        return l10n.hoursWorked;
+      case 'Productivity Report':
+        return l10n.productivityReport;
+      case 'Inventory Report':
+        return l10n.inventoryReport;
+      case 'Stock Movement':
+        return l10n.stockMovement;
+      default:
+        return report;
+    }
+  }
 
   @override
   void initState() {
@@ -122,17 +182,21 @@ class _ReportsScreenState extends State<ReportsScreen> {
           // Tabs
           Container(
             color: Colors.white,
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            child: Row(
-              children: [
-                _buildTab('Sales'),
-                const SizedBox(width: 12),
-                _buildTab('Finances'),
-                const SizedBox(width: 12),
-                _buildTab('Staff'),
-                const SizedBox(width: 12),
-                _buildTab('Stock'),
-              ],
+            padding: const EdgeInsets.symmetric(vertical: 12),
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Row(
+                children: [
+                  _buildTab('Sales'),
+                  const SizedBox(width: 10),
+                  _buildTab('Finances'),
+                  const SizedBox(width: 10),
+                  _buildTab('Staff'),
+                  const SizedBox(width: 10),
+                  _buildTab('Stock'),
+                ],
+              ),
             ),
           ),
           const SizedBox(height: 8),
@@ -149,18 +213,25 @@ class _ReportsScreenState extends State<ReportsScreen> {
                     key: _sectionKeys[category],
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Category Title
-                      Padding(
-                        padding: const EdgeInsets.only(bottom: 12),
-                        child: Text(
-                          category,
-                          style: const TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                            color: Colors.black,
+                      Row(
+                        children: [
+                          Icon(
+                            _categoryIcons[category],
+                            size: 20,
+                            color: Colors.blue[600],
                           ),
-                        ),
+                          const SizedBox(width: 8),
+                          Text(
+                            _getCategoryTitle(context, category),
+                            style: const TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black87,
+                            ),
+                          ),
+                        ],
                       ),
+                      const SizedBox(height: 8),
 
                       // Report Items
                       ...reports.map((report) => _buildReportItem(report)),
@@ -168,7 +239,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
                       const SizedBox(height: 24),
                     ],
                   );
-                }).toList(),
+                }),
               ],
             ),
           ),
@@ -179,25 +250,41 @@ class _ReportsScreenState extends State<ReportsScreen> {
 
   Widget _buildTab(String title) {
     final isSelected = _selectedTab == title;
-    return GestureDetector(
-      onTap: () {
-        setState(() {
-          _selectedTab = title;
-        });
-        _scrollToSection(title);
-      },
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-        decoration: BoxDecoration(
-          color: isSelected ? Colors.blue[600] : Colors.transparent,
-          borderRadius: BorderRadius.circular(20),
-        ),
-        child: Text(
-          title,
-          style: TextStyle(
-            fontSize: 14,
-            fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
-            color: isSelected ? Colors.white : Colors.grey[700],
+    final icon = _categoryIcons[title] ?? Icons.folder;
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: () {
+          setState(() {
+            _selectedTab = title;
+          });
+          _scrollToSection(title);
+        },
+        borderRadius: BorderRadius.circular(20),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+          decoration: BoxDecoration(
+            color: isSelected ? Colors.blue[600] : Colors.grey[200],
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                icon,
+                size: 18,
+                color: isSelected ? Colors.white : Colors.grey[700],
+              ),
+              const SizedBox(width: 6),
+              Text(
+                _getCategoryTitle(context, title),
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+                  color: isSelected ? Colors.white : Colors.grey[700],
+                ),
+              ),
+            ],
           ),
         ),
       ),
@@ -221,7 +308,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
       child: ListTile(
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
         title: Text(
-          title,
+          _getReportTitle(context, title),
           style: const TextStyle(
             fontSize: 15,
             color: Colors.black87,

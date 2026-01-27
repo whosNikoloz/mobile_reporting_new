@@ -4,7 +4,6 @@ import 'package:mobile_reporting/api/response_models/dashboard_response_model.da
 import 'package:mobile_reporting/api/response_models/daily_sales_response_model.dart';
 import 'package:mobile_reporting/api/response_models/hourly_sales_response_model.dart';
 import 'package:mobile_reporting/api/response_models/weekday_sales_response_model.dart';
-import 'package:mobile_reporting/api/response_models/monthly_sales_response_model.dart';
 import 'package:mobile_reporting/helpers/helpers_module.dart';
 import 'package:mobile_reporting/helpers/http_helper.dart';
 import 'package:mobile_reporting/helpers/preferences_helper.dart';
@@ -40,8 +39,10 @@ class ReportsService {
 
       // Debug logging
       print('📅 Dashboard API Request:');
-      print('  Current Period: ${startCurrentPeriod.toIso8601String()} to ${endCurrentPeriod.toIso8601String()}');
-      print('  Previous Period: ${startPreviousPeriod.toIso8601String()} to ${endPreviousPeriod.toIso8601String()}');
+      print(
+          '  Current Period: ${startCurrentPeriod.toIso8601String()} to ${endCurrentPeriod.toIso8601String()}');
+      print(
+          '  Previous Period: ${startPreviousPeriod.toIso8601String()} to ${endPreviousPeriod.toIso8601String()}');
       print('  JSON: ${requestBody.toJson()}');
 
       final serverUrl = await _getServerUrl();
@@ -186,46 +187,6 @@ class ReportsService {
       return null;
     } catch (err) {
       print('❌ Error in getWeekdaySalesReport: $err');
-      return null;
-    }
-  }
-
-  /// Get monthly sales report
-  Future<List<MonthlySalesResponseModel>?> getMonthlySalesReport({
-    required int storeId,
-    required DateTime startCurrentPeriod,
-    required DateTime endCurrentPeriod,
-    required DateTime startPreviousPeriod,
-    required DateTime endPreviousPeriod,
-  }) async {
-    try {
-      final requestBody = DashboardRequest(
-        paramId: storeId,
-        startCurrentPeriod: startCurrentPeriod,
-        endCurrentPeriod: endCurrentPeriod,
-        startPreviousPeriod: startPreviousPeriod,
-        endPreviousPeriod: endPreviousPeriod,
-      );
-
-      final serverUrl = await _getServerUrl();
-      final ck = await getIt<PreferencesHelper>().getDatabase();
-      if (ck == null) return null;
-
-      final response = await _httpHelper.fetchPost(
-        ck,
-        serverUrl,
-        'get_monthly_sales_report',
-        body: requestBody.toJson(),
-      );
-
-      if (response != null) {
-        final List<dynamic> data = json.decode(response);
-        return data.map((e) => MonthlySalesResponseModel.fromJson(e)).toList();
-      }
-
-      return null;
-    } catch (err) {
-      print('❌ Error in getMonthlySalesReport: $err');
       return null;
     }
   }

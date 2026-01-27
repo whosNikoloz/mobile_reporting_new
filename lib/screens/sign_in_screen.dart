@@ -10,6 +10,7 @@ import 'package:mobile_reporting/screens/dashboard_screen.dart';
 import 'package:mobile_reporting/screens/splash_screen.dart';
 import 'package:mobile_reporting/services/auth_service.dart';
 import 'package:mobile_reporting/theme/app_theme.dart';
+import 'package:mobile_reporting/localization/generated/l10n.dart';
 
 class SignInScreen extends StatefulWidget {
   const SignInScreen({super.key});
@@ -24,6 +25,35 @@ class _SignInScreenState extends State<SignInScreen> {
   final _passwordController = TextEditingController();
 
   bool logInClicked = false;
+  String _selectedLanguage = 'ka';
+
+  @override
+  void initState() {
+    super.initState();
+    _loadSavedLanguage();
+  }
+
+  Future<void> _loadSavedLanguage() async {
+    final savedLang = await getIt<PreferencesHelper>().getLang();
+    if (savedLang != null) {
+      setState(() {
+        _selectedLanguage = savedLang;
+      });
+      if (mounted) {
+        ReportingApp.of(context).setLocale(Locale(_selectedLanguage));
+      }
+    }
+  }
+
+  void _changeLanguage(String langCode) async {
+    setState(() {
+      _selectedLanguage = langCode;
+    });
+    await getIt<PreferencesHelper>().setLang(langCode);
+    if (mounted) {
+      ReportingApp.of(context).setLocale(Locale(langCode));
+    }
+  }
 
   @override
   void dispose() {
@@ -32,8 +62,34 @@ class _SignInScreenState extends State<SignInScreen> {
     super.dispose();
   }
 
+  Widget _buildLanguageOption(String label, String code) {
+    bool isSelected = _selectedLanguage == code;
+    return GestureDetector(
+      onTap: () => _changeLanguage(code),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        decoration: BoxDecoration(
+          color: isSelected ? AppTheme.primaryBlue : Colors.grey[100],
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: isSelected ? AppTheme.primaryBlue : Colors.grey[300]!,
+          ),
+        ),
+        child: Text(
+          label,
+          style: TextStyle(
+            color: isSelected ? Colors.white : Colors.black87,
+            fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+            fontSize: 14,
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    final l10n = S.of(context);
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
@@ -43,12 +99,24 @@ class _SignInScreenState extends State<SignInScreen> {
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              const SizedBox(height: 80),
+              const SizedBox(height: 40),
+
+              // Language Picker
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                   _buildLanguageOption('English', 'en'),
+                   const SizedBox(width: 20),
+                   _buildLanguageOption('ქართული', 'ka'),
+                ],
+              ),
+
+              const SizedBox(height: 40),
 
               // Title
-              const Text(
-                'Log In',
-                style: TextStyle(
+              Text(
+                l10n.logIn,
+                style: const TextStyle(
                   fontSize: 32,
                   fontWeight: FontWeight.w600,
                   color: Colors.black,
@@ -59,9 +127,9 @@ class _SignInScreenState extends State<SignInScreen> {
               const SizedBox(height: 40),
 
               // Username Label
-              const Text(
-                'Username',
-                style: TextStyle(
+              Text(
+                l10n.username,
+                style: const TextStyle(
                   fontSize: 14,
                   color: Colors.black54,
                 ),
@@ -73,7 +141,7 @@ class _SignInScreenState extends State<SignInScreen> {
               TextField(
                 controller: _usernameController,
                 decoration: InputDecoration(
-                  hintText: 'Username',
+                  hintText: l10n.username,
                   hintStyle: const TextStyle(color: Colors.black38),
                   filled: true,
                   fillColor: Colors.grey[100],
@@ -91,9 +159,9 @@ class _SignInScreenState extends State<SignInScreen> {
               const SizedBox(height: 20),
 
               // Password Label
-              const Text(
-                'Password',
-                style: TextStyle(
+              Text(
+                l10n.password,
+                style: const TextStyle(
                   fontSize: 14,
                   color: Colors.black54,
                 ),
@@ -106,7 +174,7 @@ class _SignInScreenState extends State<SignInScreen> {
                 controller: _passwordController,
                 obscureText: true,
                 decoration: InputDecoration(
-                  hintText: 'Password',
+                  hintText: l10n.password,
                   hintStyle: const TextStyle(color: Colors.black38),
                   filled: true,
                   fillColor: Colors.grey[100],
@@ -141,9 +209,9 @@ class _SignInScreenState extends State<SignInScreen> {
                   ),
                   elevation: 0,
                 ),
-                child: const Text(
-                  'Log In',
-                  style: TextStyle(
+                child: Text(
+                  l10n.logIn,
+                  style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
                   ),
@@ -169,25 +237,24 @@ class _SignInScreenState extends State<SignInScreen> {
       await getIt<PreferencesHelper>().setCompanyName(userResponse.companyName);
       await getIt<PreferencesHelper>().setEmail(_usernameController.text);
       await getIt<PreferencesHelper>().setDatabase(encryptedDatabase);
-      await getIt<PreferencesHelper>().setLang(userResponse.lang);
       await getIt<PreferencesHelper>().setType(userResponse.type);
       await getIt<PreferencesHelper>().setUserName(userResponse.userName);
+      await getIt<PreferencesHelper>().setAccountLang(userResponse.lang);
 
-      final baseUrl = userResponse.url ?? 'http://web.fina24.ge:8098/';
-      //final baseUrl = 'https://localhost:5133/';
+      //final baseUrl = userResponse.url ?? 'http://web.fina24.ge:8098/';
+      final baseUrl = 'https://localhost:5133/';
 
       await getIt<PreferencesHelper>().setUrl(baseUrl);
 
       if (!mounted) return;
-      ReportingApp.of(context).setLocale(Locale(userResponse.lang));
       Navigator.pushReplacement(
           context, MaterialPageRoute(builder: (_) => const SplashScreen()));
     } else {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
+        SnackBar(
           backgroundColor: Colors.redAccent,
-          content: Text('Username or password is incorrect!'),
+          content: Text(S.of(context).incorrectCredentials),
         ),
       );
     }

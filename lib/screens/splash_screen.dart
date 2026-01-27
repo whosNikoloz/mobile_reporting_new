@@ -45,6 +45,7 @@ class _SplashScreenState extends State<SplashScreen> {
         application.stores = await getStores();
         application.isFastFood = await isFastFood();
         application.lang = await getIt<PreferencesHelper>().getLang() ?? 'ka';
+        application.accountLang = await getIt<PreferencesHelper>().getAccountLang();
         if (!mounted) return;
         Navigator.pushReplacement(
             context, MaterialPageRoute(builder: (_) => const MainNavigation()));

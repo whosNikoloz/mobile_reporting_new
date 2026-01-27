@@ -3,7 +3,6 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:intl/intl.dart';
 import 'package:mobile_reporting/api/response_models/daily_sales_response_model.dart';
 import 'package:mobile_reporting/api/response_models/hourly_sales_response_model.dart';
-import 'package:mobile_reporting/api/response_models/monthly_sales_response_model.dart';
 import 'package:mobile_reporting/api/response_models/weekday_sales_response_model.dart';
 import 'package:mobile_reporting/application_store.dart';
 import 'package:mobile_reporting/enums/screen_type.dart';
@@ -13,6 +12,7 @@ import 'package:mobile_reporting/screens/splash_screen.dart';
 import 'package:mobile_reporting/services/reports_service.dart';
 import 'package:mobile_reporting/theme/app_theme.dart';
 import 'package:mobile_reporting/widgets/picker_widget.dart';
+import 'package:mobile_reporting/localization/generated/l10n.dart';
 
 class SalesSummaryScreen extends StatefulWidget {
   final String reportTitle;
@@ -38,27 +38,30 @@ class _SalesSummaryScreenState extends State<SalesSummaryScreen> {
   String? _companyName;
   String? _email;
 
-  String _selectedFilter = 'Income';
-  final List<String> _filterOptions = ['Income', 'Checks', 'Average Check'];
+  String? _selectedFilter;
+  List<String> get _filterOptions => [
+    S.of(context).income,
+    S.of(context).checksFilter,
+    S.of(context).averageCheck,
+  ];
 
   // Data from API
   List<DailySalesResponseModel> _dailySalesData = [];
   List<HourlySalesResponseModel> _hourlySalesData = [];
   List<WeekdaySalesResponseModel> _weekdaySalesData = [];
-  List<MonthlySalesResponseModel> _monthlySalesData = [];
 
   // Chart data based on report type
   List<String> get _chartLabels {
     if (widget.reportTitle.contains('Hour')) {
       return _hourlySalesData.map((e) => e.hourRange).toList();
     } else if (widget.reportTitle.contains('Weekday')) {
-      return _weekdaySalesData.map((e) => _getLocalizedDayName(e.name)).toList();
+      return _weekdaySalesData
+          .map((e) => _getLocalizedDayName(e.name))
+          .toList();
     } else if (widget.reportTitle.contains('Day')) {
       return _dailySalesData
           .map((e) => DateFormat('dd.MM').format(e.date))
           .toList();
-    } else if (widget.reportTitle.contains('Month')) {
-      return _monthlySalesData.map((e) => e.month).toList();
     }
     return [];
   }
@@ -70,8 +73,6 @@ class _SalesSummaryScreenState extends State<SalesSummaryScreen> {
       return _weekdaySalesData.map((e) => e.currentSalesPercent).toList();
     } else if (widget.reportTitle.contains('Day')) {
       return _dailySalesData.map((e) => e.currentSalesPercent).toList();
-    } else if (widget.reportTitle.contains('Month')) {
-      return _monthlySalesData.map((e) => e.currentSalesPercent).toList();
     }
     return [];
   }
@@ -83,8 +84,6 @@ class _SalesSummaryScreenState extends State<SalesSummaryScreen> {
       return _weekdaySalesData.map((e) => e.previousSalesPercent).toList();
     } else if (widget.reportTitle.contains('Day')) {
       return _dailySalesData.map((e) => e.previousSalesPercent).toList();
-    } else if (widget.reportTitle.contains('Month')) {
-      return _monthlySalesData.map((e) => e.previousSalesPercent).toList();
     }
     return [];
   }
@@ -149,27 +148,29 @@ class _SalesSummaryScreenState extends State<SalesSummaryScreen> {
   }
 
   String get _chartTitle {
+    final l10n = S.of(context);
     if (widget.reportTitle.contains('Hour')) {
-      return 'Hourly Sales Overview';
+      return l10n.hourlySalesOverview;
     } else if (widget.reportTitle.contains('Weekday')) {
-      return 'Weekday Sales Overview';
+      return l10n.weekdaySalesOverview;
     } else if (widget.reportTitle.contains('Day')) {
-      return 'Daily Sales Overview';
+      return l10n.dailySalesOverview;
     } else if (widget.reportTitle.contains('Month')) {
-      return 'Monthly Sales Overview';
+      return l10n.monthlySalesOverview;
     }
-    return 'Sales Overview';
+    return l10n.salesOverview;
   }
 
   String get _listHeaderLabel {
+    final l10n = S.of(context);
     if (widget.reportTitle.contains('Hour')) {
-      return 'Hour';
+      return l10n.hourlySalesOverview.split(' ')[0]; // Taking "Hour" roughly or just define day
     } else if (widget.reportTitle.contains('Weekday')) {
-      return 'Weekday';
+      return l10n.weekday; // I should add weekday to ARB if not there
     } else if (widget.reportTitle.contains('Month')) {
-      return 'Month';
+      return l10n.month;
     }
-    return 'Day';
+    return l10n.day;
   }
 
   List<Map<String, dynamic>> get _listData {
@@ -212,21 +213,9 @@ class _SalesSummaryScreenState extends State<SalesSummaryScreen> {
           'percentChange': percentChange,
         };
       }).toList();
-    } else if (widget.reportTitle.contains('Month')) {
-      return _monthlySalesData.map((e) {
-        double percentChange = 0;
-        if (e.previousSales > 0) {
-          percentChange =
-              ((e.currentSales - e.previousSales) / e.previousSales) * 100;
-        }
-        return {
-          'label': e.month,
-          'value': e.currentSales,
-          'percentChange': percentChange,
-        };
-      }).toList();
+    } else {
+      return [];
     }
-    return [];
   }
 
   @override
@@ -337,7 +326,7 @@ class _SalesSummaryScreenState extends State<SalesSummaryScreen> {
                           const SizedBox(width: 12),
                           Expanded(
                             child: Text(
-                              'თქვენი პროფილის ინფორმაცია',
+                              S.of(context).profileInfo,
                               style: TextStyle(
                                 fontSize: 13,
                                 color: Colors.grey.shade700,
@@ -361,8 +350,8 @@ class _SalesSummaryScreenState extends State<SalesSummaryScreen> {
                                 borderRadius: BorderRadius.circular(12),
                               ),
                             ),
-                            child: const Text(
-                              'დახურვა',
+                            child: Text(
+                              S.of(context).close,
                               style: TextStyle(
                                 fontSize: 14,
                                 fontWeight: FontWeight.w600,
@@ -383,6 +372,7 @@ class _SalesSummaryScreenState extends State<SalesSummaryScreen> {
                                   .clearUserAuthToken();
                               await getIt<PreferencesHelper>().clearUserName();
                               await getIt<PreferencesHelper>().clearEmail();
+                              await getIt<PreferencesHelper>().clearAccountLang();
                               await getIt<PreferencesHelper>().clearDatabase();
                               await getIt<PreferencesHelper>().clearUrl();
                               if (!mounted) return;
@@ -394,9 +384,9 @@ class _SalesSummaryScreenState extends State<SalesSummaryScreen> {
                               );
                             },
                             icon: const Icon(Icons.logout, size: 18),
-                            label: const Text(
-                              'გასვლა',
-                              style: TextStyle(
+                            label: Text(
+                              S.of(context).logout,
+                              style: const TextStyle(
                                 fontSize: 14,
                                 fontWeight: FontWeight.w600,
                               ),
@@ -501,8 +491,6 @@ class _SalesSummaryScreenState extends State<SalesSummaryScreen> {
             onlyDayPicker: false,
           ),
 
-
-
           Expanded(
             child: isLoading
                 ? const Center(child: CircularProgressIndicator())
@@ -514,7 +502,7 @@ class _SalesSummaryScreenState extends State<SalesSummaryScreen> {
                         margin: const EdgeInsets.only(bottom: 16),
                         child: _buildFilterDropdown(
                           Icons.tune,
-                          _selectedFilter,
+                          _selectedFilter ?? S.of(context).income,
                           () => _showFilterSelector(),
                         ),
                       ),
@@ -587,9 +575,9 @@ class _SalesSummaryScreenState extends State<SalesSummaryScreen> {
                                       color: Colors.black54,
                                     ),
                                   ),
-                                  const Text(
-                                    'Income',
-                                    style: TextStyle(
+                                  Text(
+                                    S.of(context).income,
+                                    style: const TextStyle(
                                       fontSize: 13,
                                       fontWeight: FontWeight.w600,
                                       color: Colors.black54,
@@ -646,7 +634,6 @@ class _SalesSummaryScreenState extends State<SalesSummaryScreen> {
         if (response != null) {
           _weekdaySalesData = response;
         }
-
       } else if (widget.reportTitle.contains('Day')) {
         final response = await _reportsService.getDailySalesReport(
           storeId: storeId,
@@ -657,17 +644,6 @@ class _SalesSummaryScreenState extends State<SalesSummaryScreen> {
         );
         if (response != null) {
           _dailySalesData = response;
-        }
-      } else if (widget.reportTitle.contains('Month')) {
-        final response = await _reportsService.getMonthlySalesReport(
-          storeId: storeId,
-          startCurrentPeriod: startCurrentPeriod,
-          endCurrentPeriod: endCurrentPeriod,
-          startPreviousPeriod: startOldPeriod,
-          endPreviousPeriod: endOldPeriod,
-        );
-        if (response != null) {
-          _monthlySalesData = response;
         }
       }
     } catch (err) {
@@ -701,8 +677,8 @@ class _SalesSummaryScreenState extends State<SalesSummaryScreen> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   const SizedBox(width: 40),
-                  const Text(
-                    'Select Filter',
+                  Text(
+                    S.of(context).selectFilter,
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       fontSize: 18,
@@ -822,10 +798,10 @@ class _SalesSummaryScreenState extends State<SalesSummaryScreen> {
 
   Widget _buildSalesChart() {
     if (_salesData.isEmpty) {
-      return const Center(
+      return Center(
         child: Text(
-          'No data available',
-          style: TextStyle(color: Colors.grey),
+          S.of(context).noDataAvailable,
+          style: const TextStyle(color: Colors.grey),
         ),
       );
     }

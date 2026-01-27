@@ -12,7 +12,10 @@
       "Bash(dir:*)",
       "Bash(flutter run:*)",
       "Bash(Select-String -Pattern \"error|exception|crash|fatal\" -Context 2,2)",
-      "Bash(dart run:*)"
+      "Bash(dart run:*)",
+      "Bash(flutter clean:*)",
+      "Bash(del \"D:\\\\Flutter\\\\mobile_reporting_new\\\\lib\\\\api\\\\response_models\\\\dashboard_general_model.dart\")",
+      "Bash(flutter pub run:*)"
     ]
   }
 }

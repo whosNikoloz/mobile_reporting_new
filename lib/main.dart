@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_reporting/helpers/helpers_module.dart';
+import 'package:mobile_reporting/helpers/preferences_helper.dart';
 import 'package:mobile_reporting/screens/splash_screen.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:month_year_picker/month_year_picker.dart';
@@ -32,6 +33,21 @@ class ReportingApp extends StatefulWidget {
 
 class ReportingAppState extends State<ReportingApp> {
   Locale _locale = const Locale.fromSubtags(languageCode: 'ka');
+
+  @override
+  void initState() {
+    super.initState();
+    _loadSavedLanguage();
+  }
+
+  Future<void> _loadSavedLanguage() async {
+    final savedLang = await getIt<PreferencesHelper>().getLang();
+    if (savedLang != null) {
+      setState(() {
+        _locale = Locale(savedLang);
+      });
+    }
+  }
 
   void setLocale(Locale value) {
     setState(() {

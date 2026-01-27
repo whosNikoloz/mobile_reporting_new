@@ -130,9 +130,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // General Section Header
+                  // Sales Section Header
                   Text(
-                    S.of(context).general,
+                    S.of(context).sales,
                     style: const TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.w600,
@@ -141,7 +141,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   ),
                   const SizedBox(height: 16),
 
-                  // General Metrics Grid
+                  // Sales Metrics Grid
                   if (isLoading)
                     const Center(
                       child: Padding(
@@ -167,26 +167,24 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       mainAxisSpacing: 10,
                       crossAxisSpacing: 10,
                       children: [
-                        // Row 1: Sales (large left)
                         StaggeredGridTile.count(
                           crossAxisCellCount: 1,
-                          mainAxisCellCount: 1.1,
+                          mainAxisCellCount: 0.55,
                           child: DashboardMetricCard.fromDecimal(
                             title: S.of(context).sales,
                             icon: Icons.receipt_outlined,
-                            metric: _dashboardData!.current.general.sales,
+                            metric: _dashboardData!.current.sales.sales,
                             currency: CurrencyHelper.getCurrencySymbol(),
-                            isLarge: true,
+                            isLarge: false,
                           ),
                         ),
-                        // Row 1-2: Selfcost, Profit (right column)
                         StaggeredGridTile.count(
                           crossAxisCellCount: 1,
                           mainAxisCellCount: 0.55,
                           child: DashboardMetricCard.fromDecimal(
                             title: S.of(context).selfcost,
                             icon: Icons.shopping_bag_outlined,
-                            metric: _dashboardData!.current.general.selfcost,
+                            metric: _dashboardData!.current.sales.selfcost,
                             currency: CurrencyHelper.getCurrencySymbol(),
                           ),
                         ),
@@ -196,31 +194,51 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           child: DashboardMetricCard.fromDecimal(
                             title: S.of(context).profit,
                             icon: Icons.trending_up,
-                            metric: _dashboardData!.current.general.profit,
+                            metric: _dashboardData!.current.sales.profit,
                             currency: CurrencyHelper.getCurrencySymbol(),
                           ),
                         ),
-                        // Row 3-4: Profit % and Bills (left column)
                         StaggeredGridTile.count(
                           crossAxisCellCount: 1,
                           mainAxisCellCount: 0.55,
                           child: DashboardMetricCard.fromDecimalPercent(
                             title: S.of(context).profitPercent,
                             icon: Icons.percent,
-                            metric:
-                                _dashboardData!.current.general.profitPercent,
+                            metric: _dashboardData!.current.sales.profitPercent,
                           ),
                         ),
-                        // Avg Check (large right)
+                      ],
+                    ),
+
+                  const SizedBox(height: 24),
+
+                  // Bills Section Header
+                  if (_dashboardData != null) ...[
+                    Text(
+                      S.of(context).bills,
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w600,
+                        color: Color(0xFF2D3748),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+
+                    // Bills Metrics Grid
+                    StaggeredGrid.count(
+                      crossAxisCount: 2,
+                      mainAxisSpacing: 10,
+                      crossAxisSpacing: 10,
+                      children: [
                         StaggeredGridTile.count(
                           crossAxisCellCount: 1,
-                          mainAxisCellCount: 1.1,
+                          mainAxisCellCount: 0.55,
                           child: DashboardMetricCard.fromDecimal(
                             title: S.of(context).avgCheck,
                             icon: Icons.receipt,
-                            metric: _dashboardData!.current.general.avgCheck,
+                            metric: _dashboardData!.current.bills.avgCheck,
                             currency: CurrencyHelper.getCurrencySymbol(),
-                            isLarge: true,
+                            isLarge: false,
                           ),
                         ),
                         StaggeredGridTile.count(
@@ -229,17 +247,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           child: DashboardMetricCard.fromInt(
                             title: S.of(context).bills,
                             icon: Icons.receipt_long_outlined,
-                            metric: _dashboardData!.current.general.billsCount,
+                            metric: _dashboardData!.current.bills.billsCount,
                           ),
                         ),
-                        // Row 5: Discount and Refund
                         StaggeredGridTile.count(
                           crossAxisCellCount: 1,
                           mainAxisCellCount: 0.55,
                           child: DashboardMetricCard.fromDecimal(
                             title: S.of(context).discount,
                             icon: Icons.local_offer_outlined,
-                            metric: _dashboardData!.current.general.discount,
+                            metric: _dashboardData!.current.bills.discount,
                             currency: CurrencyHelper.getCurrencySymbol(),
                           ),
                         ),
@@ -249,14 +266,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           child: DashboardMetricCard.fromDecimal(
                             title: S.of(context).refund,
                             icon: Icons.replay,
-                            metric: _dashboardData!.current.general.refund,
+                            metric: _dashboardData!.current.bills.refund,
                             currency: CurrencyHelper.getCurrencySymbol(),
                           ),
                         ),
                       ],
                     ),
-
-                  const SizedBox(height: 24),
+                    const SizedBox(height: 24),
+                  ],
 
                   // Payments Section Header
                   if (_dashboardData != null) ...[

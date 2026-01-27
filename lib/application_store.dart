@@ -18,6 +18,7 @@ class ApplicationStore {
   bool? isFastFood;
 
   String? lang;
+  String? accountLang;
 
   DateTime? startCurrentPeriod;
   DateTime? endCurrentPeriod;

@@ -2,7 +2,7 @@ import 'package:mobile_reporting/application_store.dart';
 
 class CurrencyHelper {
   static String getCurrencySymbol() {
-    final lang = ApplicationStore().lang;
+    final lang = application.accountLang ?? application.lang;
     switch (lang) {
       case 'ka':
         return '₾';

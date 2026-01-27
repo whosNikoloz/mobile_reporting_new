@@ -162,25 +162,40 @@ class PickerWidgetState extends State<PickerWidget> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(color: Colors.grey.shade100),
-      child: Row(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Expanded(
-            child: _DateSelector(
-              currentDate1: currentDate1,
-              currentDate2: currentDate2,
-              oldDate1: oldDate1,
-              oldDate2: oldDate2,
-              dateType: dt,
-              isLoading: isLoading,
-              showComparison: widget.showCompareDateFilter,
-              onDateSelected: _handleDateSelection,
+          Text(
+            S.of(context).period,
+            style: TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w500,
+              color: Colors.grey.shade600,
             ),
           ),
-          if (showStore) const SizedBox(width: 12),
+          const SizedBox(height: 6),
+          _DateSelector(
+            currentDate1: currentDate1,
+            currentDate2: currentDate2,
+            oldDate1: oldDate1,
+            oldDate2: oldDate2,
+            dateType: dt,
+            isLoading: isLoading,
+            showComparison: widget.showCompareDateFilter,
+            onDateSelected: _handleDateSelection,
+          ),
+          if (showStore) const SizedBox(height: 12),
           if (showStore)
-            Expanded(
-              child: _StoreSelector(onStoreChanged: _loadData),
+            Text(
+              S.of(context).branches,
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w500,
+                color: Colors.grey.shade600,
+              ),
             ),
+          if (showStore) const SizedBox(height: 6),
+          if (showStore) _StoreSelector(onStoreChanged: _loadData),
         ],
       ),
     );

@@ -144,4 +144,19 @@ class PreferencesHelper {
 
     return prefs.getString('database');
   }
+
+  Future<void> setAccountLang(String lang) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('account_lang', lang);
+  }
+
+  Future<void> clearAccountLang() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('account_lang');
+  }
+
+  Future<String?> getAccountLang() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString('account_lang');
+  }
 }
