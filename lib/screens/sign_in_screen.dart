@@ -241,8 +241,8 @@ class _SignInScreenState extends State<SignInScreen> {
       await getIt<PreferencesHelper>().setUserName(userResponse.userName);
       await getIt<PreferencesHelper>().setAccountLang(userResponse.lang);
 
-      //final baseUrl = userResponse.url ?? 'http://web.fina24.ge:8098/';
-      final baseUrl = 'https://localhost:5133/';
+      final baseUrl = userResponse.url ?? 'http://web.fina24.ge:8098/';
+      //final baseUrl = 'https://localhost:5133/';
 
       await getIt<PreferencesHelper>().setUrl(baseUrl);
 

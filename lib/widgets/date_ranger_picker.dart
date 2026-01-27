@@ -302,19 +302,20 @@ class _DateRangePickerState extends State<DateRangePicker> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          _buildTab(S.of(context).period, !_isCompareMode),
+          _buildTab(S.of(context).period, 0),
           const SizedBox(width: 32),
-          _buildTab(S.of(context).comparisonLabel, _isCompareMode),
+          _buildTab(S.of(context).comparisonLabel, 1),
         ],
       ),
     );
   }
 
-  Widget _buildTab(String text, bool isSelected) {
+  Widget _buildTab(String text, int index) {
+    bool isSelected = (_isCompareMode && index == 1) || (!_isCompareMode && index == 0);
     return GestureDetector(
       onTap: () {
         setState(() {
-          _isCompareMode = text == 'შედარება';
+          _isCompareMode = index == 1;
         });
       },
       child: Column(
@@ -621,7 +622,7 @@ class _DateRangePickerState extends State<DateRangePicker> {
         final isSelected = year == _selectedDate.year;
 
         // Check if this is the auto-comparison year (ORANGE)
-        final isAutoCompare = autoCompareYear != null && year == autoCompareYear;
+        final isAutoCompare = _isCompareMode && autoCompareYear != null && year == autoCompareYear;
 
         return GestureDetector(
           onTap: isFuture ? null : () {
@@ -707,7 +708,7 @@ class _DateRangePickerState extends State<DateRangePicker> {
             _selectedDate.month == monthIndex;
 
         // Check if this is the auto-comparison month (ORANGE)
-        final isAutoCompare = autoCompareMonth != null &&
+        final isAutoCompare = _isCompareMode && autoCompareMonth != null &&
             _currentYear == autoCompareMonth.year &&
             monthIndex == autoCompareMonth.month;
 
@@ -888,7 +889,7 @@ class _DateRangePickerState extends State<DateRangePicker> {
                 _isSameDay(date, _rangeStart!);
 
         // ORANGE: Automatic comparison range (only show when period selection is complete)
-        final isInAutoCompareRange = autoCompareStart != null &&
+        final isInAutoCompareRange = _isCompareMode && autoCompareStart != null &&
             autoCompareEnd != null &&
             !date.isBefore(autoCompareStart) &&
             !date.isAfter(autoCompareEnd);
