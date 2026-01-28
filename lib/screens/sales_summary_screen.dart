@@ -8,11 +8,13 @@ import 'package:mobile_reporting/application_store.dart';
 import 'package:mobile_reporting/enums/screen_type.dart';
 import 'package:mobile_reporting/helpers/helpers_module.dart';
 import 'package:mobile_reporting/helpers/preferences_helper.dart';
+import 'package:mobile_reporting/main.dart';
 import 'package:mobile_reporting/screens/splash_screen.dart';
 import 'package:mobile_reporting/services/reports_service.dart';
 import 'package:mobile_reporting/theme/app_theme.dart';
 import 'package:mobile_reporting/widgets/picker_widget.dart';
 import 'package:mobile_reporting/localization/generated/l10n.dart';
+import 'package:mobile_reporting/widgets/profile_popover_widget.dart';
 
 class SalesSummaryScreen extends StatefulWidget {
   final String reportTitle;
@@ -37,13 +39,14 @@ class _SalesSummaryScreenState extends State<SalesSummaryScreen> {
 
   String? _companyName;
   String? _email;
+  String _selectedLanguage = 'en';
 
   String? _selectedFilter;
   List<String> get _filterOptions => [
-    S.of(context).income,
-    S.of(context).checksFilter,
-    S.of(context).averageCheck,
-  ];
+        S.of(context).income,
+        S.of(context).checksFilter,
+        S.of(context).averageCheck,
+      ];
 
   // Data from API
   List<DailySalesResponseModel> _dailySalesData = [];
@@ -164,7 +167,8 @@ class _SalesSummaryScreenState extends State<SalesSummaryScreen> {
   String get _listHeaderLabel {
     final l10n = S.of(context);
     if (widget.reportTitle.contains('Hour')) {
-      return l10n.hourlySalesOverview.split(' ')[0]; // Taking "Hour" roughly or just define day
+      return l10n.hourlySalesOverview
+          .split(' ')[0]; // Taking "Hour" roughly or just define day
     } else if (widget.reportTitle.contains('Weekday')) {
       return l10n.weekday; // I should add weekday to ARB if not there
     } else if (widget.reportTitle.contains('Month')) {
@@ -227,192 +231,206 @@ class _SalesSummaryScreenState extends State<SalesSummaryScreen> {
   Future<void> _loadUserData() async {
     _companyName = await getIt<PreferencesHelper>().getCompanyName();
     _email = await getIt<PreferencesHelper>().getEmail();
+    final savedLang = await getIt<PreferencesHelper>().getLang();
+    if (savedLang != null) {
+      _selectedLanguage = savedLang;
+    }
     setState(() {});
   }
 
-  void _showProfileDialog() {
-    showDialog(
-      context: context,
-      builder: (context) => Dialog(
-        backgroundColor: Colors.transparent,
-        insetPadding: const EdgeInsets.symmetric(horizontal: 16),
-        child: Container(
-          constraints: const BoxConstraints(maxWidth: 400),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(16),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.1),
-                blurRadius: 20,
-                offset: const Offset(0, 4),
-              ),
-            ],
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // Header
-              Container(
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  color: AppTheme.primaryBlue.withValues(alpha: 0.05),
-                  borderRadius: const BorderRadius.only(
-                    topLeft: Radius.circular(16),
-                    topRight: Radius.circular(16),
-                  ),
-                ),
-                child: Row(
-                  children: [
-                    Container(
-                      width: 60,
-                      height: 60,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(30),
-                        color: AppTheme.primaryBlue.withValues(alpha: 0.15),
-                      ),
-                      child: const Icon(
-                        Icons.person_outline,
-                        color: AppTheme.primaryBlue,
-                        size: 32,
-                      ),
-                    ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            _companyName ?? '',
-                            style: const TextStyle(
-                              fontSize: 17,
-                              fontWeight: FontWeight.w600,
-                              color: AppTheme.primaryTextColor,
-                            ),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            _email ?? '',
-                            style: TextStyle(
-                              fontSize: 13,
-                              color: Colors.grey.shade600,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              // Content
-              Padding(
-                padding: const EdgeInsets.all(20),
-                child: Column(
-                  children: [
-                    // Profile info card
-                    Container(
-                      padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        color: AppTheme.primaryBlue.withValues(alpha: 0.05),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Row(
-                        children: [
-                          const Icon(
-                            Icons.info_outline,
-                            color: AppTheme.primaryBlue,
-                            size: 20,
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: Text(
-                              S.of(context).profileInfo,
-                              style: TextStyle(
-                                fontSize: 13,
-                                color: Colors.grey.shade700,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 20),
-                    // Buttons
-                    Row(
-                      children: [
-                        Expanded(
-                          child: OutlinedButton(
-                            onPressed: () => Navigator.of(context).pop(),
-                            style: OutlinedButton.styleFrom(
-                              padding: const EdgeInsets.symmetric(vertical: 14),
-                              side: BorderSide(color: Colors.grey.shade300),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                            ),
-                            child: Text(
-                              S.of(context).close,
-                              style: TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w600,
-                                color: Colors.black87,
-                              ),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: ElevatedButton.icon(
-                            onPressed: () async {
-                              await getIt<PreferencesHelper>()
-                                  .clearCompanyName();
-                              await getIt<PreferencesHelper>().clearLang();
-                              await getIt<PreferencesHelper>().clearType();
-                              await getIt<PreferencesHelper>()
-                                  .clearUserAuthToken();
-                              await getIt<PreferencesHelper>().clearUserName();
-                              await getIt<PreferencesHelper>().clearEmail();
-                              await getIt<PreferencesHelper>().clearAccountLang();
-                              await getIt<PreferencesHelper>().clearDatabase();
-                              await getIt<PreferencesHelper>().clearUrl();
-                              if (!mounted) return;
-                              Navigator.pushAndRemoveUntil(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (_) => const SplashScreen()),
-                                (route) => false,
-                              );
-                            },
-                            icon: const Icon(Icons.logout, size: 18),
-                            label: Text(
-                              S.of(context).logout,
-                              style: const TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.red.shade500,
-                              foregroundColor: Colors.white,
-                              padding: const EdgeInsets.symmetric(vertical: 14),
-                              elevation: 0,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
+  void _changeLanguage(String langCode) async {
+    setState(() {
+      _selectedLanguage = langCode;
+    });
+    await getIt<PreferencesHelper>().setLang(langCode);
+    if (mounted) {
+      ReportingApp.of(context).setLocale(Locale(langCode));
+    }
   }
+
+  // void _showProfileDialog() {
+  //   showDialog(
+  //     context: context,
+  //     builder: (context) => Dialog(
+  //       backgroundColor: Colors.transparent,
+  //       insetPadding: const EdgeInsets.symmetric(horizontal: 16),
+  //       child: Container(
+  //         constraints: const BoxConstraints(maxWidth: 400),
+  //         decoration: BoxDecoration(
+  //           color: Colors.white,
+  //           borderRadius: BorderRadius.circular(16),
+  //           boxShadow: [
+  //             BoxShadow(
+  //               color: Colors.black.withValues(alpha: 0.1),
+  //               blurRadius: 20,
+  //               offset: const Offset(0, 4),
+  //             ),
+  //           ],
+  //         ),
+  //         child: Column(
+  //           mainAxisSize: MainAxisSize.min,
+  //           children: [
+  //             // Header
+  //             Container(
+  //               padding: const EdgeInsets.all(20),
+  //               decoration: BoxDecoration(
+  //                 color: AppTheme.primaryBlue.withValues(alpha: 0.05),
+  //                 borderRadius: const BorderRadius.only(
+  //                   topLeft: Radius.circular(16),
+  //                   topRight: Radius.circular(16),
+  //                 ),
+  //               ),
+  //               child: Row(
+  //                 children: [
+  //                   Container(
+  //                     width: 60,
+  //                     height: 60,
+  //                     decoration: BoxDecoration(
+  //                       borderRadius: BorderRadius.circular(30),
+  //                       color: AppTheme.primaryBlue.withValues(alpha: 0.15),
+  //                     ),
+  //                     child: const Icon(
+  //                       Icons.person_outline,
+  //                       color: AppTheme.primaryBlue,
+  //                       size: 32,
+  //                     ),
+  //                   ),
+  //                   const SizedBox(width: 16),
+  //                   Expanded(
+  //                     child: Column(
+  //                       crossAxisAlignment: CrossAxisAlignment.start,
+  //                       children: [
+  //                         Text(
+  //                           _companyName ?? '',
+  //                           style: const TextStyle(
+  //                             fontSize: 17,
+  //                             fontWeight: FontWeight.w600,
+  //                             color: AppTheme.primaryTextColor,
+  //                           ),
+  //                         ),
+  //                         const SizedBox(height: 4),
+  //                         Text(
+  //                           _email ?? '',
+  //                           style: TextStyle(
+  //                             fontSize: 13,
+  //                             color: Colors.grey.shade600,
+  //                           ),
+  //                         ),
+  //                       ],
+  //                     ),
+  //                   ),
+  //                 ],
+  //               ),
+  //             ),
+  //             // Content
+  //             Padding(
+  //               padding: const EdgeInsets.all(20),
+  //               child: Column(
+  //                 children: [
+  //                   // Profile info card
+  //                   Container(
+  //                     padding: const EdgeInsets.all(16),
+  //                     decoration: BoxDecoration(
+  //                       color: AppTheme.primaryBlue.withValues(alpha: 0.05),
+  //                       borderRadius: BorderRadius.circular(12),
+  //                     ),
+  //                     child: Row(
+  //                       children: [
+  //                         const Icon(
+  //                           Icons.info_outline,
+  //                           color: AppTheme.primaryBlue,
+  //                           size: 20,
+  //                         ),
+  //                         const SizedBox(width: 12),
+  //                         Expanded(
+  //                           child: Text(
+  //                             S.of(context).profileInfo,
+  //                             style: TextStyle(
+  //                               fontSize: 13,
+  //                               color: Colors.grey.shade700,
+  //                             ),
+  //                           ),
+  //                         ),
+  //                       ],
+  //                     ),
+  //                   ),
+  //                   const SizedBox(height: 20),
+  //                   // Buttons
+  //                   Row(
+  //                     children: [
+  //                       Expanded(
+  //                         child: OutlinedButton(
+  //                           onPressed: () => Navigator.of(context).pop(),
+  //                           style: OutlinedButton.styleFrom(
+  //                             padding: const EdgeInsets.symmetric(vertical: 14),
+  //                             side: BorderSide(color: Colors.grey.shade300),
+  //                             shape: RoundedRectangleBorder(
+  //                               borderRadius: BorderRadius.circular(12),
+  //                             ),
+  //                           ),
+  //                           child: Text(
+  //                             S.of(context).close,
+  //                             style: TextStyle(
+  //                               fontSize: 14,
+  //                               fontWeight: FontWeight.w600,
+  //                               color: Colors.black87,
+  //                             ),
+  //                           ),
+  //                         ),
+  //                       ),
+  //                       const SizedBox(width: 12),
+  //                       Expanded(
+  //                         child: ElevatedButton.icon(
+  //                           onPressed: () async {
+  //                             await getIt<PreferencesHelper>()
+  //                                 .clearCompanyName();
+  //                             await getIt<PreferencesHelper>().clearLang();
+  //                             await getIt<PreferencesHelper>().clearType();
+  //                             await getIt<PreferencesHelper>()
+  //                                 .clearUserAuthToken();
+  //                             await getIt<PreferencesHelper>().clearUserName();
+  //                             await getIt<PreferencesHelper>().clearEmail();
+  //                             await getIt<PreferencesHelper>().clearAccountLang();
+  //                             await getIt<PreferencesHelper>().clearDatabase();
+  //                             await getIt<PreferencesHelper>().clearUrl();
+  //                             if (!mounted) return;
+  //                             Navigator.pushAndRemoveUntil(
+  //                               context,
+  //                               MaterialPageRoute(
+  //                                   builder: (_) => const SplashScreen()),
+  //                               (route) => false,
+  //                             );
+  //                           },
+  //                           icon: const Icon(Icons.logout, size: 18),
+  //                           label: Text(
+  //                             S.of(context).logout,
+  //                             style: const TextStyle(
+  //                               fontSize: 14,
+  //                               fontWeight: FontWeight.w600,
+  //                             ),
+  //                           ),
+  //                           style: ElevatedButton.styleFrom(
+  //                             backgroundColor: Colors.red.shade500,
+  //                             foregroundColor: Colors.white,
+  //                             padding: const EdgeInsets.symmetric(vertical: 14),
+  //                             elevation: 0,
+  //                             shape: RoundedRectangleBorder(
+  //                               borderRadius: BorderRadius.circular(12),
+  //                             ),
+  //                           ),
+  //                         ),
+  //                       ),
+  //                     ],
+  //                   ),
+  //                 ],
+  //               ),
+  //             ),
+  //           ],
+  //         ),
+  //       ),
+  //     ),
+  //   );
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -466,7 +484,33 @@ class _SalesSummaryScreenState extends State<SalesSummaryScreen> {
                       size: 24,
                     ),
                   ),
-                  onPressed: _showProfileDialog,
+                  onPressed: () {
+                    showProfilePopover(
+                      context: context,
+                      name: _companyName ?? "Name",
+                      email: _email ?? "Email@gmail.com",
+                      currentLangCode: _selectedLanguage,
+                      onLanguageChanged: _changeLanguage,
+                      onLogout: () async {
+                        await getIt<PreferencesHelper>().clearCompanyName();
+                        await getIt<PreferencesHelper>().clearLang();
+                        await getIt<PreferencesHelper>().clearType();
+                        await getIt<PreferencesHelper>().clearUserAuthToken();
+                        await getIt<PreferencesHelper>().clearUserName();
+                        await getIt<PreferencesHelper>().clearEmail();
+                        await getIt<PreferencesHelper>().clearAccountLang();
+                        await getIt<PreferencesHelper>().clearDatabase();
+                        await getIt<PreferencesHelper>().clearUrl();
+                        if (!mounted) return;
+                        Navigator.pushAndRemoveUntil(
+                          context,
+                          MaterialPageRoute(
+                              builder: (_) => const SplashScreen()),
+                          (route) => false,
+                        );
+                      },
+                    );
+                  },
                 ),
               ),
             ],

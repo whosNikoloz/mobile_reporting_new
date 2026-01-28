@@ -22,12 +22,12 @@ class MessageLookup extends MessageLookupByLibrary {
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
-    "allBranches": MessageLookupByLibrary.simpleMessage("Bütün filiallar"),
+    "allBranches": MessageLookupByLibrary.simpleMessage("Bütün mağazalar"),
     "aprShort": MessageLookupByLibrary.simpleMessage("Apr"),
     "augShort": MessageLookupByLibrary.simpleMessage("Avq"),
     "avgCheck": MessageLookupByLibrary.simpleMessage("Ort. çek"),
     "bills": MessageLookupByLibrary.simpleMessage("Çeklər"),
-    "branches": MessageLookupByLibrary.simpleMessage("Filiallar"),
+    "branches": MessageLookupByLibrary.simpleMessage("Lokasiyalar"),
     "cancel": MessageLookupByLibrary.simpleMessage("İmtina"),
     "card": MessageLookupByLibrary.simpleMessage("Kart"),
     "cash": MessageLookupByLibrary.simpleMessage("Nağd"),
@@ -87,6 +87,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "sat": MessageLookupByLibrary.simpleMessage("Ş."),
     "search": MessageLookupByLibrary.simpleMessage("Axtarış"),
     "selectPeriod": MessageLookupByLibrary.simpleMessage("Dövrü seçin"),
+    "selectStore": MessageLookupByLibrary.simpleMessage("Mağaza seçin"),
     "selectedPeriod": MessageLookupByLibrary.simpleMessage("Seçilmiş dövr"),
     "selfcost": MessageLookupByLibrary.simpleMessage("Özü dəyəri"),
     "sepShort": MessageLookupByLibrary.simpleMessage("Sen"),

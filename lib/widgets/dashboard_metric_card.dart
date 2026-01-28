@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:intl/intl.dart';
 import 'package:mobile_reporting/models/metric_decimal.dart';
 import 'package:mobile_reporting/models/metric_int.dart';
 
 /// A reusable metric card widget for displaying dashboard metrics with delta comparison
 class DashboardMetricCard extends StatelessWidget {
   final String title;
-  final IconData icon;
+  final Widget icon;
   final String formattedValue;
   final double deltaPercent;
   final bool hasChange;
@@ -24,15 +26,21 @@ class DashboardMetricCard extends StatelessWidget {
   /// Factory constructor for MetricDecimal with currency formatting
   factory DashboardMetricCard.fromDecimal({
     required String title,
-    required IconData icon,
+    required String svgIcon,
     required MetricDecimal metric,
     required String currency,
     bool isLarge = false,
   }) {
     return DashboardMetricCard(
       title: title,
-      icon: icon,
-      formattedValue: '$currency${metric.value.toStringAsFixed(2)}',
+      icon: SvgPicture.asset(
+        svgIcon,
+        width: isLarge ? 30 : 18,
+        height: isLarge ? 30 : 18,
+        colorFilter: const ColorFilter.mode(Color(0xFF64748B), BlendMode.srcIn),
+      ),
+      formattedValue:
+          '$currency${NumberFormat('#,##0.00', 'en_US').format(metric.value)}',
       deltaPercent: metric.deltaPercent,
       hasChange: metric.hasChange,
       isLarge: isLarge,
@@ -42,13 +50,18 @@ class DashboardMetricCard extends StatelessWidget {
   /// Factory constructor for MetricDecimal with percentage formatting
   factory DashboardMetricCard.fromDecimalPercent({
     required String title,
-    required IconData icon,
+    required String svgIcon,
     required MetricDecimal metric,
     bool isLarge = false,
   }) {
     return DashboardMetricCard(
       title: title,
-      icon: icon,
+      icon: SvgPicture.asset(
+        svgIcon,
+        width: isLarge ? 30 : 20,
+        height: isLarge ? 30 : 20,
+        colorFilter: const ColorFilter.mode(Color(0xFF64748B), BlendMode.srcIn),
+      ),
       formattedValue: '${metric.value.toStringAsFixed(1)}%',
       deltaPercent: metric.deltaPercent,
       hasChange: metric.hasChange,
@@ -59,13 +72,18 @@ class DashboardMetricCard extends StatelessWidget {
   /// Factory constructor for MetricInt
   factory DashboardMetricCard.fromInt({
     required String title,
-    required IconData icon,
+    required String svgIcon,
     required MetricInt metric,
     bool isLarge = false,
   }) {
     return DashboardMetricCard(
       title: title,
-      icon: icon,
+      icon: SvgPicture.asset(
+        svgIcon,
+        width: isLarge ? 30 : 20,
+        height: isLarge ? 30 : 20,
+        colorFilter: const ColorFilter.mode(Color(0xFF64748B), BlendMode.srcIn),
+      ),
       formattedValue: metric.value.toString(),
       deltaPercent: metric.deltaPercent,
       hasChange: metric.hasChange,
@@ -100,11 +118,7 @@ class DashboardMetricCard extends StatelessWidget {
               if (isLarge) ...[
                 const SizedBox(height: 70),
               ],
-              Icon(
-                icon,
-                size: isLarge ? 30 : 20,
-                color: const Color(0xFF64748B),
-              ),
+              icon,
               const SizedBox(width: 10),
               Expanded(
                 child: Text(
@@ -145,8 +159,10 @@ class DashboardMetricCard extends StatelessWidget {
                             ? const Color(0xFF10B981)
                             : const Color(0xFFEF4444),
                       ),
-                      const SizedBox(width: 4),
+                    ] else ...[
+                      SizedBox(width: isLarge ? 28 : 16),
                     ],
+                    const SizedBox(width: 4),
                     Flexible(
                       child: FittedBox(
                         fit: BoxFit.scaleDown,

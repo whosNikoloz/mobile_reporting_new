@@ -22,7 +22,7 @@ class MessageLookup extends MessageLookupByLibrary {
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
-    "allBranches": MessageLookupByLibrary.simpleMessage("ყველა ფილიალი"),
+    "allBranches": MessageLookupByLibrary.simpleMessage("ყველა მაღაზია"),
     "aprShort": MessageLookupByLibrary.simpleMessage("აპრ"),
     "attendanceReport": MessageLookupByLibrary.simpleMessage(
       "დასწრების რეპორტი",
@@ -31,7 +31,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "averageCheck": MessageLookupByLibrary.simpleMessage("საშუალო ჩეკი"),
     "avgCheck": MessageLookupByLibrary.simpleMessage("საშ. ჩეკი"),
     "bills": MessageLookupByLibrary.simpleMessage("ჩეკები"),
-    "branches": MessageLookupByLibrary.simpleMessage("ფილიალები"),
+    "branches": MessageLookupByLibrary.simpleMessage("ლოკაციები"),
     "cancel": MessageLookupByLibrary.simpleMessage("გაუქმება"),
     "card": MessageLookupByLibrary.simpleMessage("ბარათი"),
     "cash": MessageLookupByLibrary.simpleMessage("ნაღდი"),
@@ -104,6 +104,7 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "novShort": MessageLookupByLibrary.simpleMessage("ნოე"),
     "octShort": MessageLookupByLibrary.simpleMessage("ოქტ"),
+    "orders": MessageLookupByLibrary.simpleMessage("შეკვეთები"),
     "password": MessageLookupByLibrary.simpleMessage("პაროლი"),
     "payments": MessageLookupByLibrary.simpleMessage("გადახდები"),
     "period": MessageLookupByLibrary.simpleMessage("პერიოდი"),
@@ -141,6 +142,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "search": MessageLookupByLibrary.simpleMessage("ძიება"),
     "selectFilter": MessageLookupByLibrary.simpleMessage("აირჩიეთ ფილტრი"),
     "selectPeriod": MessageLookupByLibrary.simpleMessage("აირჩიეთ პერიოდი"),
+    "selectStore": MessageLookupByLibrary.simpleMessage("აირჩიეთ მაღაზია"),
     "selectedPeriod": MessageLookupByLibrary.simpleMessage("არჩეული პერიოდი"),
     "selfcost": MessageLookupByLibrary.simpleMessage("თ/ღ"),
     "sepShort": MessageLookupByLibrary.simpleMessage("სექ"),

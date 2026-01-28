@@ -100,3 +100,10 @@ flutter:
   uses-material-design: true
   assets:
     - assets/
+    - assets/icons/
+    - assets/icons/sales/
+    - assets/icons/bills/
+    - assets/icons/payments/
+    - assets/icons/navigation/
+    - assets/icons/reports/
+    - assets/icons/flags/

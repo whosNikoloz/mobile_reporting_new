@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:crypto/crypto.dart';
 import 'package:encrypt/encrypt.dart' as encrypt;
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:mobile_reporting/helpers/encryption_helper.dart';
 import 'package:mobile_reporting/helpers/helpers_module.dart';
 import 'package:mobile_reporting/helpers/preferences_helper.dart';
@@ -11,6 +12,7 @@ import 'package:mobile_reporting/screens/splash_screen.dart';
 import 'package:mobile_reporting/services/auth_service.dart';
 import 'package:mobile_reporting/theme/app_theme.dart';
 import 'package:mobile_reporting/localization/generated/l10n.dart';
+import 'package:mobile_reporting/widgets/profile_popover_widget.dart';
 
 class SignInScreen extends StatefulWidget {
   const SignInScreen({super.key});
@@ -62,29 +64,73 @@ class _SignInScreenState extends State<SignInScreen> {
     super.dispose();
   }
 
-  Widget _buildLanguageOption(String label, String code) {
-    bool isSelected = _selectedLanguage == code;
-    return GestureDetector(
-      onTap: () => _changeLanguage(code),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        decoration: BoxDecoration(
-          color: isSelected ? AppTheme.primaryBlue : Colors.grey[100],
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(
-            color: isSelected ? AppTheme.primaryBlue : Colors.grey[300]!,
-          ),
-        ),
-        child: Text(
-          label,
-          style: TextStyle(
-            color: isSelected ? Colors.white : Colors.black87,
-            fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
-            fontSize: 14,
-          ),
-        ),
-      ),
+  LanguageOption get _currentLanguage {
+    return availableLanguages.firstWhere(
+      (lang) => lang.code == _selectedLanguage,
+      orElse: () => availableLanguages.first,
     );
+  }
+
+  final GlobalKey _langButtonKey = GlobalKey();
+
+  void _showLanguageDropdown() {
+    final RenderBox button =
+        _langButtonKey.currentContext!.findRenderObject() as RenderBox;
+    final RenderBox overlay =
+        Overlay.of(context).context.findRenderObject() as RenderBox;
+    final Offset buttonPosition =
+        button.localToGlobal(Offset.zero, ancestor: overlay);
+
+    showMenu<String>(
+      context: context,
+      position: RelativeRect.fromLTRB(
+        buttonPosition.dx,
+        buttonPosition.dy + button.size.height + 4,
+        overlay.size.width - buttonPosition.dx - button.size.width,
+        0,
+      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      items: availableLanguages.map((lang) {
+        final isSelected = lang.code == _selectedLanguage;
+        return PopupMenuItem<String>(
+          value: lang.code,
+          child: Row(
+            children: [
+              ClipRRect(
+                borderRadius: BorderRadius.circular(4),
+                child: SvgPicture.asset(
+                  lang.svgAsset,
+                  width: 24,
+                  height: 24,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  lang.code == 'en' ? 'English' : 'ქართული',
+                  style: TextStyle(
+                    fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+                    color: isSelected
+                        ? const Color(0xFF2F6BFF)
+                        : const Color(0xFF111827),
+                  ),
+                ),
+              ),
+              if (isSelected)
+                const Icon(
+                  Icons.check_circle_rounded,
+                  size: 18,
+                  color: Color(0xFF2F6BFF),
+                ),
+            ],
+          ),
+        );
+      }).toList(),
+    ).then((value) {
+      if (value != null) {
+        _changeLanguage(value);
+      }
+    });
   }
 
   @override
@@ -99,19 +145,7 @@ class _SignInScreenState extends State<SignInScreen> {
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              const SizedBox(height: 40),
-
-              // Language Picker
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                   _buildLanguageOption('English', 'en'),
-                   const SizedBox(width: 20),
-                   _buildLanguageOption('ქართული', 'ka'),
-                ],
-              ),
-
-              const SizedBox(height: 40),
+              const SizedBox(height: 60),
 
               // Title
               Text(
@@ -127,21 +161,20 @@ class _SignInScreenState extends State<SignInScreen> {
               const SizedBox(height: 40),
 
               // Username Label
-              Text(
-                l10n.username,
-                style: const TextStyle(
-                  fontSize: 14,
-                  color: Colors.black54,
-                ),
-              ),
-
-              const SizedBox(height: 8),
+              // Text(
+              //   l10n.username,
+              //   style: const TextStyle(
+              //     fontSize: 14,
+              //     color: Colors.black54,
+              //   ),
+              // ),
 
               // Username TextField
               TextField(
                 controller: _usernameController,
                 decoration: InputDecoration(
-                  hintText: l10n.username,
+                  label: Text(l10n.username),
+                  labelStyle: const TextStyle(color: Colors.black54),
                   hintStyle: const TextStyle(color: Colors.black38),
                   filled: true,
                   fillColor: Colors.grey[100],
@@ -159,22 +192,23 @@ class _SignInScreenState extends State<SignInScreen> {
               const SizedBox(height: 20),
 
               // Password Label
-              Text(
-                l10n.password,
-                style: const TextStyle(
-                  fontSize: 14,
-                  color: Colors.black54,
-                ),
-              ),
+              // Text(
+              //   l10n.password,
+              //   style: const TextStyle(
+              //     fontSize: 14,
+              //     color: Colors.black54,
+              //   ),
+              // ),
 
-              const SizedBox(height: 8),
+              // const SizedBox(height: 8),
 
               // Password TextField
               TextField(
                 controller: _passwordController,
                 obscureText: true,
                 decoration: InputDecoration(
-                  hintText: l10n.password,
+                  label: Text(l10n.password),
+                  labelStyle: const TextStyle(color: Colors.black54),
                   hintStyle: const TextStyle(color: Colors.black38),
                   filled: true,
                   fillColor: Colors.grey[100],
@@ -191,7 +225,7 @@ class _SignInScreenState extends State<SignInScreen> {
 
               const SizedBox(height: 32),
 
-              // Log In Button
+              // Log In Button (full width)
               ElevatedButton(
                 onPressed: () async {
                   if (!logInClicked) {
@@ -214,6 +248,57 @@ class _SignInScreenState extends State<SignInScreen> {
                   style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: 16),
+
+              // Language Picker Dropdown (right aligned)
+              Align(
+                alignment: Alignment.centerRight,
+                child: InkWell(
+                  key: _langButtonKey,
+                  onTap: _showLanguageDropdown,
+                  borderRadius: BorderRadius.circular(8),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 10,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.grey[100],
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: Colors.grey[300]!),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(4),
+                          child: SvgPicture.asset(
+                            _currentLanguage.svgAsset,
+                            width: 24,
+                            height: 24,
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          _currentLanguage.label,
+                          style: const TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                            color: Color(0xFF111827),
+                          ),
+                        ),
+                        const SizedBox(width: 4),
+                        const Icon(
+                          Icons.keyboard_arrow_down_rounded,
+                          size: 20,
+                          color: Color(0xFF6B7280),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),

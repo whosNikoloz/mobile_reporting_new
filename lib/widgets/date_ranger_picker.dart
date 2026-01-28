@@ -221,13 +221,16 @@ class _DateRangePickerState extends State<DateRangePicker> {
     // 3. User has a custom offset to apply
     // 4. No custom comparison was made (default behavior)
     bool shouldRecalculate = _compareRangeStart == null ||
-                             _compareRangeEnd == null ||
-                             (_isSameDay(_compareRangeStart!, startDate) && _isSameDay(_compareRangeEnd!, endDate));
+        _compareRangeEnd == null ||
+        (_isSameDay(_compareRangeStart!, startDate) &&
+            _isSameDay(_compareRangeEnd!, endDate));
 
     // If user has custom offset, apply it
     if (!shouldRecalculate && _comparisonOffsetDays != null) {
-      _compareRangeStart = startDate.subtract(Duration(days: _comparisonOffsetDays!));
-      _compareRangeEnd = endDate.subtract(Duration(days: _comparisonOffsetDays!));
+      _compareRangeStart =
+          startDate.subtract(Duration(days: _comparisonOffsetDays!));
+      _compareRangeEnd =
+          endDate.subtract(Duration(days: _comparisonOffsetDays!));
     }
     // If no custom comparison was set, always use default
     else if (!shouldRecalculate && !_hasCustomComparison) {
@@ -247,20 +250,23 @@ class _DateRangePickerState extends State<DateRangePicker> {
           break;
         case PeriodType.month:
           try {
-            _compareRangeStart = DateTime(startDate.year, startDate.month - 1, startDate.day, 0, 0);
-            _compareRangeEnd = DateTime(endDate.year, endDate.month - 1, endDate.day, 23, 59);
+            _compareRangeStart = DateTime(
+                startDate.year, startDate.month - 1, startDate.day, 0, 0);
+            _compareRangeEnd =
+                DateTime(endDate.year, endDate.month - 1, endDate.day, 23, 59);
           } catch (e) {
-            final lastDayOfPrevMonth = DateTime(startDate.year, startDate.month, 0);
+            final lastDayOfPrevMonth =
+                DateTime(startDate.year, startDate.month, 0);
             _compareRangeStart = DateTime(
                 lastDayOfPrevMonth.year,
                 lastDayOfPrevMonth.month,
-                startDate.day > lastDayOfPrevMonth.day ? lastDayOfPrevMonth.day : startDate.day,
-                0, 0);
-            _compareRangeEnd = DateTime(
-                lastDayOfPrevMonth.year,
-                lastDayOfPrevMonth.month,
-                lastDayOfPrevMonth.day,
-                23, 59);
+                startDate.day > lastDayOfPrevMonth.day
+                    ? lastDayOfPrevMonth.day
+                    : startDate.day,
+                0,
+                0);
+            _compareRangeEnd = DateTime(lastDayOfPrevMonth.year,
+                lastDayOfPrevMonth.month, lastDayOfPrevMonth.day, 23, 59);
           }
           break;
         case PeriodType.year:
@@ -269,7 +275,8 @@ class _DateRangePickerState extends State<DateRangePicker> {
           break;
         case PeriodType.period:
           final duration = endDate.difference(startDate);
-          _compareRangeStart = startDate.subtract(duration).subtract(const Duration(days: 1));
+          _compareRangeStart =
+              startDate.subtract(duration).subtract(const Duration(days: 1));
           _compareRangeEnd = startDate.subtract(const Duration(days: 1));
           break;
       }
@@ -311,7 +318,8 @@ class _DateRangePickerState extends State<DateRangePicker> {
   }
 
   Widget _buildTab(String text, int index) {
-    bool isSelected = (_isCompareMode && index == 1) || (!_isCompareMode && index == 0);
+    bool isSelected =
+        (_isCompareMode && index == 1) || (!_isCompareMode && index == 0);
     return GestureDetector(
       onTap: () {
         setState(() {
@@ -622,18 +630,22 @@ class _DateRangePickerState extends State<DateRangePicker> {
         final isSelected = year == _selectedDate.year;
 
         // Check if this is the auto-comparison year (ORANGE)
-        final isAutoCompare = _isCompareMode && autoCompareYear != null && year == autoCompareYear;
+        final isAutoCompare = _isCompareMode &&
+            autoCompareYear != null &&
+            year == autoCompareYear;
 
         return GestureDetector(
-          onTap: isFuture ? null : () {
-            setState(() {
-              // Reset custom comparison when selecting new period
-              _hasCustomComparison = false;
-              _comparisonOffsetDays = null;
+          onTap: isFuture
+              ? null
+              : () {
+                  setState(() {
+                    // Reset custom comparison when selecting new period
+                    _hasCustomComparison = false;
+                    _comparisonOffsetDays = null;
 
-              _selectedDate = DateTime(year);
-            });
-          },
+                    _selectedDate = DateTime(year);
+                  });
+                },
           child: Container(
             alignment: Alignment.center,
             decoration: BoxDecoration(
@@ -655,7 +667,9 @@ class _DateRangePickerState extends State<DateRangePicker> {
                         : isAutoCompare
                             ? Colors.orange
                             : Colors.black87,
-                fontWeight: isSelected || isAutoCompare ? FontWeight.w600 : FontWeight.normal,
+                fontWeight: isSelected || isAutoCompare
+                    ? FontWeight.w600
+                    : FontWeight.normal,
               ),
             ),
           ),
@@ -685,7 +699,8 @@ class _DateRangePickerState extends State<DateRangePicker> {
     // Calculate automatic comparison month (ORANGE) - previous month
     DateTime? autoCompareMonth;
     if (_selectedPeriodType == PeriodType.month) {
-      autoCompareMonth = DateTime(_selectedDate.year, _selectedDate.month - 1, 1);
+      autoCompareMonth =
+          DateTime(_selectedDate.year, _selectedDate.month - 1, 1);
     }
 
     return GridView.builder(
@@ -708,20 +723,23 @@ class _DateRangePickerState extends State<DateRangePicker> {
             _selectedDate.month == monthIndex;
 
         // Check if this is the auto-comparison month (ORANGE)
-        final isAutoCompare = _isCompareMode && autoCompareMonth != null &&
+        final isAutoCompare = _isCompareMode &&
+            autoCompareMonth != null &&
             _currentYear == autoCompareMonth.year &&
             monthIndex == autoCompareMonth.month;
 
         return GestureDetector(
-          onTap: isFuture ? null : () {
-            setState(() {
-              // Reset custom comparison when selecting new period
-              _hasCustomComparison = false;
-              _comparisonOffsetDays = null;
+          onTap: isFuture
+              ? null
+              : () {
+                  setState(() {
+                    // Reset custom comparison when selecting new period
+                    _hasCustomComparison = false;
+                    _comparisonOffsetDays = null;
 
-              _selectedDate = DateTime(_currentYear, monthIndex);
-            });
-          },
+                    _selectedDate = DateTime(_currentYear, monthIndex);
+                  });
+                },
           child: Container(
             alignment: Alignment.center,
             decoration: BoxDecoration(
@@ -743,7 +761,9 @@ class _DateRangePickerState extends State<DateRangePicker> {
                         : isAutoCompare
                             ? Colors.orange
                             : Colors.black87,
-                fontWeight: isSelected || isAutoCompare ? FontWeight.w600 : FontWeight.normal,
+                fontWeight: isSelected || isAutoCompare
+                    ? FontWeight.w600
+                    : FontWeight.normal,
               ),
             ),
           ),
@@ -808,7 +828,9 @@ class _DateRangePickerState extends State<DateRangePicker> {
     DateTime? autoCompareStart;
     DateTime? autoCompareEnd;
 
-    if (_selectedPeriodType == PeriodType.period && _rangeStart != null && _rangeEnd != null) {
+    if (_selectedPeriodType == PeriodType.period &&
+        _rangeStart != null &&
+        _rangeEnd != null) {
       // For period type, calculate comparison based on duration
       final duration = _rangeEnd!.difference(_rangeStart!);
       autoCompareEnd = _rangeStart!.subtract(const Duration(days: 1));
@@ -817,7 +839,9 @@ class _DateRangePickerState extends State<DateRangePicker> {
       // For day type, show previous day
       autoCompareStart = _selectedDate.subtract(const Duration(days: 1));
       autoCompareEnd = autoCompareStart;
-    } else if (_selectedPeriodType == PeriodType.week && _rangeStart != null && _rangeEnd != null) {
+    } else if (_selectedPeriodType == PeriodType.week &&
+        _rangeStart != null &&
+        _rangeEnd != null) {
       // For week type, show previous week
       autoCompareStart = _rangeStart!.subtract(const Duration(days: 7));
       autoCompareEnd = _rangeEnd!.subtract(const Duration(days: 7));
@@ -844,7 +868,8 @@ class _DateRangePickerState extends State<DateRangePicker> {
             DateTime(_currentMonth.year, _currentMonth.month, dayNumber);
         final today = DateTime.now();
         final isToday = _isSameDay(date, today);
-        final isFuture = date.isAfter(DateTime(today.year, today.month, today.day));
+        final isFuture =
+            date.isAfter(DateTime(today.year, today.month, today.day));
         final isSelected = _selectedPeriodType == PeriodType.day &&
             _isSameDay(date, _selectedDate);
 
@@ -889,13 +914,16 @@ class _DateRangePickerState extends State<DateRangePicker> {
                 _isSameDay(date, _rangeStart!);
 
         // ORANGE: Automatic comparison range (only show when period selection is complete)
-        final isInAutoCompareRange = _isCompareMode && autoCompareStart != null &&
+        final isInAutoCompareRange = _isCompareMode &&
+            autoCompareStart != null &&
             autoCompareEnd != null &&
             !date.isBefore(autoCompareStart) &&
             !date.isAfter(autoCompareEnd);
 
-        final isAutoCompareStart = autoCompareStart != null && _isSameDay(date, autoCompareStart);
-        final isAutoCompareEnd = autoCompareEnd != null && _isSameDay(date, autoCompareEnd);
+        final isAutoCompareStart =
+            autoCompareStart != null && _isSameDay(date, autoCompareStart);
+        final isAutoCompareEnd =
+            autoCompareEnd != null && _isSameDay(date, autoCompareEnd);
 
         Color? backgroundColor;
         Color textColor = Colors.black87;
@@ -1043,33 +1071,35 @@ class _DateRangePickerState extends State<DateRangePicker> {
         }
 
         return GestureDetector(
-          onTap: isFuture ? null : () {
-            setState(() {
-              // Reset custom comparison when selecting new period date
-              // This ensures default comparison is used unless user explicitly sets custom
-              if (!_isCompareMode) {
-                _hasCustomComparison = false;
-                _comparisonOffsetDays = null;
-              }
+          onTap: isFuture
+              ? null
+              : () {
+                  setState(() {
+                    // Reset custom comparison when selecting new period date
+                    // This ensures default comparison is used unless user explicitly sets custom
+                    if (!_isCompareMode) {
+                      _hasCustomComparison = false;
+                      _comparisonOffsetDays = null;
+                    }
 
-              if (_selectedPeriodType == PeriodType.day) {
-                _selectedDate = date;
-              } else if (_selectedPeriodType == PeriodType.week) {
-                _setWeekRange(date);
-              } else if (_selectedPeriodType == PeriodType.period) {
-                if (_rangeStart == null ||
-                    (_rangeStart != null && _rangeEnd != null)) {
-                  _rangeStart = date;
-                  _rangeEnd = null;
-                } else if (date.isBefore(_rangeStart!)) {
-                  _rangeEnd = _rangeStart;
-                  _rangeStart = date;
-                } else {
-                  _rangeEnd = date;
-                }
-              }
-            });
-          },
+                    if (_selectedPeriodType == PeriodType.day) {
+                      _selectedDate = date;
+                    } else if (_selectedPeriodType == PeriodType.week) {
+                      _setWeekRange(date);
+                    } else if (_selectedPeriodType == PeriodType.period) {
+                      if (_rangeStart == null ||
+                          (_rangeStart != null && _rangeEnd != null)) {
+                        _rangeStart = date;
+                        _rangeEnd = null;
+                      } else if (date.isBefore(_rangeStart!)) {
+                        _rangeEnd = _rangeStart;
+                        _rangeStart = date;
+                      } else {
+                        _rangeEnd = date;
+                      }
+                    }
+                  });
+                },
           child: child,
         );
       },
@@ -1097,11 +1127,13 @@ class _DateRangePickerState extends State<DateRangePicker> {
         Row(
           children: [
             Expanded(
-              child: _buildComparePeriodTypeButton(S.of(context).day, PeriodType.day),
+              child: _buildComparePeriodTypeButton(
+                  S.of(context).day, PeriodType.day),
             ),
             const SizedBox(width: 8),
             Expanded(
-              child: _buildComparePeriodTypeButton(S.of(context).week, PeriodType.week),
+              child: _buildComparePeriodTypeButton(
+                  S.of(context).week, PeriodType.week),
             ),
           ],
         ),
@@ -1109,11 +1141,13 @@ class _DateRangePickerState extends State<DateRangePicker> {
         Row(
           children: [
             Expanded(
-              child: _buildComparePeriodTypeButton(S.of(context).month, PeriodType.month),
+              child: _buildComparePeriodTypeButton(
+                  S.of(context).month, PeriodType.month),
             ),
             const SizedBox(width: 8),
             Expanded(
-              child: _buildComparePeriodTypeButton(S.of(context).year, PeriodType.year),
+              child: _buildComparePeriodTypeButton(
+                  S.of(context).year, PeriodType.year),
             ),
           ],
         ),
@@ -1141,9 +1175,8 @@ class _DateRangePickerState extends State<DateRangePicker> {
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 5),
         decoration: BoxDecoration(
-          color: isSelected
-              ? Colors.orange.withOpacity(0.1)
-              : Colors.transparent,
+          color:
+              isSelected ? Colors.orange.withOpacity(0.1) : Colors.transparent,
           borderRadius: BorderRadius.circular(8),
         ),
         child: Text(
@@ -1194,7 +1227,8 @@ class _DateRangePickerState extends State<DateRangePicker> {
                     style: TextStyle(
                       fontSize: 14,
                       color: isSelected ? Colors.orange : Colors.black87,
-                      fontWeight: isSelected ? FontWeight.w500 : FontWeight.normal,
+                      fontWeight:
+                          isSelected ? FontWeight.w500 : FontWeight.normal,
                     ),
                   ),
                   if (isSelected && !hasDateRange)
@@ -1302,8 +1336,10 @@ class _DateRangePickerState extends State<DateRangePicker> {
 
     switch (_selectedPeriodType) {
       case PeriodType.day:
-        bluePeriodStart = DateTime(_selectedDate.year, _selectedDate.month, _selectedDate.day, 0, 0);
-        bluePeriodEnd = DateTime(_selectedDate.year, _selectedDate.month, _selectedDate.day, 23, 59);
+        bluePeriodStart = DateTime(
+            _selectedDate.year, _selectedDate.month, _selectedDate.day, 0, 0);
+        bluePeriodEnd = DateTime(
+            _selectedDate.year, _selectedDate.month, _selectedDate.day, 23, 59);
         break;
       case PeriodType.week:
       case PeriodType.period:
@@ -1313,8 +1349,10 @@ class _DateRangePickerState extends State<DateRangePicker> {
         }
         break;
       case PeriodType.month:
-        bluePeriodStart = DateTime(_selectedDate.year, _selectedDate.month, 1, 0, 0);
-        bluePeriodEnd = DateTime(_selectedDate.year, _selectedDate.month + 1, 0, 23, 59);
+        bluePeriodStart =
+            DateTime(_selectedDate.year, _selectedDate.month, 1, 0, 0);
+        bluePeriodEnd =
+            DateTime(_selectedDate.year, _selectedDate.month + 1, 0, 23, 59);
         break;
       case PeriodType.year:
         bluePeriodStart = DateTime(_selectedDate.year, 1, 1, 0, 0);
@@ -1343,13 +1381,16 @@ class _DateRangePickerState extends State<DateRangePicker> {
               return const SizedBox.shrink();
             }
 
-            final date = DateTime(_currentMonth.year, _currentMonth.month, dayNumber);
+            final date =
+                DateTime(_currentMonth.year, _currentMonth.month, dayNumber);
             final today = DateTime.now();
             final isToday = _isSameDay(date, today);
 
             // Check if date is disabled (future or same/after period start)
-            final isFuture = date.isAfter(DateTime(today.year, today.month, today.day));
-            final isInOrAfterPeriod = bluePeriodStart != null && !date.isBefore(bluePeriodStart);
+            final isFuture =
+                date.isAfter(DateTime(today.year, today.month, today.day));
+            final isInOrAfterPeriod =
+                bluePeriodStart != null && !date.isBefore(bluePeriodStart);
             final isDisabled = isFuture || isInOrAfterPeriod;
 
             // BLUE: Check if date is in the Period tab selection (read-only)
@@ -1357,16 +1398,20 @@ class _DateRangePickerState extends State<DateRangePicker> {
                 bluePeriodEnd != null &&
                 !date.isBefore(bluePeriodStart) &&
                 !date.isAfter(bluePeriodEnd);
-            final isBlueStart = bluePeriodStart != null && _isSameDay(date, bluePeriodStart);
-            final isBlueEnd = bluePeriodEnd != null && _isSameDay(date, bluePeriodEnd);
+            final isBlueStart =
+                bluePeriodStart != null && _isSameDay(date, bluePeriodStart);
+            final isBlueEnd =
+                bluePeriodEnd != null && _isSameDay(date, bluePeriodEnd);
 
             // ORANGE: Check if date is in the compare selection
             final isInOrangeRange = _compareRangeStart != null &&
                 _compareRangeEnd != null &&
                 !date.isBefore(_compareRangeStart!) &&
                 !date.isAfter(_compareRangeEnd!);
-            final isOrangeStart = _compareRangeStart != null && _isSameDay(date, _compareRangeStart!);
-            final isOrangeEnd = _compareRangeEnd != null && _isSameDay(date, _compareRangeEnd!);
+            final isOrangeStart = _compareRangeStart != null &&
+                _isSameDay(date, _compareRangeStart!);
+            final isOrangeEnd =
+                _compareRangeEnd != null && _isSameDay(date, _compareRangeEnd!);
             final isOrangeFirstOnly = _compareRangeStart != null &&
                 _compareRangeEnd == null &&
                 _isSameDay(date, _compareRangeStart!);
@@ -1422,44 +1467,60 @@ class _DateRangePickerState extends State<DateRangePicker> {
               }
             }
 
-            final hasMargin = !isInBlueRange && !isInOrangeRange && !isOrangeFirstOnly;
+            final hasMargin =
+                !isInBlueRange && !isInOrangeRange && !isOrangeFirstOnly;
 
-            if (isToday && !isInBlueRange && !isInOrangeRange && !isDisabled && borderRadius == null) {
+            if (isToday &&
+                !isInBlueRange &&
+                !isInOrangeRange &&
+                !isDisabled &&
+                borderRadius == null) {
               borderRadius = BorderRadius.circular(20);
             }
 
             return GestureDetector(
-              onTap: isDisabled ? null : () {
-                setState(() {
-                  _hasCustomComparison = true;
-                  // Set compare range based on period type
-                  if (_selectedPeriodType == PeriodType.day) {
-                    _compareRangeStart = DateTime(date.year, date.month, date.day, 0, 0);
-                    _compareRangeEnd = DateTime(date.year, date.month, date.day, 23, 59);
-                  } else if (_selectedPeriodType == PeriodType.week) {
-                    _setCompareWeekRange(date);
-                  } else if (_selectedPeriodType == PeriodType.month) {
-                    _compareRangeStart = DateTime(date.year, date.month, 1, 0, 0);
-                    _compareRangeEnd = DateTime(date.year, date.month + 1, 0, 23, 59);
-                  } else if (_selectedPeriodType == PeriodType.period) {
-                    if (_compareRangeStart == null || (_compareRangeStart != null && _compareRangeEnd != null)) {
-                      _compareRangeStart = date;
-                      _compareRangeEnd = null;
-                    } else if (date.isBefore(_compareRangeStart!)) {
-                      _compareRangeEnd = _compareRangeStart;
-                      _compareRangeStart = date;
-                    } else {
-                      _compareRangeEnd = date;
-                    }
-                  }
-                });
-              },
+              onTap: isDisabled
+                  ? null
+                  : () {
+                      setState(() {
+                        _hasCustomComparison = true;
+                        // Set compare range based on period type
+                        if (_selectedPeriodType == PeriodType.day) {
+                          _compareRangeStart =
+                              DateTime(date.year, date.month, date.day, 0, 0);
+                          _compareRangeEnd =
+                              DateTime(date.year, date.month, date.day, 23, 59);
+                        } else if (_selectedPeriodType == PeriodType.week) {
+                          _setCompareWeekRange(date);
+                        } else if (_selectedPeriodType == PeriodType.month) {
+                          _compareRangeStart =
+                              DateTime(date.year, date.month, 1, 0, 0);
+                          _compareRangeEnd =
+                              DateTime(date.year, date.month + 1, 0, 23, 59);
+                        } else if (_selectedPeriodType == PeriodType.period) {
+                          if (_compareRangeStart == null ||
+                              (_compareRangeStart != null &&
+                                  _compareRangeEnd != null)) {
+                            _compareRangeStart = date;
+                            _compareRangeEnd = null;
+                          } else if (date.isBefore(_compareRangeStart!)) {
+                            _compareRangeEnd = _compareRangeStart;
+                            _compareRangeStart = date;
+                          } else {
+                            _compareRangeEnd = date;
+                          }
+                        }
+                      });
+                    },
               child: Container(
                 margin: hasMargin ? const EdgeInsets.all(2) : EdgeInsets.zero,
                 decoration: BoxDecoration(
                   color: backgroundColor,
                   borderRadius: borderRadius,
-                  border: isToday && !isInBlueRange && !isInOrangeRange && !isDisabled
+                  border: isToday &&
+                          !isInBlueRange &&
+                          !isInOrangeRange &&
+                          !isDisabled
                       ? Border.all(color: AppTheme.primaryBlue, width: 2)
                       : null,
                 ),
@@ -1800,8 +1861,10 @@ class _DateRangePickerState extends State<DateRangePicker> {
 
     // If period changed and we have a custom offset, apply it
     if (periodChanged && _comparisonOffsetDays != null) {
-      _compareRangeStart = currentStart.subtract(Duration(days: _comparisonOffsetDays!));
-      _compareRangeEnd = currentEnd.subtract(Duration(days: _comparisonOffsetDays!));
+      _compareRangeStart =
+          currentStart.subtract(Duration(days: _comparisonOffsetDays!));
+      _compareRangeEnd =
+          currentEnd.subtract(Duration(days: _comparisonOffsetDays!));
       return;
     }
 
@@ -2107,22 +2170,23 @@ class _DateRangePickerState extends State<DateRangePicker> {
                   DateTime currentStart;
                   switch (_selectedPeriodType) {
                     case PeriodType.day:
-                      currentStart = DateTime(
-                          _selectedDate.year, _selectedDate.month, _selectedDate.day, 0, 0);
+                      currentStart = DateTime(_selectedDate.year,
+                          _selectedDate.month, _selectedDate.day, 0, 0);
                       break;
                     case PeriodType.week:
-                      currentStart = DateTime(
-                          _rangeStart!.year, _rangeStart!.month, _rangeStart!.day, 0, 0);
+                      currentStart = DateTime(_rangeStart!.year,
+                          _rangeStart!.month, _rangeStart!.day, 0, 0);
                       break;
                     case PeriodType.month:
-                      currentStart = DateTime(_selectedDate.year, _selectedDate.month, 1, 0, 0);
+                      currentStart = DateTime(
+                          _selectedDate.year, _selectedDate.month, 1, 0, 0);
                       break;
                     case PeriodType.year:
                       currentStart = DateTime(_selectedDate.year, 1, 1, 0, 0);
                       break;
                     case PeriodType.period:
-                      currentStart = DateTime(
-                          _rangeStart!.year, _rangeStart!.month, _rangeStart!.day, 0, 0);
+                      currentStart = DateTime(_rangeStart!.year,
+                          _rangeStart!.month, _rangeStart!.day, 0, 0);
                       break;
                   }
 
@@ -2135,7 +2199,8 @@ class _DateRangePickerState extends State<DateRangePicker> {
                       _compareRangeEnd =
                           DateTime(date.year, date.month, date.day, 23, 59);
                       // Calculate offset in days
-                      _comparisonOffsetDays = currentStart.difference(_compareRangeStart!).inDays;
+                      _comparisonOffsetDays =
+                          currentStart.difference(_compareRangeStart!).inDays;
                       break;
                     case PeriodType.week:
                       // For week comparison, select week
@@ -2147,7 +2212,8 @@ class _DateRangePickerState extends State<DateRangePicker> {
                       _compareRangeEnd = DateTime(
                           sunday.year, sunday.month, sunday.day, 23, 59);
                       // Calculate offset in days
-                      _comparisonOffsetDays = currentStart.difference(_compareRangeStart!).inDays;
+                      _comparisonOffsetDays =
+                          currentStart.difference(_compareRangeStart!).inDays;
                       break;
                     case PeriodType.month:
                       // For month comparison, select month
@@ -2156,14 +2222,16 @@ class _DateRangePickerState extends State<DateRangePicker> {
                       _compareRangeEnd =
                           DateTime(date.year, date.month + 1, 0, 23, 59);
                       // Calculate offset in days
-                      _comparisonOffsetDays = currentStart.difference(_compareRangeStart!).inDays;
+                      _comparisonOffsetDays =
+                          currentStart.difference(_compareRangeStart!).inDays;
                       break;
                     case PeriodType.year:
                       // For year comparison, select year
                       _compareRangeStart = DateTime(date.year, 1, 1, 0, 0);
                       _compareRangeEnd = DateTime(date.year, 12, 31, 23, 59);
                       // Calculate offset in days
-                      _comparisonOffsetDays = currentStart.difference(_compareRangeStart!).inDays;
+                      _comparisonOffsetDays =
+                          currentStart.difference(_compareRangeStart!).inDays;
                       break;
                     case PeriodType.period:
                       // For custom period, allow range selection
@@ -2185,13 +2253,15 @@ class _DateRangePickerState extends State<DateRangePicker> {
                         _compareRangeStart =
                             DateTime(date.year, date.month, date.day, 0, 0);
                         // Calculate offset in days
-                        _comparisonOffsetDays = currentStart.difference(_compareRangeStart!).inDays;
+                        _comparisonOffsetDays =
+                            currentStart.difference(_compareRangeStart!).inDays;
                       } else {
                         // Set end date
                         _compareRangeEnd =
                             DateTime(date.year, date.month, date.day, 23, 59);
                         // Calculate offset in days
-                        _comparisonOffsetDays = currentStart.difference(_compareRangeStart!).inDays;
+                        _comparisonOffsetDays =
+                            currentStart.difference(_compareRangeStart!).inDays;
                       }
                       break;
                   }
@@ -2278,19 +2348,24 @@ class _DateRangePickerState extends State<DateRangePicker> {
         final isDisabled = isFuture || isAfterOrSamePeriod;
 
         return GestureDetector(
-          onTap: isDisabled ? null : () {
-            setState(() {
-              _selectedCompareOption = CompareToOption.customRange;
-              _hasCustomComparison = true;
-              _compareRangeStart = DateTime(_currentYear, monthIndex, 1, 0, 0);
-              _compareRangeEnd =
-                  DateTime(_currentYear, monthIndex + 1, 0, 23, 59);
+          onTap: isDisabled
+              ? null
+              : () {
+                  setState(() {
+                    _selectedCompareOption = CompareToOption.customRange;
+                    _hasCustomComparison = true;
+                    _compareRangeStart =
+                        DateTime(_currentYear, monthIndex, 1, 0, 0);
+                    _compareRangeEnd =
+                        DateTime(_currentYear, monthIndex + 1, 0, 23, 59);
 
-              // Calculate offset for smart recalculation
-              final currentStart = DateTime(_selectedDate.year, _selectedDate.month, 1, 0, 0);
-              _comparisonOffsetDays = currentStart.difference(_compareRangeStart!).inDays;
-            });
-          },
+                    // Calculate offset for smart recalculation
+                    final currentStart = DateTime(
+                        _selectedDate.year, _selectedDate.month, 1, 0, 0);
+                    _comparisonOffsetDays =
+                        currentStart.difference(_compareRangeStart!).inDays;
+                  });
+                },
           child: Container(
             alignment: Alignment.center,
             decoration: BoxDecoration(
@@ -2355,18 +2430,22 @@ class _DateRangePickerState extends State<DateRangePicker> {
         final isDisabled = isFuture || isAfterOrSamePeriod;
 
         return GestureDetector(
-          onTap: isDisabled ? null : () {
-            setState(() {
-              _selectedCompareOption = CompareToOption.customRange;
-              _hasCustomComparison = true;
-              _compareRangeStart = DateTime(year, 1, 1, 0, 0);
-              _compareRangeEnd = DateTime(year, 12, 31, 23, 59);
+          onTap: isDisabled
+              ? null
+              : () {
+                  setState(() {
+                    _selectedCompareOption = CompareToOption.customRange;
+                    _hasCustomComparison = true;
+                    _compareRangeStart = DateTime(year, 1, 1, 0, 0);
+                    _compareRangeEnd = DateTime(year, 12, 31, 23, 59);
 
-              // Calculate offset for smart recalculation
-              final currentStart = DateTime(_selectedDate.year, 1, 1, 0, 0);
-              _comparisonOffsetDays = currentStart.difference(_compareRangeStart!).inDays;
-            });
-          },
+                    // Calculate offset for smart recalculation
+                    final currentStart =
+                        DateTime(_selectedDate.year, 1, 1, 0, 0);
+                    _comparisonOffsetDays =
+                        currentStart.difference(_compareRangeStart!).inDays;
+                  });
+                },
           child: Container(
             alignment: Alignment.center,
             decoration: BoxDecoration(

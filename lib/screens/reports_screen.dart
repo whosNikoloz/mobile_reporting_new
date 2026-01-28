@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:mobile_reporting/localization/generated/l10n.dart';
 import 'package:mobile_reporting/screens/sales_summary_screen.dart';
+import 'package:mobile_reporting/theme/app_theme.dart';
 
 class ReportsScreen extends StatefulWidget {
   const ReportsScreen({Key? key}) : super(key: key);
@@ -24,16 +26,16 @@ class _ReportsScreenState extends State<ReportsScreen> {
   };
 
   // Icons for each category
-  final Map<String, IconData> _categoryIcons = {
-    'Sales': Icons.point_of_sale,
-    'Finances': Icons.account_balance_wallet,
-    'Staff': Icons.people,
-    'Stock': Icons.inventory_2,
+  final Map<String, String> _categoryIcons = {
+    'Sales': 'assets/icons/reports/sales.svg',
+    'Finances': 'assets/icons/reports/finances.svg',
+    'Staff': 'assets/icons/reports/staff.svg',
+    'Stock': 'assets/icons/reports/stock.svg',
   };
 
   final Map<String, List<String>> _reports = {
     'Sales': [
-      'Sales by Day',
+      'Sales by Days',
       'Sales by Hour',
       'Sales by Weekday',
     ],
@@ -75,7 +77,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
   String _getReportTitle(BuildContext context, String report) {
     final l10n = S.of(context);
     switch (report) {
-      case 'Sales by Day':
+      case 'Sales by Days':
         return l10n.salesByDay;
       case 'Sales by Hour':
         return l10n.salesByHours;
@@ -215,10 +217,12 @@ class _ReportsScreenState extends State<ReportsScreen> {
                     children: [
                       Row(
                         children: [
-                          Icon(
-                            _categoryIcons[category],
-                            size: 20,
-                            color: Colors.blue[600],
+                          SvgPicture.asset(
+                            _categoryIcons[category]!,
+                            width: 20,
+                            height: 20,
+                            colorFilter: const ColorFilter.mode(
+                                AppTheme.primaryBlue, BlendMode.srcIn),
                           ),
                           const SizedBox(width: 8),
                           Text(
@@ -250,7 +254,6 @@ class _ReportsScreenState extends State<ReportsScreen> {
 
   Widget _buildTab(String title) {
     final isSelected = _selectedTab == title;
-    final icon = _categoryIcons[title] ?? Icons.folder;
     return Material(
       color: Colors.transparent,
       child: InkWell(
@@ -270,10 +273,13 @@ class _ReportsScreenState extends State<ReportsScreen> {
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(
-                icon,
-                size: 18,
-                color: isSelected ? Colors.white : Colors.grey[700],
+              SvgPicture.asset(
+                _categoryIcons[title]!,
+                width: 18,
+                height: 18,
+                colorFilter: ColorFilter.mode(
+                    isSelected ? Colors.white : Colors.grey[700]!,
+                    BlendMode.srcIn),
               ),
               const SizedBox(width: 6),
               Text(

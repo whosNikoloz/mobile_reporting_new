@@ -8,6 +8,7 @@ import 'package:mobile_reporting/services/reports_service.dart';
 import 'package:mobile_reporting/theme/app_theme.dart';
 import 'package:mobile_reporting/widgets/dashboard_metric_card.dart';
 import 'package:mobile_reporting/widgets/picker_widget.dart';
+import 'package:mobile_reporting/widgets/rotating_logo_loader.dart';
 import 'package:mobile_reporting/helpers/currency_helper.dart';
 import 'package:mobile_reporting/localization/generated/l10n.dart';
 
@@ -146,9 +147,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     const Center(
                       child: Padding(
                         padding: EdgeInsets.all(40.0),
-                        child: CircularProgressIndicator(
-                          color: AppTheme.primaryBlue,
-                        ),
+                        child: RotatingLogoLoader(size: 60),
                       ),
                     )
                   else if (_dashboardData == null)
@@ -172,7 +171,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           mainAxisCellCount: 0.55,
                           child: DashboardMetricCard.fromDecimal(
                             title: S.of(context).sales,
-                            icon: Icons.receipt_outlined,
+                            svgIcon: 'assets/icons/sales/sales.svg',
                             metric: _dashboardData!.current.sales.sales,
                             currency: CurrencyHelper.getCurrencySymbol(),
                             isLarge: false,
@@ -183,7 +182,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           mainAxisCellCount: 0.55,
                           child: DashboardMetricCard.fromDecimal(
                             title: S.of(context).selfcost,
-                            icon: Icons.shopping_bag_outlined,
+                            svgIcon: 'assets/icons/sales/selfcost.svg',
                             metric: _dashboardData!.current.sales.selfcost,
                             currency: CurrencyHelper.getCurrencySymbol(),
                           ),
@@ -193,7 +192,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           mainAxisCellCount: 0.55,
                           child: DashboardMetricCard.fromDecimal(
                             title: S.of(context).profit,
-                            icon: Icons.trending_up,
+                            svgIcon: 'assets/icons/sales/profit.svg',
                             metric: _dashboardData!.current.sales.profit,
                             currency: CurrencyHelper.getCurrencySymbol(),
                           ),
@@ -203,7 +202,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           mainAxisCellCount: 0.55,
                           child: DashboardMetricCard.fromDecimalPercent(
                             title: S.of(context).profitPercent,
-                            icon: Icons.percent,
+                            svgIcon: 'assets/icons/sales/profit_%.svg',
                             metric: _dashboardData!.current.sales.profitPercent,
                           ),
                         ),
@@ -235,7 +234,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           mainAxisCellCount: 0.55,
                           child: DashboardMetricCard.fromDecimal(
                             title: S.of(context).avgCheck,
-                            icon: Icons.receipt,
+                            svgIcon: 'assets/icons/bills/avg_check.svg',
                             metric: _dashboardData!.current.bills.avgCheck,
                             currency: CurrencyHelper.getCurrencySymbol(),
                             isLarge: false,
@@ -246,7 +245,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           mainAxisCellCount: 0.55,
                           child: DashboardMetricCard.fromInt(
                             title: S.of(context).bills,
-                            icon: Icons.receipt_long_outlined,
+                            svgIcon: 'assets/icons/bills/bills_count.svg',
                             metric: _dashboardData!.current.bills.billsCount,
                           ),
                         ),
@@ -255,7 +254,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           mainAxisCellCount: 0.55,
                           child: DashboardMetricCard.fromDecimal(
                             title: S.of(context).discount,
-                            icon: Icons.local_offer_outlined,
+                            svgIcon: 'assets/icons/bills/discount.svg',
                             metric: _dashboardData!.current.bills.discount,
                             currency: CurrencyHelper.getCurrencySymbol(),
                           ),
@@ -265,7 +264,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           mainAxisCellCount: 0.55,
                           child: DashboardMetricCard.fromDecimal(
                             title: S.of(context).refund,
-                            icon: Icons.replay,
+                            svgIcon: 'assets/icons/bills/refund.svg',
                             metric: _dashboardData!.current.bills.refund,
                             currency: CurrencyHelper.getCurrencySymbol(),
                           ),
@@ -298,7 +297,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           mainAxisCellCount: 0.55,
                           child: DashboardMetricCard.fromDecimal(
                             title: S.of(context).cash,
-                            icon: Icons.attach_money,
+                            svgIcon: 'assets/icons/payments/cash.svg',
                             metric: _dashboardData!.current.payments.cash,
                             currency: CurrencyHelper.getCurrencySymbol(),
                           ),
@@ -308,7 +307,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           mainAxisCellCount: 0.55,
                           child: DashboardMetricCard.fromDecimal(
                             title: S.of(context).card,
-                            icon: Icons.credit_card,
+                            svgIcon: 'assets/icons/payments/card.svg',
                             metric: _dashboardData!.current.payments.card,
                             currency: CurrencyHelper.getCurrencySymbol(),
                           ),
@@ -318,7 +317,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           mainAxisCellCount: 0.55,
                           child: DashboardMetricCard.fromDecimal(
                             title: S.of(context).consignation,
-                            icon: Icons.handshake_outlined,
+                            svgIcon: 'assets/icons/payments/consignation.svg',
                             metric:
                                 _dashboardData!.current.payments.consignation,
                             currency: CurrencyHelper.getCurrencySymbol(),
@@ -329,7 +328,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           mainAxisCellCount: 0.55,
                           child: DashboardMetricCard.fromDecimal(
                             title: S.of(context).loyalty,
-                            icon: Icons.favorite_border,
+                            svgIcon: 'assets/icons/payments/loyalty.svg',
                             metric: _dashboardData!.current.payments.loyalty,
                             currency: CurrencyHelper.getCurrencySymbol(),
                           ),

@@ -119,6 +119,11 @@ class S {
     return Intl.message('Statistics', name: 'statistics', desc: '', args: []);
   }
 
+  /// `Orders`
+  String get orders {
+    return Intl.message('Orders', name: 'orders', desc: '', args: []);
+  }
+
   /// `Finances`
   String get finances {
     return Intl.message('Finances', name: 'finances', desc: '', args: []);
@@ -259,20 +264,15 @@ class S {
     );
   }
 
-  /// `All Branches`
+  /// `All Stores`
   String get allBranches {
-    return Intl.message(
-      'All Branches',
-      name: 'allBranches',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('All Stores', name: 'allBranches', desc: '', args: []);
   }
 
   /// `Comparison`
   String get comparisonLabel {
     return Intl.message(
-      'Comparison',
+      'Compare to',
       name: 'comparisonLabel',
       desc: '',
       args: [],
@@ -379,9 +379,19 @@ class S {
     );
   }
 
-  /// `Branches`
+  /// `Locations`
   String get branches {
-    return Intl.message('Branches', name: 'branches', desc: '', args: []);
+    return Intl.message('Locations', name: 'branches', desc: '', args: []);
+  }
+
+  /// `Select Store`
+  String get selectStore {
+    return Intl.message(
+      'Select Store',
+      name: 'selectStore',
+      desc: '',
+      args: [],
+    );
   }
 
   /// `Search`
@@ -574,9 +584,14 @@ class S {
     return Intl.message('Stock', name: 'stock', desc: '', args: []);
   }
 
-  /// `Sales by Day`
+  /// `Sales by Days`
   String get salesByDay {
-    return Intl.message('Sales by Day', name: 'salesByDay', desc: '', args: []);
+    return Intl.message(
+      'Sales by Days',
+      name: 'salesByDay',
+      desc: '',
+      args: [],
+    );
   }
 
   /// `Sales by Weekday`

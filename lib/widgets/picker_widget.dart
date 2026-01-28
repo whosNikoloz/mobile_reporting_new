@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:jiffy/jiffy.dart';
 import 'package:mobile_reporting/application_store.dart';
 import 'package:mobile_reporting/enums/compare_date_type.dart';
@@ -147,8 +148,8 @@ class PickerWidgetState extends State<PickerWidget> {
       firstLoad = false;
       WidgetsBinding.instance.addPostFrameCallback((_) {
         widget
-            .getDate(
-                currentDate1, currentDate2, oldDate1, oldDate2, null, null, null)
+            .getDate(currentDate1, currentDate2, oldDate1, oldDate2, null, null,
+                null)
             .then((_) {
           isLoading = false;
           setState(() {});
@@ -309,21 +310,51 @@ class _DateSelector extends StatelessWidget {
         ),
         child: Row(
           children: [
-            const Icon(Icons.calendar_today,
-                size: 18, color: AppTheme.primaryBlue),
+            SvgPicture.asset(
+              'assets/icons/calendar.svg',
+              width: 18,
+              height: 18,
+              colorFilter:
+                  ColorFilter.mode(AppTheme.primaryBlue, BlendMode.srcIn),
+            ),
             const SizedBox(width: 10),
             Expanded(
-              child: Text(
-                showComparison ? _getCombinedDateText() : _getCurrentDateText(),
-                style: const TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.black87,
-                  height: 1.2,
-                ),
-                overflow: TextOverflow.ellipsis,
-                maxLines: 1,
-              ),
+              child: showComparison
+                  ? Text.rich(
+                      TextSpan(
+                        children: [
+                          TextSpan(text: _getCurrentPeriodText()), // left side
+                          TextSpan(
+                            text: _getComparisonSeparator(),
+                            style: const TextStyle(
+                              color: AppTheme.primaryBlue,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                          TextSpan(
+                              text: _getComparisonPeriodText()), // right side
+                        ],
+                      ),
+                      style: const TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.black87,
+                        height: 1.2,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    )
+                  : Text(
+                      _getCurrentDateText(),
+                      style: const TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.black87,
+                        height: 1.2,
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                      maxLines: 1,
+                    ),
             ),
             const SizedBox(width: 8),
             if (isLoading)
@@ -357,28 +388,61 @@ class _DateSelector extends StatelessWidget {
     }
   }
 
-  String _getCombinedDateText() {
-    String currentPeriod;
-    String comparisonPeriod;
+  // String _getCombinedDateText() {
+  //   String currentPeriod;
+  //   String comparisonPeriod;
 
+  //   if (dateType == DateType.day) {
+  //     currentPeriod = DateFormat('dd.MM.yy').format(currentDate1);
+  //     comparisonPeriod = DateFormat('dd.MM.yy').format(oldDate1);
+  //   } else if (dateType == DateType.month) {
+  //     currentPeriod = DateFormat('MMM yyyy').format(currentDate1);
+  //     comparisonPeriod = DateFormat('MMM yyyy').format(oldDate1);
+  //   } else if (dateType == DateType.year) {
+  //     currentPeriod = currentDate1.year.toString();
+  //     comparisonPeriod = oldDate1.year.toString();
+  //   } else {
+  //     // For week/period, show date ranges
+  //     currentPeriod =
+  //         '${DateFormat('dd.MM.yy').format(currentDate1)} - ${DateFormat('dd.MM.yy').format(currentDate2)}';
+  //     comparisonPeriod =
+  //         '${DateFormat('dd.MM.yy').format(oldDate1)} - ${DateFormat('dd.MM.yy').format(oldDate2)}';
+  //   }
+
+  //   return '$currentPeriod to $comparisonPeriod';
+  // }
+
+  String _getCurrentPeriodText() {
     if (dateType == DateType.day) {
-      currentPeriod = DateFormat('dd.MM.yy').format(currentDate1);
-      comparisonPeriod = DateFormat('dd.MM.yy').format(oldDate1);
+      return DateFormat('dd.MM.yy').format(currentDate1);
     } else if (dateType == DateType.month) {
-      currentPeriod = DateFormat('MMM yyyy').format(currentDate1);
-      comparisonPeriod = DateFormat('MMM yyyy').format(oldDate1);
+      return DateFormat('MMM yyyy').format(currentDate1);
     } else if (dateType == DateType.year) {
-      currentPeriod = currentDate1.year.toString();
-      comparisonPeriod = oldDate1.year.toString();
+      return currentDate1.year.toString();
     } else {
-      // For week/period, show date ranges
-      currentPeriod =
-          '${DateFormat('dd.MM.yy').format(currentDate1)} - ${DateFormat('dd.MM.yy').format(currentDate2)}';
-      comparisonPeriod =
-          '${DateFormat('dd.MM.yy').format(oldDate1)} - ${DateFormat('dd.MM.yy').format(oldDate2)}';
+      return '${DateFormat('dd.MM.yy').format(currentDate1)} - ${DateFormat('dd.MM.yy').format(currentDate2)}';
     }
+  }
 
-    return '$currentPeriod to $comparisonPeriod';
+  String _getComparisonPeriodText() {
+    if (dateType == DateType.day) {
+      return DateFormat('dd.MM.yy').format(oldDate1);
+    } else if (dateType == DateType.month) {
+      return DateFormat('MMM yyyy').format(oldDate1);
+    } else if (dateType == DateType.year) {
+      return oldDate1.year.toString();
+    } else {
+      return '${DateFormat('dd.MM.yy').format(oldDate1)} - ${DateFormat('dd.MM.yy').format(oldDate2)}';
+    }
+  }
+
+  /// Returns the separator between current and comparison periods
+  /// "-" for day/month/year comparisons, "to" for week/period ranges
+  String _getComparisonSeparator() {
+    if (dateType == DateType.week || dateType == DateType.period) {
+      return ' to ';
+    }
+    return ' - ';
   }
 
   String _getComparisonText(BuildContext context) {
@@ -493,7 +557,13 @@ class _StoreSelector extends StatelessWidget {
         ),
         child: Row(
           children: [
-            const Icon(Icons.storefront, size: 18, color: AppTheme.primaryBlue),
+            SvgPicture.asset(
+              'assets/icons/store.svg',
+              width: 18,
+              height: 18,
+              colorFilter:
+                  ColorFilter.mode(AppTheme.primaryBlue, BlendMode.srcIn),
+            ),
             const SizedBox(width: 10),
             Expanded(
               child: Text(
@@ -985,7 +1055,7 @@ class _StoreSelectorDialogState extends State<_StoreSelectorDialog> {
                 children: [
                   Expanded(
                     child: Text(
-                      S.of(context).branches,
+                      S.of(context).selectStore,
                       style: const TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.w600,
@@ -1015,13 +1085,31 @@ class _StoreSelectorDialogState extends State<_StoreSelectorDialog> {
                     controller: _searchController,
                     decoration: InputDecoration(
                       hintText: S.of(context).search,
-                      hintStyle:
-                          TextStyle(color: Colors.grey.shade400, fontSize: 15),
-                      prefixIcon: const Icon(Icons.search,
-                          color: AppTheme.primaryBlue, size: 20),
+                      hintStyle: TextStyle(
+                        color: Colors.grey.shade400,
+                        fontSize: 15,
+                      ),
+                      prefixIcon: Padding(
+                        padding: const EdgeInsets.all(10),
+                        child: SvgPicture.asset(
+                          'assets/icons/search.svg',
+                          width: 18,
+                          height: 18,
+                          colorFilter: ColorFilter.mode(
+                            AppTheme.primaryBlue,
+                            BlendMode.srcIn,
+                          ),
+                        ),
+                      ),
+                      prefixIconConstraints: const BoxConstraints(
+                        minWidth: 40,
+                        minHeight: 40,
+                      ),
                       border: InputBorder.none,
                       contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 16, vertical: 12),
+                        horizontal: 16,
+                        vertical: 12,
+                      ),
                     ),
                   ),
                 ),
@@ -1034,31 +1122,37 @@ class _StoreSelectorDialogState extends State<_StoreSelectorDialog> {
                 itemBuilder: (context, index) {
                   final store = _filteredStores[index];
                   final isSelected = store.id == widget.selectedStoreId;
-
                   return InkWell(
                     onTap: () {
                       widget.onStoreSelected(store.id);
                       Navigator.of(context).pop(true);
                     },
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 20, vertical: 16),
-                      decoration: BoxDecoration(
-                        color: isSelected
-                            ? AppTheme.primaryBlue.withValues(alpha: 0.1)
-                            : Colors.transparent,
-                      ),
-                      child: Text(
-                        store.name,
-                        style: TextStyle(
-                          fontSize: 15,
-                          fontWeight:
-                              isSelected ? FontWeight.w600 : FontWeight.w400,
-                          color: isSelected
-                              ? AppTheme.primaryBlue
-                              : Colors.black87,
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 12),
+                      child: Container(
+                        margin: const EdgeInsets.symmetric(vertical: 6),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 14,
                         ),
-                        textAlign: TextAlign.center,
+                        decoration: BoxDecoration(
+                          color: isSelected
+                              ? AppTheme.primaryBlue.withValues(alpha: 0.12)
+                              : Colors.transparent,
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Text(
+                          store.name,
+                          style: TextStyle(
+                            fontSize: 15,
+                            fontWeight:
+                                isSelected ? FontWeight.w600 : FontWeight.w400,
+                            color: isSelected
+                                ? AppTheme.primaryBlue
+                                : Colors.black87,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
                       ),
                     ),
                   );
