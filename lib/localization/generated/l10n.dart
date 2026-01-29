@@ -793,14 +793,9 @@ class S {
     );
   }
 
-  /// `Select Filter`
-  String get selectFilter {
-    return Intl.message(
-      'Select Filter',
-      name: 'selectFilter',
-      desc: '',
-      args: [],
-    );
+  String get displayValue {
+    return Intl.message('Display Value',
+        name: 'displayValue', desc: '', args: []);
   }
 
   /// `Hour`

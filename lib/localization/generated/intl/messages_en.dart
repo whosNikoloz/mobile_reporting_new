@@ -131,7 +131,7 @@ class MessageLookup extends MessageLookupByLibrary {
         ),
         "sat": MessageLookupByLibrary.simpleMessage("Sat"),
         "search": MessageLookupByLibrary.simpleMessage("Search"),
-        "selectFilter": MessageLookupByLibrary.simpleMessage("Select Filter"),
+        "displayValue": MessageLookupByLibrary.simpleMessage("Display Value"),
         "selectPeriod": MessageLookupByLibrary.simpleMessage("Select Period"),
         "selectStore": MessageLookupByLibrary.simpleMessage("Select Store"),
         "selectLocation":

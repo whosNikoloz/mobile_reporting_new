@@ -147,7 +147,8 @@ class MessageLookup extends MessageLookupByLibrary {
         ),
         "sat": MessageLookupByLibrary.simpleMessage("შაბ"),
         "search": MessageLookupByLibrary.simpleMessage("ძიება"),
-        "selectFilter": MessageLookupByLibrary.simpleMessage("აირჩიეთ ფილტრი"),
+        "displayValue":
+            MessageLookupByLibrary.simpleMessage("აირჩიეთ მნიშვნელობა"),
         "selectPeriod": MessageLookupByLibrary.simpleMessage("აირჩიეთ პერიოდი"),
         "selectStore": MessageLookupByLibrary.simpleMessage("აირჩიეთ მაღაზია"),
         "selectLocation":

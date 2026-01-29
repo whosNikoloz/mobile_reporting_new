@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:intl/intl.dart';
 import 'package:mobile_reporting/api/response_models/daily_sales_response_model.dart';
@@ -29,8 +30,11 @@ class SalesSummaryScreen extends StatefulWidget {
   State<SalesSummaryScreen> createState() => _SalesSummaryScreenState();
 }
 
+enum _ReportFilterType { income, checks, avgCheck }
+
 class _SalesSummaryScreenState extends State<SalesSummaryScreen> {
   final ReportsService _reportsService = ReportsService();
+  final ScrollController _chartScrollController = ScrollController();
 
   bool isLoading = false;
   DateTime startCurrentPeriod = DateTime.now();
@@ -42,12 +46,22 @@ class _SalesSummaryScreenState extends State<SalesSummaryScreen> {
   String? _email;
   String _selectedLanguage = 'en';
 
-  String? _selectedFilter;
+  _ReportFilterType _selectedFilterType = _ReportFilterType.income;
   List<String> get _filterOptions => [
         S.of(context).income,
         S.of(context).checksFilter,
         S.of(context).averageCheck,
       ];
+
+  String get _selectedFilterDescription {
+    if (_isChecksFilter) {
+      return 'Checks არის ჩეკების რაოდენობა';
+    } else if (_isAvgCheckFilter) {
+      return 'AvgCheck არის ჩეკის საშუალო ღირებულება';
+    } else {
+      return 'Sales არის თანხა';
+    }
+  }
 
   // Data from API
   List<DailySalesResponseModel> _dailySalesData = [];
@@ -57,7 +71,9 @@ class _SalesSummaryScreenState extends State<SalesSummaryScreen> {
   // Chart data based on report type
   List<String> get _chartLabels {
     if (widget.reportTitle.contains('Hour')) {
-      return _hourlySalesData.map((e) => e.hourRange).toList();
+      return _hourlySalesData
+          .map((e) => _formatHourRangeLabel(e.hourRange))
+          .toList();
     } else if (widget.reportTitle.contains('Weekday')) {
       return _weekdaySalesData
           .map((e) => _getLocalizedDayName(e.name))
@@ -70,26 +86,29 @@ class _SalesSummaryScreenState extends State<SalesSummaryScreen> {
     return [];
   }
 
+  // Check if current filter is Income
+  bool get _isIncomeFilter => _selectedFilterType == _ReportFilterType.income;
+
+  // Check if current filter is Checks
+  bool get _isChecksFilter => _selectedFilterType == _ReportFilterType.checks;
+
+  // Check if current filter is Average Check
+  bool get _isAvgCheckFilter =>
+      _selectedFilterType == _ReportFilterType.avgCheck;
+
   List<double> get _salesData {
-    if (widget.reportTitle.contains('Hour')) {
-      return _hourlySalesData.map((e) => e.currentSalesPercent).toList();
-    } else if (widget.reportTitle.contains('Weekday')) {
-      return _weekdaySalesData.map((e) => e.currentSalesPercent).toList();
-    } else if (widget.reportTitle.contains('Day')) {
-      return _dailySalesData.map((e) => e.currentSalesPercent).toList();
+    // For income, checks and avg check we show absolute amounts on the Y axis.
+    if (_isIncomeFilter || _isChecksFilter || _isAvgCheckFilter) {
+      return _currentAbsoluteData;
     }
-    return [];
+    return _currentPercentData;
   }
 
   List<double> get _comparisonData {
-    if (widget.reportTitle.contains('Hour')) {
-      return _hourlySalesData.map((e) => e.previousSalesPercent).toList();
-    } else if (widget.reportTitle.contains('Weekday')) {
-      return _weekdaySalesData.map((e) => e.previousSalesPercent).toList();
-    } else if (widget.reportTitle.contains('Day')) {
-      return _dailySalesData.map((e) => e.previousSalesPercent).toList();
+    if (_isIncomeFilter || _isChecksFilter || _isAvgCheckFilter) {
+      return _previousAbsoluteData;
     }
-    return [];
+    return _previousPercentData;
   }
 
   // Percentage data for chart (current period %)
@@ -114,6 +133,108 @@ class _SalesSummaryScreenState extends State<SalesSummaryScreen> {
       return _dailySalesData.map((e) => e.previousSalesPercent).toList();
     }
     return [];
+  }
+
+  String _formatHourRangeLabel(String hourRange) {
+    final parts = hourRange.split('-');
+    if (parts.length >= 2) {
+      return parts[1].trim();
+    }
+    return hourRange;
+  }
+
+  /// Absolute values for tooltip / list (respecting selected filter)
+  List<double> get _currentAbsoluteData {
+    if (widget.reportTitle.contains('Hour')) {
+      return _hourlySalesData.map(_getCurrentValue).toList();
+    } else if (widget.reportTitle.contains('Weekday')) {
+      return _weekdaySalesData.map(_getCurrentValue).toList();
+    } else if (widget.reportTitle.contains('Day')) {
+      return _dailySalesData.map(_getCurrentValue).toList();
+    }
+    return [];
+  }
+
+  List<double> get _previousAbsoluteData {
+    if (widget.reportTitle.contains('Hour')) {
+      return _hourlySalesData.map(_getPreviousValue).toList();
+    } else if (widget.reportTitle.contains('Weekday')) {
+      return _weekdaySalesData.map(_getPreviousValue).toList();
+    } else if (widget.reportTitle.contains('Day')) {
+      return _dailySalesData.map(_getPreviousValue).toList();
+    }
+    return [];
+  }
+
+  bool get _isHourlyReport => widget.reportTitle.contains('Hour');
+
+  /// Indices of hourly buckets where there was actual activity
+  /// (either current or previous value > 0). Falls back to all
+  /// hours if everything is zero to keep the chart meaningful.
+  List<int> get _hourlyActiveIndices {
+    if (!_isHourlyReport) return const [];
+
+    final indices = <int>[];
+    for (var i = 0; i < _hourlySalesData.length; i++) {
+      final row = _hourlySalesData[i];
+      final current = _getCurrentValue(row);
+      final previous = _getPreviousValue(row);
+      if (current > 0 || previous > 0) {
+        indices.add(i);
+      }
+    }
+
+    if (indices.isEmpty) {
+      return List<int>.generate(_hourlySalesData.length, (i) => i);
+    }
+    return indices;
+  }
+
+  // Visible data for main chart / list (filters out empty hours for hourly report)
+  List<String> get _visibleChartLabels {
+    if (!_isHourlyReport) return _chartLabels;
+    final indices = _hourlyActiveIndices;
+    return indices
+        .map((i) => _formatHourRangeLabel(_hourlySalesData[i].hourRange))
+        .toList();
+  }
+
+  List<double> get _visibleSalesData {
+    if (!_isHourlyReport) return _salesData;
+    final indices = _hourlyActiveIndices;
+    return indices.map((i) => _salesData[i]).toList();
+  }
+
+  List<double> get _visibleComparisonData {
+    if (!_isHourlyReport) return _comparisonData;
+    final indices = _hourlyActiveIndices;
+    return indices.map((i) => _comparisonData[i]).toList();
+  }
+
+  List<double> get _visibleCurrentAbsoluteData {
+    if (!_isHourlyReport) return _currentAbsoluteData;
+    final indices = _hourlyActiveIndices;
+    final source = _currentAbsoluteData;
+    return indices.map((i) => source[i]).toList();
+  }
+
+  List<double> get _visiblePreviousAbsoluteData {
+    if (!_isHourlyReport) return _previousAbsoluteData;
+    final indices = _hourlyActiveIndices;
+    final source = _previousAbsoluteData;
+    return indices.map((i) => source[i]).toList();
+  }
+
+  String get _currentFilterLabel {
+    final l10n = S.of(context);
+    switch (_selectedFilterType) {
+      case _ReportFilterType.income:
+        return l10n.income;
+      case _ReportFilterType.checks:
+        return l10n.checksFilter;
+      case _ReportFilterType.avgCheck:
+        return l10n.averageCheck;
+    }
   }
 
   // Georgian Weekdays Map
@@ -214,43 +335,76 @@ class _SalesSummaryScreenState extends State<SalesSummaryScreen> {
     return l10n.day;
   }
 
+  // Get the title for the list header based on filter
+  String get _filterTitle {
+    if (_isChecksFilter) {
+      return S.of(context).checksFilter;
+    } else if (_isAvgCheckFilter) {
+      return S.of(context).averageCheck;
+    }
+    return S.of(context).income;
+  }
+
+  // Helper to get current value based on filter
+  double _getCurrentValue(dynamic e) {
+    if (_isChecksFilter) {
+      return e.currentChecks.toDouble();
+    } else if (_isAvgCheckFilter) {
+      return e.currentAvgCheck;
+    }
+    return e.currentSales;
+  }
+
+  // Helper to get previous value based on filter
+  double _getPreviousValue(dynamic e) {
+    if (_isChecksFilter) {
+      return e.previousChecks.toDouble();
+    } else if (_isAvgCheckFilter) {
+      return e.previousAvgCheck;
+    }
+    return e.previousSales;
+  }
+
   List<Map<String, dynamic>> get _listData {
     if (widget.reportTitle.contains('Hour')) {
       return _hourlySalesData.map((e) {
+        final current = _getCurrentValue(e);
+        final previous = _getPreviousValue(e);
         double percentChange = 0;
-        if (e.previousSales > 0) {
-          percentChange =
-              ((e.currentSales - e.previousSales) / e.previousSales) * 100;
+        if (previous > 0) {
+          percentChange = ((current - previous) / previous) * 100;
         }
         return {
-          'label': e.hourRange,
-          'value': e.currentSales,
+          'label': _formatHourRangeLabel(e.hourRange),
+          'value': current,
           'percentChange': percentChange,
         };
       }).toList();
     } else if (widget.reportTitle.contains('Weekday')) {
       return _weekdaySalesData.map((e) {
+        final current = _getCurrentValue(e);
+        final previous = _getPreviousValue(e);
         double percentChange = 0;
-        if (e.previousSales > 0) {
-          percentChange =
-              ((e.currentSales - e.previousSales) / e.previousSales) * 100;
+        if (previous > 0) {
+          percentChange = ((current - previous) / previous) * 100;
         }
         return {
           'label': _getLocalizedDayName(e.name),
-          'value': e.currentSales,
+          'value': current,
           'percentChange': percentChange,
         };
       }).toList();
     } else if (widget.reportTitle.contains('Day')) {
       return _dailySalesData.map((e) {
+        final current = _getCurrentValue(e);
+        final previous = _getPreviousValue(e);
         double percentChange = 0;
-        if (e.previousSales > 0) {
-          percentChange =
-              ((e.currentSales - e.previousSales) / e.previousSales) * 100;
+        if (previous > 0) {
+          percentChange = ((current - previous) / previous) * 100;
         }
         return {
           'label': _getLocalizedDayName(DateFormat('EEEE').format(e.date)),
-          'value': e.currentSales,
+          'value': current,
           'percentChange': percentChange,
         };
       }).toList();
@@ -259,10 +413,36 @@ class _SalesSummaryScreenState extends State<SalesSummaryScreen> {
     }
   }
 
+  List<Map<String, dynamic>> get _visibleListData {
+    if (!_isHourlyReport) return _listData;
+
+    final indices = _hourlyActiveIndices;
+    return indices.map((i) {
+      final e = _hourlySalesData[i];
+      final current = _getCurrentValue(e);
+      final previous = _getPreviousValue(e);
+      double percentChange = 0;
+      if (previous > 0) {
+        percentChange = ((current - previous) / previous) * 100;
+      }
+      return {
+        'label': _formatHourRangeLabel(e.hourRange),
+        'value': current,
+        'percentChange': percentChange,
+      };
+    }).toList();
+  }
+
   @override
   void initState() {
     super.initState();
     _loadUserData();
+  }
+
+  @override
+  void dispose() {
+    _chartScrollController.dispose();
+    super.dispose();
   }
 
   Future<void> _loadUserData() async {
@@ -272,7 +452,9 @@ class _SalesSummaryScreenState extends State<SalesSummaryScreen> {
     if (savedLang != null) {
       _selectedLanguage = savedLang;
     }
-    setState(() {});
+    if (mounted) {
+      setState(() {});
+    }
   }
 
   void _changeLanguage(String langCode) async {
@@ -284,190 +466,6 @@ class _SalesSummaryScreenState extends State<SalesSummaryScreen> {
       ReportingApp.of(context).setLocale(Locale(langCode));
     }
   }
-
-  // void _showProfileDialog() {
-  //   showDialog(
-  //     context: context,
-  //     builder: (context) => Dialog(
-  //       backgroundColor: Colors.transparent,
-  //       insetPadding: const EdgeInsets.symmetric(horizontal: 16),
-  //       child: Container(
-  //         constraints: const BoxConstraints(maxWidth: 400),
-  //         decoration: BoxDecoration(
-  //           color: Colors.white,
-  //           borderRadius: BorderRadius.circular(16),
-  //           boxShadow: [
-  //             BoxShadow(
-  //               color: Colors.black.withValues(alpha: 0.1),
-  //               blurRadius: 20,
-  //               offset: const Offset(0, 4),
-  //             ),
-  //           ],
-  //         ),
-  //         child: Column(
-  //           mainAxisSize: MainAxisSize.min,
-  //           children: [
-  //             // Header
-  //             Container(
-  //               padding: const EdgeInsets.all(20),
-  //               decoration: BoxDecoration(
-  //                 color: AppTheme.primaryBlue.withValues(alpha: 0.05),
-  //                 borderRadius: const BorderRadius.only(
-  //                   topLeft: Radius.circular(16),
-  //                   topRight: Radius.circular(16),
-  //                 ),
-  //               ),
-  //               child: Row(
-  //                 children: [
-  //                   Container(
-  //                     width: 60,
-  //                     height: 60,
-  //                     decoration: BoxDecoration(
-  //                       borderRadius: BorderRadius.circular(30),
-  //                       color: AppTheme.primaryBlue.withValues(alpha: 0.15),
-  //                     ),
-  //                     child: const Icon(
-  //                       Icons.person_outline,
-  //                       color: AppTheme.primaryBlue,
-  //                       size: 32,
-  //                     ),
-  //                   ),
-  //                   const SizedBox(width: 16),
-  //                   Expanded(
-  //                     child: Column(
-  //                       crossAxisAlignment: CrossAxisAlignment.start,
-  //                       children: [
-  //                         Text(
-  //                           _companyName ?? '',
-  //                           style: const TextStyle(
-  //                             fontSize: 17,
-  //                             fontWeight: FontWeight.w600,
-  //                             color: AppTheme.primaryTextColor,
-  //                           ),
-  //                         ),
-  //                         const SizedBox(height: 4),
-  //                         Text(
-  //                           _email ?? '',
-  //                           style: TextStyle(
-  //                             fontSize: 13,
-  //                             color: Colors.grey.shade600,
-  //                           ),
-  //                         ),
-  //                       ],
-  //                     ),
-  //                   ),
-  //                 ],
-  //               ),
-  //             ),
-  //             // Content
-  //             Padding(
-  //               padding: const EdgeInsets.all(20),
-  //               child: Column(
-  //                 children: [
-  //                   // Profile info card
-  //                   Container(
-  //                     padding: const EdgeInsets.all(16),
-  //                     decoration: BoxDecoration(
-  //                       color: AppTheme.primaryBlue.withValues(alpha: 0.05),
-  //                       borderRadius: BorderRadius.circular(12),
-  //                     ),
-  //                     child: Row(
-  //                       children: [
-  //                         const Icon(
-  //                           Icons.info_outline,
-  //                           color: AppTheme.primaryBlue,
-  //                           size: 20,
-  //                         ),
-  //                         const SizedBox(width: 12),
-  //                         Expanded(
-  //                           child: Text(
-  //                             S.of(context).profileInfo,
-  //                             style: TextStyle(
-  //                               fontSize: 13,
-  //                               color: Colors.grey.shade700,
-  //                             ),
-  //                           ),
-  //                         ),
-  //                       ],
-  //                     ),
-  //                   ),
-  //                   const SizedBox(height: 20),
-  //                   // Buttons
-  //                   Row(
-  //                     children: [
-  //                       Expanded(
-  //                         child: OutlinedButton(
-  //                           onPressed: () => Navigator.of(context).pop(),
-  //                           style: OutlinedButton.styleFrom(
-  //                             padding: const EdgeInsets.symmetric(vertical: 14),
-  //                             side: BorderSide(color: Colors.grey.shade300),
-  //                             shape: RoundedRectangleBorder(
-  //                               borderRadius: BorderRadius.circular(12),
-  //                             ),
-  //                           ),
-  //                           child: Text(
-  //                             S.of(context).close,
-  //                             style: TextStyle(
-  //                               fontSize: 14,
-  //                               fontWeight: FontWeight.w600,
-  //                               color: Colors.black87,
-  //                             ),
-  //                           ),
-  //                         ),
-  //                       ),
-  //                       const SizedBox(width: 12),
-  //                       Expanded(
-  //                         child: ElevatedButton.icon(
-  //                           onPressed: () async {
-  //                             await getIt<PreferencesHelper>()
-  //                                 .clearCompanyName();
-  //                             await getIt<PreferencesHelper>().clearLang();
-  //                             await getIt<PreferencesHelper>().clearType();
-  //                             await getIt<PreferencesHelper>()
-  //                                 .clearUserAuthToken();
-  //                             await getIt<PreferencesHelper>().clearUserName();
-  //                             await getIt<PreferencesHelper>().clearEmail();
-  //                             await getIt<PreferencesHelper>().clearAccountLang();
-  //                             await getIt<PreferencesHelper>().clearDatabase();
-  //                             await getIt<PreferencesHelper>().clearUrl();
-  //                             if (!mounted) return;
-  //                             Navigator.pushAndRemoveUntil(
-  //                               context,
-  //                               MaterialPageRoute(
-  //                                   builder: (_) => const SplashScreen()),
-  //                               (route) => false,
-  //                             );
-  //                           },
-  //                           icon: const Icon(Icons.logout, size: 18),
-  //                           label: Text(
-  //                             S.of(context).logout,
-  //                             style: const TextStyle(
-  //                               fontSize: 14,
-  //                               fontWeight: FontWeight.w600,
-  //                             ),
-  //                           ),
-  //                           style: ElevatedButton.styleFrom(
-  //                             backgroundColor: Colors.red.shade500,
-  //                             foregroundColor: Colors.white,
-  //                             padding: const EdgeInsets.symmetric(vertical: 14),
-  //                             elevation: 0,
-  //                             shape: RoundedRectangleBorder(
-  //                               borderRadius: BorderRadius.circular(12),
-  //                             ),
-  //                           ),
-  //                         ),
-  //                       ),
-  //                     ],
-  //                   ),
-  //                 ],
-  //               ),
-  //             ),
-  //           ],
-  //         ),
-  //       ),
-  //     ),
-  //   );
-  // }
 
   @override
   Widget build(BuildContext context) {
@@ -578,16 +576,14 @@ class _SalesSummaryScreenState extends State<SalesSummaryScreen> {
                 : ListView(
                     padding: const EdgeInsets.all(16),
                     children: [
-                      // Filter Dropdown
                       Container(
-                        margin: const EdgeInsets.only(bottom: 16),
+                        margin: const EdgeInsets.only(bottom: 8),
                         child: _buildFilterDropdown(
                           Icons.tune,
-                          _selectedFilter ?? S.of(context).income,
+                          _currentFilterLabel,
                           () => _showFilterSelector(),
                         ),
                       ),
-
                       // Chart Section
                       Container(
                         padding: const EdgeInsets.all(16),
@@ -605,16 +601,89 @@ class _SalesSummaryScreenState extends State<SalesSummaryScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [],
+                                  ),
+                                ),
+                                const SizedBox(width: 12),
+                                Row(
+                                  children: [
+                                    // Left arrow
+                                    GestureDetector(
+                                      onTap: _scrollChartLeft,
+                                      child: Container(
+                                        padding: const EdgeInsets.all(8),
+                                        decoration: BoxDecoration(
+                                          color: AppTheme.primaryBlue
+                                              .withValues(alpha: 0.1),
+                                          borderRadius:
+                                              BorderRadius.circular(8),
+                                        ),
+                                        child: const Icon(
+                                          Icons.chevron_left,
+                                          color: AppTheme.primaryBlue,
+                                          size: 20,
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 8),
+                                    // Right arrow
+                                    GestureDetector(
+                                      onTap: _scrollChartRight,
+                                      child: Container(
+                                        padding: const EdgeInsets.all(8),
+                                        decoration: BoxDecoration(
+                                          color: AppTheme.primaryBlue
+                                              .withValues(alpha: 0.1),
+                                          borderRadius:
+                                              BorderRadius.circular(8),
+                                        ),
+                                        child: const Icon(
+                                          Icons.chevron_right,
+                                          color: AppTheme.primaryBlue,
+                                          size: 20,
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 8),
+                                    // Fullscreen button
+                                    GestureDetector(
+                                      onTap: _showFullscreenChart,
+                                      child: Container(
+                                        padding: const EdgeInsets.all(8),
+                                        decoration: BoxDecoration(
+                                          color: AppTheme.primaryBlue
+                                              .withValues(alpha: 0.1),
+                                          borderRadius:
+                                              BorderRadius.circular(8),
+                                        ),
+                                        child: const Icon(
+                                          Icons.fullscreen,
+                                          color: AppTheme.primaryBlue,
+                                          size: 20,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                )
+                              ],
+                            ),
+                            const SizedBox(height: 12),
                             SizedBox(
                               height: 280,
-                              child: _buildSalesChart(),
+                              child: _buildScrollableChart(),
                             ),
                           ],
                         ),
                       ),
-
                       const SizedBox(height: 16),
-
                       // List Section
                       Container(
                         decoration: BoxDecoration(
@@ -657,7 +726,7 @@ class _SalesSummaryScreenState extends State<SalesSummaryScreen> {
                                     ),
                                   ),
                                   Text(
-                                    S.of(context).income,
+                                    _filterTitle,
                                     style: const TextStyle(
                                       fontSize: 13,
                                       fontWeight: FontWeight.w600,
@@ -667,13 +736,14 @@ class _SalesSummaryScreenState extends State<SalesSummaryScreen> {
                                 ],
                               ),
                             ),
-
                             // List Items
-                            ..._listData.map((item) => _buildListItem(
-                                  item['label'],
-                                  item['value'],
-                                  item['percentChange'],
-                                )),
+                            ..._visibleListData.map(
+                              (item) => _buildListItem(
+                                item['label'],
+                                item['value'],
+                                item['percentChange'],
+                              ),
+                            ),
                           ],
                         ),
                       ),
@@ -759,7 +829,7 @@ class _SalesSummaryScreenState extends State<SalesSummaryScreen> {
                 children: [
                   const SizedBox(width: 40),
                   Text(
-                    S.of(context).selectFilter,
+                    S.of(context).displayValue,
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       fontSize: 18,
@@ -775,8 +845,29 @@ class _SalesSummaryScreenState extends State<SalesSummaryScreen> {
               ),
               const SizedBox(height: 16),
               // Filter options
-              ..._filterOptions.map((filter) {
-                final isSelected = _selectedFilter == filter;
+              ...[
+                _ReportFilterType.income,
+                _ReportFilterType.checks,
+                _ReportFilterType.avgCheck,
+              ].map((type) {
+                final l10n = S.of(context);
+                final String label;
+                final IconData icon;
+                switch (type) {
+                  case _ReportFilterType.income:
+                    label = l10n.income;
+                    icon = Icons.attach_money;
+                    break;
+                  case _ReportFilterType.checks:
+                    label = l10n.checksFilter;
+                    icon = Icons.receipt_long;
+                    break;
+                  case _ReportFilterType.avgCheck:
+                    label = l10n.averageCheck;
+                    icon = Icons.show_chart;
+                    break;
+                }
+                final isSelected = _selectedFilterType == type;
                 return Container(
                   margin: const EdgeInsets.only(bottom: 8),
                   decoration: BoxDecoration(
@@ -794,7 +885,7 @@ class _SalesSummaryScreenState extends State<SalesSummaryScreen> {
                   child: InkWell(
                     onTap: () {
                       setState(() {
-                        _selectedFilter = filter;
+                        _selectedFilterType = type;
                       });
                       Navigator.pop(context);
                     },
@@ -805,7 +896,7 @@ class _SalesSummaryScreenState extends State<SalesSummaryScreen> {
                       child: Row(
                         children: [
                           Icon(
-                            Icons.attach_money,
+                            icon,
                             color: isSelected
                                 ? AppTheme.primaryBlue
                                 : Colors.grey.shade600,
@@ -814,7 +905,7 @@ class _SalesSummaryScreenState extends State<SalesSummaryScreen> {
                           const SizedBox(width: 12),
                           Expanded(
                             child: Text(
-                              filter,
+                              label,
                               style: TextStyle(
                                 color: isSelected
                                     ? AppTheme.primaryBlue
@@ -850,11 +941,17 @@ class _SalesSummaryScreenState extends State<SalesSummaryScreen> {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         decoration: BoxDecoration(
           color: Colors.white,
-          border: Border.all(color: Colors.grey[300]!),
           borderRadius: BorderRadius.circular(12),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.04),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
+            ),
+          ],
         ),
         child: Row(
           children: [
@@ -877,8 +974,48 @@ class _SalesSummaryScreenState extends State<SalesSummaryScreen> {
     );
   }
 
-  Widget _buildSalesChart() {
-    if (_salesData.isEmpty) {
+  void _scrollChartLeft() {
+    final currentOffset = _chartScrollController.offset;
+    final newOffset = (currentOffset - 150).clamp(
+      0.0,
+      _chartScrollController.position.maxScrollExtent,
+    );
+    _chartScrollController.animateTo(
+      newOffset,
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeInOut,
+    );
+  }
+
+  void _scrollChartRight() {
+    final currentOffset = _chartScrollController.offset;
+    final newOffset = (currentOffset + 150).clamp(
+      0.0,
+      _chartScrollController.position.maxScrollExtent,
+    );
+    _chartScrollController.animateTo(
+      newOffset,
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeInOut,
+    );
+  }
+
+  void _showFullscreenChart() {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => _FullscreenChartPage(
+          title: _chartTitle,
+          salesData: _salesData,
+          comparisonData: _comparisonData,
+          chartLabels: _chartLabels,
+          isIncomeMode: _isIncomeFilter || _isChecksFilter || _isAvgCheckFilter,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildScrollableChart() {
+    if (_visibleSalesData.isEmpty) {
       return Center(
         child: Text(
           S.of(context).noDataAvailable,
@@ -887,11 +1024,59 @@ class _SalesSummaryScreenState extends State<SalesSummaryScreen> {
       );
     }
 
-    final dataMax = _salesData.reduce((a, b) => a > b ? a : b);
-    final comparisonMax = _comparisonData.reduce((a, b) => a > b ? a : b);
+    // Calculate chart width based on data points
+    final dataCount = _visibleChartLabels.length;
+    final screenWidth =
+        MediaQuery.of(context).size.width - 64; // Account for padding
+    final bool isHourly = widget.reportTitle.contains('Hour');
+
+    // For hourly view keep all hours visible on screen by default.
+    // For other reports allow wider bars and horizontal scroll when needed.
+    final double minBarWidth;
+    if (isHourly && dataCount > 0) {
+      // Fit all bars into available width with reasonable min/max width
+      final idealWidth = screenWidth / dataCount;
+      minBarWidth = idealWidth.clamp(16.0, 32.0);
+    } else {
+      minBarWidth = 50.0;
+    }
+
+    final chartWidth = (dataCount * minBarWidth).clamp(300.0, double.infinity);
+
+    // If chart fits in screen, don't scroll
+    if (chartWidth <= screenWidth) {
+      return _buildSalesChart();
+    }
+
+    return SingleChildScrollView(
+      controller: _chartScrollController,
+      scrollDirection: Axis.horizontal,
+      child: SizedBox(
+        width: chartWidth,
+        child: _buildSalesChart(),
+      ),
+    );
+  }
+
+  Widget _buildSalesChart() {
+    if (_visibleSalesData.isEmpty) {
+      return Center(
+        child: Text(
+          S.of(context).noDataAvailable,
+          style: const TextStyle(color: Colors.grey),
+        ),
+      );
+    }
+
+    final dataMax = _visibleSalesData.reduce((a, b) => a > b ? a : b);
+    final comparisonMax =
+        _visibleComparisonData.reduce((a, b) => a > b ? a : b);
     final maxValue = dataMax > comparisonMax ? dataMax : comparisonMax;
     final maxY = maxValue > 0 ? maxValue * 1.2 : 100.0;
-    final labels = _chartLabels;
+    final labels = _visibleChartLabels;
+    final peakIndex = _visibleSalesData.indexOf(dataMax);
+    final baseComparisonColor = const Color(0xFFFFA726);
+    final baseCurrentColor = AppTheme.primaryBlue;
 
     return BarChart(
       BarChartData(
@@ -904,8 +1089,12 @@ class _SalesSummaryScreenState extends State<SalesSummaryScreen> {
             tooltipPadding: const EdgeInsets.all(8),
             tooltipMargin: 8,
             getTooltipItem: (group, groupIndex, rod, rodIndex) {
+              final index = group.x.toInt();
+              final value = rodIndex == 0
+                  ? _visibleComparisonData[index]
+                  : _visibleSalesData[index];
               return BarTooltipItem(
-                '${labels[group.x]}\n',
+                '${labels[index]}\n',
                 const TextStyle(
                   color: Colors.white,
                   fontWeight: FontWeight.bold,
@@ -913,9 +1102,7 @@ class _SalesSummaryScreenState extends State<SalesSummaryScreen> {
                 ),
                 children: [
                   TextSpan(
-                    text: rodIndex == 0
-                        ? '${_salesData[group.x].toStringAsFixed(1)}%'
-                        : '${_comparisonData[group.x].toStringAsFixed(1)}%',
+                    text: _formatValue(value),
                     style: const TextStyle(
                       color: Colors.white,
                       fontSize: 12,
@@ -965,11 +1152,27 @@ class _SalesSummaryScreenState extends State<SalesSummaryScreen> {
           leftTitles: AxisTitles(
             sideTitles: SideTitles(
               showTitles: true,
-              reservedSize: 50,
+              reservedSize: 60,
               getTitlesWidget: (value, meta) {
                 if (value == 0) return const Text('');
+                final showAbsolute =
+                    _isIncomeFilter || _isChecksFilter || _isAvgCheckFilter;
+                String label;
+                if (showAbsolute) {
+                  // For checks: only show whole-number ticks to avoid 0 1 1 2 2 3 3 pattern
+                  if (_isChecksFilter && value % 1 != 0) {
+                    return const Text('');
+                  }
+                  label = _formatValue(value);
+                } else {
+                  final isWhole = value % 1 == 0;
+                  final text = isWhole
+                      ? value.toStringAsFixed(0)
+                      : value.toStringAsFixed(1);
+                  label = '$text%';
+                }
                 return Text(
-                  '${value.toInt()}%',
+                  label,
                   style: const TextStyle(
                     fontSize: 10,
                     color: Colors.black45,
@@ -999,28 +1202,44 @@ class _SalesSummaryScreenState extends State<SalesSummaryScreen> {
         ),
         borderData: FlBorderData(show: false),
         barGroups: List.generate(labels.length, (index) {
+          final isPeak = index == peakIndex;
           return BarChartGroupData(
             x: index,
             barRods: [
               BarChartRodData(
-                toY: _salesData[index],
+                toY: _visibleComparisonData[index],
                 width: 12, // Adjusted for better fitting
                 borderRadius:
                     const BorderRadius.vertical(top: Radius.circular(4)),
-                color: AppTheme.primaryBlue, // User requested primary blue
+                color: isPeak
+                    ? baseComparisonColor
+                    : baseComparisonColor.withValues(alpha: 0.5),
               ),
               BarChartRodData(
-                toY: _comparisonData[index],
+                toY: _visibleSalesData[index],
                 width: 12, // Adjusted for better fitting
                 borderRadius:
                     const BorderRadius.vertical(top: Radius.circular(4)),
-                color: const Color(0xFFFFA726), // User requested Orange
+                color: isPeak
+                    ? baseCurrentColor
+                    : baseCurrentColor.withValues(alpha: 0.5),
               ),
             ],
           );
         }),
       ),
     );
+  }
+
+  // Format value based on the selected filter
+  String _formatValue(double value) {
+    if (_isChecksFilter) {
+      // Checks: show as integer without currency
+      return NumberFormat('#,##0', 'en_US').format(value.toInt());
+    } else {
+      // Income and Average Check: show with currency
+      return '${CurrencyHelper.getCurrencySymbol()}${NumberFormat('#,##0.00', 'en_US').format(value)}';
+    }
   }
 
   Widget _buildListItem(String day, double value, double percentChange) {
@@ -1049,7 +1268,7 @@ class _SalesSummaryScreenState extends State<SalesSummaryScreen> {
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               Text(
-                '${CurrencyHelper.getCurrencySymbol()}${NumberFormat('#,##0.00', 'en_US').format(value)}',
+                _formatValue(value),
                 style: const TextStyle(
                   fontSize: 15,
                   fontWeight: FontWeight.w600,
@@ -1068,6 +1287,259 @@ class _SalesSummaryScreenState extends State<SalesSummaryScreen> {
             ],
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _FullscreenChartPage extends StatefulWidget {
+  final String title;
+  final List<double> salesData;
+  final List<double> comparisonData;
+  final List<String> chartLabels;
+  final bool isIncomeMode;
+
+  const _FullscreenChartPage({
+    required this.title,
+    required this.salesData,
+    required this.comparisonData,
+    required this.chartLabels,
+    required this.isIncomeMode,
+  });
+
+  @override
+  State<_FullscreenChartPage> createState() => _FullscreenChartPageState();
+}
+
+class _FullscreenChartPageState extends State<_FullscreenChartPage> {
+  @override
+  void initState() {
+    super.initState();
+    // Force landscape orientation
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.landscapeLeft,
+      DeviceOrientation.landscapeRight,
+    ]);
+  }
+
+  @override
+  void dispose() {
+    // Restore portrait orientation when leaving
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+      DeviceOrientation.portraitDown,
+    ]);
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final dataMax = widget.salesData.isNotEmpty
+        ? widget.salesData.reduce((a, b) => a > b ? a : b)
+        : 0.0;
+    final comparisonMax = widget.comparisonData.isNotEmpty
+        ? widget.comparisonData.reduce((a, b) => a > b ? a : b)
+        : 0.0;
+    final maxValue = dataMax > comparisonMax ? dataMax : comparisonMax;
+    final maxY = maxValue > 0 ? maxValue * 1.2 : 100.0;
+
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.fullscreen_exit, color: AppTheme.primaryBlue),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
+        title: Text(
+          widget.title,
+          style: const TextStyle(
+            color: Colors.black87,
+            fontSize: 18,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        centerTitle: true,
+      ),
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Container(
+                    width: 10,
+                    height: 10,
+                    decoration: const BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: AppTheme.primaryBlue,
+                    ),
+                  ),
+                  const SizedBox(width: 4),
+                  const Text(
+                    'Current period',
+                    style: TextStyle(fontSize: 11, color: Colors.black54),
+                  ),
+                  const SizedBox(width: 12),
+                  Container(
+                    width: 10,
+                    height: 10,
+                    decoration: const BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Color(0xFFFFA726),
+                    ),
+                  ),
+                  const SizedBox(width: 4),
+                  const Text(
+                    'Previous period',
+                    style: TextStyle(fontSize: 11, color: Colors.black54),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              Expanded(
+                child: BarChart(
+                  BarChartData(
+                    alignment: BarChartAlignment.spaceAround,
+                    maxY: maxY,
+                    barTouchData: BarTouchData(
+                      enabled: true,
+                      touchTooltipData: BarTouchTooltipData(
+                        getTooltipColor: (group) => Colors.black87,
+                        tooltipPadding: const EdgeInsets.all(8),
+                        tooltipMargin: 8,
+                        getTooltipItem: (group, groupIndex, rod, rodIndex) {
+                          final index = group.x.toInt();
+                          final value = rodIndex == 0
+                              ? widget.comparisonData[index]
+                              : widget.salesData[index];
+                          return BarTooltipItem(
+                            '${widget.chartLabels[index]}\n',
+                            const TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 12,
+                            ),
+                            children: [
+                              TextSpan(
+                                text: widget.isIncomeMode
+                                    ? '${CurrencyHelper.getCurrencySymbol()}${value.toStringAsFixed(2)}'
+                                    : '${value.toStringAsFixed(1)}%',
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ],
+                          );
+                        },
+                      ),
+                    ),
+                    titlesData: FlTitlesData(
+                      show: true,
+                      bottomTitles: AxisTitles(
+                        sideTitles: SideTitles(
+                          showTitles: true,
+                          getTitlesWidget: (value, meta) {
+                            if (value.toInt() >= 0 &&
+                                value.toInt() < widget.chartLabels.length) {
+                              return Padding(
+                                padding: const EdgeInsets.only(top: 8),
+                                child: Text(
+                                  widget.chartLabels[value.toInt()],
+                                  style: const TextStyle(
+                                    color: Colors.grey,
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              );
+                            }
+                            return const SizedBox.shrink();
+                          },
+                          reservedSize: 32,
+                        ),
+                      ),
+                      leftTitles: AxisTitles(
+                        sideTitles: SideTitles(
+                          showTitles: true,
+                          reservedSize: 40,
+                          getTitlesWidget: (value, meta) {
+                            if (value == 0) return const Text('');
+                            String label;
+                            if (widget.isIncomeMode) {
+                              label =
+                                  '${CurrencyHelper.getCurrencySymbol()}${value.toStringAsFixed(0)}';
+                            } else {
+                              final isWhole = value % 1 == 0;
+                              final text = isWhole
+                                  ? value.toStringAsFixed(0)
+                                  : value.toStringAsFixed(1);
+                              label = '$text%';
+                            }
+                            return Text(
+                              label,
+                              style: const TextStyle(
+                                color: Colors.grey,
+                                fontSize: 11,
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                      topTitles: const AxisTitles(
+                        sideTitles: SideTitles(showTitles: false),
+                      ),
+                      rightTitles: const AxisTitles(
+                        sideTitles: SideTitles(showTitles: false),
+                      ),
+                    ),
+                    gridData: FlGridData(
+                      show: true,
+                      drawVerticalLine: false,
+                      horizontalInterval: maxY / 5,
+                      getDrawingHorizontalLine: (value) {
+                        return FlLine(
+                          color: Colors.grey[200],
+                          strokeWidth: 1,
+                          dashArray: [5, 5],
+                        );
+                      },
+                    ),
+                    borderData: FlBorderData(show: false),
+                    barGroups:
+                        List.generate(widget.chartLabels.length, (index) {
+                      return BarChartGroupData(
+                        x: index,
+                        barRods: [
+                          BarChartRodData(
+                            toY: widget.comparisonData[index],
+                            width: 16,
+                            borderRadius: const BorderRadius.vertical(
+                              top: Radius.circular(4),
+                            ),
+                            color: const Color(0xFFFFA726),
+                          ),
+                          BarChartRodData(
+                            toY: widget.salesData[index],
+                            width: 16,
+                            borderRadius: const BorderRadius.vertical(
+                              top: Radius.circular(4),
+                            ),
+                            color: AppTheme.primaryBlue,
+                          ),
+                        ],
+                      );
+                    }),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

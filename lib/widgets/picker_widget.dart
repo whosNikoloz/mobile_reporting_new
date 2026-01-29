@@ -133,13 +133,19 @@ class PickerWidgetState extends State<PickerWidget> {
   }
 
   Future<void> _loadData() async {
-    isLoading = true;
-    setState(() {});
+    if (!mounted) return;
+    setState(() {
+      isLoading = true;
+    });
+
     await widget.getDate(
         currentDate1, currentDate2, oldDate1, oldDate2, null, null, null);
+
+    if (!mounted) return;
     _saveDates();
-    isLoading = false;
-    setState(() {});
+    setState(() {
+      isLoading = false;
+    });
   }
 
   @override
@@ -147,12 +153,18 @@ class PickerWidgetState extends State<PickerWidget> {
     if (firstLoad) {
       firstLoad = false;
       WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        setState(() {
+          isLoading = true;
+        });
         widget
             .getDate(currentDate1, currentDate2, oldDate1, oldDate2, null, null,
                 null)
             .then((_) {
-          isLoading = false;
-          setState(() {});
+          if (!mounted) return;
+          setState(() {
+            isLoading = false;
+          });
         });
       });
     }

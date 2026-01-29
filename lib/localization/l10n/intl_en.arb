@@ -100,15 +100,15 @@
     "productivityReport": "Productivity Report",
     "inventoryReport": "Inventory Report",
     "stockMovement": "Stock Movement",
-    "income": "Income",
+    "income": "Sales",
     "checksFilter": "Checks",
-    "averageCheck": "Average Check",
+    "averageCheck": "AvgCheck",
     "hourlySalesOverview": "Hourly Sales Overview",
     "weekdaySalesOverview": "Weekday Sales Overview",
     "dailySalesOverview": "Daily Sales Overview",
     "monthlySalesOverview": "Monthly Sales Overview",
     "salesOverview": "Sales Overview",
-    "selectFilter": "Select Filter",
+    "displayValue": "Display Value",
     "hour": "Hour",
     "weekday": "Weekday"
 }
