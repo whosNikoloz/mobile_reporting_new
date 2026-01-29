@@ -53,6 +53,7 @@
     "selectPeriod": "Select Period",
     "branches": "Locations",
     "selectStore": "Select Store",
+    "selectLocation": "Select Location",
     "search": "Search",
     "cancel": "Cancel",
     "confirm": "Confirm",

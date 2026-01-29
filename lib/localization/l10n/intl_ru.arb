@@ -37,6 +37,7 @@
     "selectPeriod": "Выберите период",
     "branches": "Локации",
     "selectStore": "Выберите магазин",
+    "selectLocation": "Выберите локацию",
     "search": "Поиск",
     "cancel": "Отмена",
     "confirm": "Подтвердить",

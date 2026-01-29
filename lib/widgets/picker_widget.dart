@@ -1055,7 +1055,7 @@ class _StoreSelectorDialogState extends State<_StoreSelectorDialog> {
                 children: [
                   Expanded(
                     child: Text(
-                      S.of(context).selectStore,
+                      S.of(context).selectLocation,
                       style: const TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.w600,

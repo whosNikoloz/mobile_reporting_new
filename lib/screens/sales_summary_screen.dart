@@ -15,6 +15,7 @@ import 'package:mobile_reporting/theme/app_theme.dart';
 import 'package:mobile_reporting/widgets/picker_widget.dart';
 import 'package:mobile_reporting/localization/generated/l10n.dart';
 import 'package:mobile_reporting/widgets/profile_popover_widget.dart';
+import 'package:mobile_reporting/helpers/currency_helper.dart';
 
 class SalesSummaryScreen extends StatefulWidget {
   final String reportTitle;
@@ -148,6 +149,42 @@ class _SalesSummaryScreenState extends State<SalesSummaryScreen> {
     // Normalize input: trim and match against keys
     final key = name.trim();
     return _geoWeekdays[key] ?? _geoWeekdays[key.split(',')[0].trim()] ?? name;
+  }
+
+  String _getLocalizedReportTitle(BuildContext context) {
+    final l10n = S.of(context);
+    switch (widget.reportTitle) {
+      case 'Sales by Days':
+        return l10n.salesByDay;
+      case 'Sales by Hour':
+        return l10n.salesByHours;
+      case 'Sales by Weekday':
+        return l10n.salesByWeekday;
+      case 'Revenue Report':
+        return l10n.revenueReport;
+      case 'Expense Report':
+        return l10n.expenseReport;
+      case 'Profit & Loss':
+        return l10n.profitAndLoss;
+      case 'Staff Performance':
+        return l10n.staffPerformance;
+      case 'Attendance Report':
+        return l10n.attendanceReport;
+      case 'Commission Report':
+        return l10n.commissionReport;
+      case 'Shift Report':
+        return l10n.shiftReport;
+      case 'Hours Worked':
+        return l10n.hoursWorked;
+      case 'Productivity Report':
+        return l10n.productivityReport;
+      case 'Inventory Report':
+        return l10n.inventoryReport;
+      case 'Stock Movement':
+        return l10n.stockMovement;
+      default:
+        return widget.reportTitle;
+    }
   }
 
   String get _chartTitle {
@@ -459,7 +496,7 @@ class _SalesSummaryScreenState extends State<SalesSummaryScreen> {
             ),
             centerTitle: true,
             title: Text(
-              widget.reportTitle,
+              _getLocalizedReportTitle(context),
               style: const TextStyle(
                 color: AppTheme.primaryTextColor,
                 fontSize: 20,
@@ -1012,7 +1049,7 @@ class _SalesSummaryScreenState extends State<SalesSummaryScreen> {
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               Text(
-                '${value.toStringAsFixed(2)}₾',
+                '${CurrencyHelper.getCurrencySymbol()}${NumberFormat('#,##0.00', 'en_US').format(value)}',
                 style: const TextStyle(
                   fontSize: 15,
                   fontWeight: FontWeight.w600,

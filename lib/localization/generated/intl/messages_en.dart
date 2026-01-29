@@ -134,6 +134,8 @@ class MessageLookup extends MessageLookupByLibrary {
         "selectFilter": MessageLookupByLibrary.simpleMessage("Select Filter"),
         "selectPeriod": MessageLookupByLibrary.simpleMessage("Select Period"),
         "selectStore": MessageLookupByLibrary.simpleMessage("Select Store"),
+        "selectLocation":
+            MessageLookupByLibrary.simpleMessage("Select Location"),
         "selectedPeriod":
             MessageLookupByLibrary.simpleMessage("Selected Period"),
         "selfcost": MessageLookupByLibrary.simpleMessage("Selfcost"),

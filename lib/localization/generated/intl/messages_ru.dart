@@ -91,6 +91,8 @@ class MessageLookup extends MessageLookupByLibrary {
         "search": MessageLookupByLibrary.simpleMessage("Поиск"),
         "selectPeriod": MessageLookupByLibrary.simpleMessage("Выберите период"),
         "selectStore": MessageLookupByLibrary.simpleMessage("Выберите магазин"),
+        "selectLocation":
+            MessageLookupByLibrary.simpleMessage("Выберите локацию"),
         "selectedPeriod":
             MessageLookupByLibrary.simpleMessage("Выбранный период"),
         "selfcost": MessageLookupByLibrary.simpleMessage("Себестоимость"),

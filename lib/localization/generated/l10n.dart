@@ -394,6 +394,15 @@ class S {
     );
   }
 
+  String get selectLocation {
+    return Intl.message(
+      'Select Location',
+      name: 'selectLocation',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Search`
   String get search {
     return Intl.message('Search', name: 'search', desc: '', args: []);
