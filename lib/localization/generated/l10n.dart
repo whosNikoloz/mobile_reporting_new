@@ -606,7 +606,7 @@ class S {
   /// `Sales by Weekday`
   String get salesByWeekday {
     return Intl.message(
-      'Sales by Weekday',
+      'Sales by Weekdays',
       name: 'salesByWeekday',
       desc: '',
       args: [],
@@ -730,7 +730,8 @@ class S {
 
   /// `Checks`
   String get checksFilter {
-    return Intl.message('Checks', name: 'checksFilter', desc: '', args: []);
+    return Intl.message('Bills Count',
+        name: 'checksFilter', desc: '', args: []);
   }
 
   /// `Average Check`

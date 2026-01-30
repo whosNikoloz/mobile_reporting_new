@@ -36,7 +36,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "card": MessageLookupByLibrary.simpleMessage("Card"),
         "cash": MessageLookupByLibrary.simpleMessage("Cash"),
         "checks": MessageLookupByLibrary.simpleMessage("Checks"),
-        "checksFilter": MessageLookupByLibrary.simpleMessage("Checks"),
+        "checksFilter": MessageLookupByLibrary.simpleMessage("Bills Count"),
         "chooseDay": MessageLookupByLibrary.simpleMessage("Choose Day"),
         "chooseMonth": MessageLookupByLibrary.simpleMessage("Choose Month"),
         "chooseWeek": MessageLookupByLibrary.simpleMessage("Choose Week"),
@@ -124,7 +124,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "salesByDay": MessageLookupByLibrary.simpleMessage("Sales by Days"),
         "salesByHours": MessageLookupByLibrary.simpleMessage("Sales by Hours"),
         "salesByWeekday":
-            MessageLookupByLibrary.simpleMessage("Sales by Weekday"),
+            MessageLookupByLibrary.simpleMessage("Sales by Weekdays"),
         "salesOverview": MessageLookupByLibrary.simpleMessage("Sales Overview"),
         "sameDurationBack": MessageLookupByLibrary.simpleMessage(
           "Same Duration Back",

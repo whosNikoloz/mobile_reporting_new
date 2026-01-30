@@ -36,7 +36,8 @@ class MessageLookup extends MessageLookupByLibrary {
         "card": MessageLookupByLibrary.simpleMessage("ბარათი"),
         "cash": MessageLookupByLibrary.simpleMessage("ნაღდი"),
         "checks": MessageLookupByLibrary.simpleMessage("ჩეკები"),
-        "checksFilter": MessageLookupByLibrary.simpleMessage("ჩეკები"),
+        "checksFilter":
+            MessageLookupByLibrary.simpleMessage("ჩეკების რაოდენობა"),
         "chooseDay": MessageLookupByLibrary.simpleMessage("დღის არჩევა"),
         "chooseMonth": MessageLookupByLibrary.simpleMessage("თვის არჩევა"),
         "chooseWeek": MessageLookupByLibrary.simpleMessage("კვირის არჩევა"),

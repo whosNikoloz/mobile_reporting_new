@@ -37,7 +37,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
     'Sales': [
       'Sales by Days',
       'Sales by Hour',
-      'Sales by Weekday',
+      'Sales by Weekdays',
     ],
     'Finances': [
       'Revenue Report',
@@ -81,7 +81,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
         return l10n.salesByDay;
       case 'Sales by Hour':
         return l10n.salesByHours;
-      case 'Sales by Weekday':
+      case 'Sales by Weekdays':
         return l10n.salesByWeekday;
       case 'Revenue Report':
         return l10n.revenueReport;

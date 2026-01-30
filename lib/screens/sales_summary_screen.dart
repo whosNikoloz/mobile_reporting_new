@@ -279,7 +279,7 @@ class _SalesSummaryScreenState extends State<SalesSummaryScreen> {
         return l10n.salesByDay;
       case 'Sales by Hour':
         return l10n.salesByHours;
-      case 'Sales by Weekday':
+      case 'Sales by Weekdays':
         return l10n.salesByWeekday;
       case 'Revenue Report':
         return l10n.revenueReport;
@@ -576,13 +576,27 @@ class _SalesSummaryScreenState extends State<SalesSummaryScreen> {
                 : ListView(
                     padding: const EdgeInsets.all(16),
                     children: [
-                      Container(
-                        margin: const EdgeInsets.only(bottom: 8),
-                        child: _buildFilterDropdown(
-                          Icons.tune,
-                          _currentFilterLabel,
-                          () => _showFilterSelector(),
-                        ),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            S.of(context).displayValue,
+                            style: const TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w500,
+                              color: Colors.black54,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Container(
+                            margin: const EdgeInsets.only(bottom: 8),
+                            child: _buildFilterDropdown(
+                              Icons.tune,
+                              _currentFilterLabel,
+                              () => _showFilterSelector(),
+                            ),
+                          ),
+                        ],
                       ),
                       // Chart Section
                       Container(
@@ -616,42 +630,42 @@ class _SalesSummaryScreenState extends State<SalesSummaryScreen> {
                                 Row(
                                   children: [
                                     // Left arrow
-                                    GestureDetector(
-                                      onTap: _scrollChartLeft,
-                                      child: Container(
-                                        padding: const EdgeInsets.all(8),
-                                        decoration: BoxDecoration(
-                                          color: AppTheme.primaryBlue
-                                              .withValues(alpha: 0.1),
-                                          borderRadius:
-                                              BorderRadius.circular(8),
-                                        ),
-                                        child: const Icon(
-                                          Icons.chevron_left,
-                                          color: AppTheme.primaryBlue,
-                                          size: 20,
-                                        ),
-                                      ),
-                                    ),
-                                    const SizedBox(width: 8),
-                                    // Right arrow
-                                    GestureDetector(
-                                      onTap: _scrollChartRight,
-                                      child: Container(
-                                        padding: const EdgeInsets.all(8),
-                                        decoration: BoxDecoration(
-                                          color: AppTheme.primaryBlue
-                                              .withValues(alpha: 0.1),
-                                          borderRadius:
-                                              BorderRadius.circular(8),
-                                        ),
-                                        child: const Icon(
-                                          Icons.chevron_right,
-                                          color: AppTheme.primaryBlue,
-                                          size: 20,
-                                        ),
-                                      ),
-                                    ),
+                                    // GestureDetector(
+                                    //   onTap: _scrollChartLeft,
+                                    //   child: Container(
+                                    //     padding: const EdgeInsets.all(8),
+                                    //     decoration: BoxDecoration(
+                                    //       color: AppTheme.primaryBlue
+                                    //           .withValues(alpha: 0.1),
+                                    //       borderRadius:
+                                    //           BorderRadius.circular(8),
+                                    //     ),
+                                    //     child: const Icon(
+                                    //       Icons.chevron_left,
+                                    //       color: AppTheme.primaryBlue,
+                                    //       size: 20,
+                                    //     ),
+                                    //   ),
+                                    // ),
+                                    // const SizedBox(width: 8),
+                                    // // Right arrow
+                                    // GestureDetector(
+                                    //   onTap: _scrollChartRight,
+                                    //   child: Container(
+                                    //     padding: const EdgeInsets.all(8),
+                                    //     decoration: BoxDecoration(
+                                    //       color: AppTheme.primaryBlue
+                                    //           .withValues(alpha: 0.1),
+                                    //       borderRadius:
+                                    //           BorderRadius.circular(8),
+                                    //     ),
+                                    //     child: const Icon(
+                                    //       Icons.chevron_right,
+                                    //       color: AppTheme.primaryBlue,
+                                    //       size: 20,
+                                    //     ),
+                                    //   ),
+                                    // ),
                                     const SizedBox(width: 8),
                                     // Fullscreen button
                                     GestureDetector(
@@ -1345,12 +1359,9 @@ class _FullscreenChartPageState extends State<_FullscreenChartPage> {
 
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         backgroundColor: Colors.white,
         elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.fullscreen_exit, color: AppTheme.primaryBlue),
-          onPressed: () => Navigator.of(context).pop(),
-        ),
         title: Text(
           widget.title,
           style: const TextStyle(
@@ -1360,6 +1371,13 @@ class _FullscreenChartPageState extends State<_FullscreenChartPage> {
           ),
         ),
         centerTitle: true,
+        actions: [
+          IconButton(
+            icon:
+                const Icon(Icons.fullscreen_exit, color: AppTheme.primaryBlue),
+            onPressed: () => Navigator.of(context).pop(),
+          ),
+        ],
       ),
       body: SafeArea(
         child: Padding(
@@ -1367,37 +1385,6 @@ class _FullscreenChartPageState extends State<_FullscreenChartPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(
-                children: [
-                  Container(
-                    width: 10,
-                    height: 10,
-                    decoration: const BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: AppTheme.primaryBlue,
-                    ),
-                  ),
-                  const SizedBox(width: 4),
-                  const Text(
-                    'Current period',
-                    style: TextStyle(fontSize: 11, color: Colors.black54),
-                  ),
-                  const SizedBox(width: 12),
-                  Container(
-                    width: 10,
-                    height: 10,
-                    decoration: const BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: Color(0xFFFFA726),
-                    ),
-                  ),
-                  const SizedBox(width: 4),
-                  const Text(
-                    'Previous period',
-                    style: TextStyle(fontSize: 11, color: Colors.black54),
-                  ),
-                ],
-              ),
               const SizedBox(height: 12),
               Expanded(
                 child: BarChart(
