@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:fl_chart/fl_chart.dart';
@@ -36,6 +38,8 @@ class _SalesSummaryScreenState extends State<SalesSummaryScreen> {
   final ReportsService _reportsService = ReportsService();
   final ScrollController _chartScrollController = ScrollController();
 
+  double _scrollProgress = 0.0; // Track scroll progress (0.0 to 1.0)
+
   bool isLoading = false;
   DateTime startCurrentPeriod = DateTime.now();
   DateTime endCurrentPeriod = DateTime.now();
@@ -68,6 +72,62 @@ class _SalesSummaryScreenState extends State<SalesSummaryScreen> {
   List<HourlySalesResponseModel> _hourlySalesData = [];
   List<WeekdaySalesResponseModel> _weekdaySalesData = [];
 
+  // Check if we should show monthly aggregation (date range > 31 days)
+  bool get _shouldShowMonthlyAggregation {
+    final daysDifference =
+        endCurrentPeriod.difference(startCurrentPeriod).inDays;
+    return daysDifference > 31;
+  }
+
+  // Aggregated monthly data from daily data
+  List<Map<String, dynamic>> get _monthlyAggregatedData {
+    if (_dailySalesData.isEmpty) return [];
+
+    final Map<String, Map<String, dynamic>> monthlyMap = {};
+
+    for (final day in _dailySalesData) {
+      final monthKey = DateFormat('yyyy-MM').format(day.date);
+      final monthLabel = DateFormat('MMM').format(day.date);
+
+      if (!monthlyMap.containsKey(monthKey)) {
+        monthlyMap[monthKey] = {
+          'label': monthLabel,
+          'currentSales': 0.0,
+          'previousSales': 0.0,
+          'currentChecks': 0,
+          'previousChecks': 0,
+          'currentAvgCheckSum': 0.0,
+          'previousAvgCheckSum': 0.0,
+          'dayCount': 0,
+        };
+      }
+
+      monthlyMap[monthKey]!['currentSales'] += day.currentSales;
+      monthlyMap[monthKey]!['previousSales'] += day.previousSales;
+      monthlyMap[monthKey]!['currentChecks'] += day.currentChecks;
+      monthlyMap[monthKey]!['previousChecks'] += day.previousChecks;
+      monthlyMap[monthKey]!['currentAvgCheckSum'] += day.currentAvgCheck;
+      monthlyMap[monthKey]!['previousAvgCheckSum'] += day.previousAvgCheck;
+      monthlyMap[monthKey]!['dayCount'] += 1;
+    }
+
+    // Calculate average check properly
+    for (final entry in monthlyMap.values) {
+      final dayCount = entry['dayCount'] as int;
+      if (dayCount > 0) {
+        entry['currentAvgCheck'] =
+            (entry['currentAvgCheckSum'] as double) / dayCount;
+        entry['previousAvgCheck'] =
+            (entry['previousAvgCheckSum'] as double) / dayCount;
+      } else {
+        entry['currentAvgCheck'] = 0.0;
+        entry['previousAvgCheck'] = 0.0;
+      }
+    }
+
+    return monthlyMap.values.toList();
+  }
+
   // Chart data based on report type
   List<String> get _chartLabels {
     if (widget.reportTitle.contains('Hour')) {
@@ -79,11 +139,49 @@ class _SalesSummaryScreenState extends State<SalesSummaryScreen> {
           .map((e) => _getLocalizedDayName(e.name))
           .toList();
     } else if (widget.reportTitle.contains('Day')) {
-      return _dailySalesData
-          .map((e) => DateFormat('dd.MM').format(e.date))
-          .toList();
+      // Use monthly aggregation for large date ranges
+      if (_shouldShowMonthlyAggregation) {
+        return _monthlyAggregatedData.map((e) => e['label'] as String).toList();
+      }
+      return _formatDayLabels(_dailySalesData);
     }
     return [];
+  }
+
+  // Format day labels to be cleaner - show day number, with month only when it changes
+  List<String> _formatDayLabels(List<DailySalesResponseModel> data) {
+    if (data.isEmpty) return [];
+
+    // Check if all data is within the same month
+    final firstMonth = data.first.date.month;
+    final firstYear = data.first.date.year;
+    final allSameMonth = data.every(
+        (d) => d.date.month == firstMonth && d.date.year == firstYear);
+
+    final labels = <String>[];
+    int? lastMonth;
+
+    for (int i = 0; i < data.length; i++) {
+      final date = data[i].date;
+      final day = date.day;
+      final month = date.month;
+
+      if (allSameMonth) {
+        // All same month - just show day numbers
+        labels.add('$day');
+      } else if (lastMonth == null || month != lastMonth) {
+        // Month changed - show month name + day
+        final monthName = DateFormat('MMM').format(date);
+        labels.add('$day $monthName');
+      } else {
+        // Same month as previous - just show day number
+        labels.add('$day');
+      }
+
+      lastMonth = month;
+    }
+
+    return labels;
   }
 
   // Check if current filter is Income
@@ -150,6 +248,17 @@ class _SalesSummaryScreenState extends State<SalesSummaryScreen> {
     } else if (widget.reportTitle.contains('Weekday')) {
       return _weekdaySalesData.map(_getCurrentValue).toList();
     } else if (widget.reportTitle.contains('Day')) {
+      // Use monthly aggregation for large date ranges
+      if (_shouldShowMonthlyAggregation) {
+        return _monthlyAggregatedData.map((e) {
+          if (_isChecksFilter) {
+            return (e['currentChecks'] as int).toDouble();
+          } else if (_isAvgCheckFilter) {
+            return e['currentAvgCheck'] as double;
+          }
+          return e['currentSales'] as double;
+        }).toList();
+      }
       return _dailySalesData.map(_getCurrentValue).toList();
     }
     return [];
@@ -161,6 +270,17 @@ class _SalesSummaryScreenState extends State<SalesSummaryScreen> {
     } else if (widget.reportTitle.contains('Weekday')) {
       return _weekdaySalesData.map(_getPreviousValue).toList();
     } else if (widget.reportTitle.contains('Day')) {
+      // Use monthly aggregation for large date ranges
+      if (_shouldShowMonthlyAggregation) {
+        return _monthlyAggregatedData.map((e) {
+          if (_isChecksFilter) {
+            return (e['previousChecks'] as int).toDouble();
+          } else if (_isAvgCheckFilter) {
+            return e['previousAvgCheck'] as double;
+          }
+          return e['previousSales'] as double;
+        }).toList();
+      }
       return _dailySalesData.map(_getPreviousValue).toList();
     }
     return [];
@@ -395,19 +515,72 @@ class _SalesSummaryScreenState extends State<SalesSummaryScreen> {
         };
       }).toList();
     } else if (widget.reportTitle.contains('Day')) {
-      return _dailySalesData.map((e) {
+      // Use monthly aggregation for large date ranges
+      if (_shouldShowMonthlyAggregation) {
+        return _monthlyAggregatedData.map((e) {
+          double current;
+          double previous;
+          if (_isChecksFilter) {
+            current = (e['currentChecks'] as int).toDouble();
+            previous = (e['previousChecks'] as int).toDouble();
+          } else if (_isAvgCheckFilter) {
+            current = e['currentAvgCheck'] as double;
+            previous = e['previousAvgCheck'] as double;
+          } else {
+            current = e['currentSales'] as double;
+            previous = e['previousSales'] as double;
+          }
+          double percentChange = 0;
+          if (previous > 0) {
+            percentChange = ((current - previous) / previous) * 100;
+          }
+          return {
+            'label': e['label'] as String,
+            'value': current,
+            'percentChange': percentChange,
+          };
+        }).toList();
+      }
+      if (_dailySalesData.isEmpty) return [];
+
+      // Check if all data is within the same month
+      final firstMonth = _dailySalesData.first.date.month;
+      final firstYear = _dailySalesData.first.date.year;
+      final allSameMonth = _dailySalesData.every(
+          (d) => d.date.month == firstMonth && d.date.year == firstYear);
+
+      int? lastMonth;
+      final result = <Map<String, dynamic>>[];
+
+      for (int i = 0; i < _dailySalesData.length; i++) {
+        final e = _dailySalesData[i];
         final current = _getCurrentValue(e);
         final previous = _getPreviousValue(e);
         double percentChange = 0;
         if (previous > 0) {
           percentChange = ((current - previous) / previous) * 100;
         }
-        return {
-          'label': _getLocalizedDayName(DateFormat('EEEE').format(e.date)),
+
+        String label;
+        if (allSameMonth) {
+          // All same month - just show day number
+          label = '${e.date.day}';
+        } else if (lastMonth == null || e.date.month != lastMonth) {
+          // Month changed - show day + month
+          label = DateFormat('d MMM').format(e.date);
+        } else {
+          // Same month - just show day
+          label = '${e.date.day}';
+        }
+        lastMonth = e.date.month;
+
+        result.add({
+          'label': label,
           'value': current,
           'percentChange': percentChange,
-        };
-      }).toList();
+        });
+      }
+      return result;
     } else {
       return [];
     }
@@ -1019,17 +1192,22 @@ class _SalesSummaryScreenState extends State<SalesSummaryScreen> {
       MaterialPageRoute(
         builder: (context) => _FullscreenChartPage(
           title: _chartTitle,
-          salesData: _salesData,
-          comparisonData: _comparisonData,
-          chartLabels: _chartLabels,
+          salesData: _visibleSalesData,
+          comparisonData: _visibleComparisonData,
+          chartLabels: _visibleChartLabels,
           isIncomeMode: _isIncomeFilter || _isChecksFilter || _isAvgCheckFilter,
+          isChecksFilter: _isChecksFilter,
+          currentPeriodLabel:
+              '${DateFormat('dd.MM.yy').format(startCurrentPeriod)} - ${DateFormat('dd.MM.yy').format(endCurrentPeriod)}',
+          previousPeriodLabel:
+              '${DateFormat('dd.MM.yy').format(startOldPeriod)} - ${DateFormat('dd.MM.yy').format(endOldPeriod)}',
         ),
       ),
     );
   }
 
   Widget _buildScrollableChart() {
-    if (_visibleSalesData.isEmpty) {
+    if (_visibleSalesData.isEmpty || _visibleComparisonData.isEmpty || _visibleChartLabels.isEmpty) {
       return Center(
         child: Text(
           S.of(context).noDataAvailable,
@@ -1038,50 +1216,192 @@ class _SalesSummaryScreenState extends State<SalesSummaryScreen> {
       );
     }
 
-    // Calculate chart width based on data points
+    // Calculate chart width based on data points - always allow scrolling
     final dataCount = _visibleChartLabels.length;
-    final screenWidth =
-        MediaQuery.of(context).size.width - 64; // Account for padding
-    final bool isHourly = widget.reportTitle.contains('Hour');
+    // Each bar group needs ~30px minimum to show clearly
+    const double minGroupWidth = 30.0;
+    final actualContentWidth = dataCount * minGroupWidth;
+    final chartWidth = actualContentWidth.clamp(300.0, double.infinity);
 
-    // For hourly view keep all hours visible on screen by default.
-    // For other reports allow wider bars and horizontal scroll when needed.
-    final double minBarWidth;
-    if (isHourly && dataCount > 0) {
-      // Fit all bars into available width with reasonable min/max width
-      final idealWidth = screenWidth / dataCount;
-      minBarWidth = idealWidth.clamp(16.0, 32.0);
-    } else {
-      minBarWidth = 50.0;
-    }
+    final dataMax = _visibleSalesData.reduce((a, b) => a > b ? a : b);
+    final comparisonMax =
+        _visibleComparisonData.reduce((a, b) => a > b ? a : b);
+    final maxValue = dataMax > comparisonMax ? dataMax : comparisonMax;
+    final maxY = maxValue > 0 ? maxValue * 1.2 : 100.0;
 
-    final chartWidth = (dataCount * minBarWidth).clamp(300.0, double.infinity);
+    final screenWidth = MediaQuery.of(context).size.width -
+        114; // Account for padding and Y-axis
+    // Only show scroll indicator if actual content width exceeds screen width
+    final needsScrolling = actualContentWidth > screenWidth;
 
-    // If chart fits in screen, don't scroll
-    if (chartWidth <= screenWidth) {
-      return _buildSalesChart();
-    }
-
-    return SingleChildScrollView(
-      controller: _chartScrollController,
-      scrollDirection: Axis.horizontal,
-      child: SizedBox(
-        width: chartWidth,
-        child: _buildSalesChart(),
-      ),
+    return Column(
+      children: [
+        Expanded(
+          child: Row(
+            children: [
+              // Fixed Y-axis on the left
+              SizedBox(
+                width: 50,
+                child: _buildYAxis(maxY),
+              ),
+              // Scrollable chart area
+              Expanded(
+                child: NotificationListener<ScrollNotification>(
+                  onNotification: (notification) {
+                    if (notification is ScrollUpdateNotification) {
+                      final maxExtent = notification.metrics.maxScrollExtent;
+                      if (maxExtent > 0) {
+                        setState(() {
+                          _scrollProgress =
+                              notification.metrics.pixels / maxExtent;
+                        });
+                      }
+                    }
+                    return false;
+                  },
+                  child: SingleChildScrollView(
+                    controller: _chartScrollController,
+                    scrollDirection: Axis.horizontal,
+                    child: SizedBox(
+                      width: chartWidth,
+                      child: _buildSalesChartWithoutYAxis(),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+        // Scroll indicator dots
+        if (needsScrolling)
+          Padding(
+            padding: const EdgeInsets.only(top: 8),
+            child: _buildScrollIndicator(),
+          ),
+      ],
     );
   }
 
-  Widget _buildSalesChart() {
-    if (_visibleSalesData.isEmpty) {
-      return Center(
-        child: Text(
-          S.of(context).noDataAvailable,
-          style: const TextStyle(color: Colors.grey),
-        ),
-      );
+  Widget _buildScrollIndicator() {
+    const int dotCount = 5;
+    final activeDot =
+        (_scrollProgress * (dotCount - 1)).round().clamp(0, dotCount - 1);
+
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: List.generate(dotCount, (index) {
+        final isActive = index == activeDot;
+        return AnimatedContainer(
+          duration: const Duration(milliseconds: 150),
+          margin: const EdgeInsets.symmetric(horizontal: 3),
+          width: isActive ? 16 : 6,
+          height: 6,
+          decoration: BoxDecoration(
+            color: isActive ? AppTheme.primaryBlue : Colors.grey.shade300,
+            borderRadius: BorderRadius.circular(3),
+          ),
+        );
+      }),
+    );
+  }
+
+  // Calculate nice round interval for Y-axis
+  double _calculateNiceInterval(double maxValue) {
+    if (maxValue <= 0) return 1;
+
+    // Find the order of magnitude
+    final magnitude = (maxValue / 5).abs();
+    if (magnitude == 0) return 1;
+
+    final power = (magnitude).toString().split('.')[0].length - 1;
+    final base = pow(10, power).toDouble();
+
+    // Find nice interval (1, 2, 5, 10, 20, 50, 100, etc.)
+    final normalized = magnitude / base;
+    double niceInterval;
+    if (normalized <= 1) {
+      niceInterval = base;
+    } else if (normalized <= 2) {
+      niceInterval = base * 2;
+    } else if (normalized <= 5) {
+      niceInterval = base * 5;
+    } else {
+      niceInterval = base * 10;
     }
 
+    return niceInterval;
+  }
+
+  // Format Y-axis label to be compact (1K, 10K, etc.)
+  String _formatYAxisLabel(double value) {
+    if (value == 0) return '0';
+
+    final absValue = value.abs();
+    String formatted;
+
+    if (absValue >= 1000000) {
+      formatted =
+          '${(value / 1000000).toStringAsFixed(absValue % 1000000 == 0 ? 0 : 1)}M';
+    } else if (absValue >= 1000) {
+      formatted =
+          '${(value / 1000).toStringAsFixed(absValue % 1000 == 0 ? 0 : 1)}K';
+    } else if (absValue >= 1) {
+      formatted = value.toStringAsFixed(0);
+    } else {
+      formatted = value.toStringAsFixed(1);
+    }
+
+    return formatted;
+  }
+
+  Widget _buildYAxis(double maxY) {
+    // Calculate nice round interval
+    final interval = _calculateNiceInterval(maxY);
+    final niceMaxY = (maxY / interval).ceil() * interval;
+
+    return Column(
+      children: [
+        Expanded(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: List.generate(6, (index) {
+              // Generate values from max to 0 in 5 steps
+              final value = niceMaxY - (niceMaxY / 5 * index);
+
+              String label;
+              if (_isChecksFilter) {
+                // For checks: show as integer
+                label = _formatYAxisLabel(value);
+              } else if (_isIncomeFilter || _isAvgCheckFilter) {
+                // For income: show with currency symbol
+                label =
+                    '${CurrencyHelper.getCurrencySymbol()}${_formatYAxisLabel(value)}';
+              } else {
+                // For percentage
+                label = '${value.toStringAsFixed(0)}%';
+              }
+
+              return Padding(
+                padding: const EdgeInsets.only(right: 4),
+                child: Text(
+                  label,
+                  style: const TextStyle(
+                    fontSize: 9,
+                    color: Colors.black45,
+                  ),
+                  textAlign: TextAlign.right,
+                ),
+              );
+            }),
+          ),
+        ),
+        const SizedBox(height: 24), // Space for bottom labels
+      ],
+    );
+  }
+
+  Widget _buildSalesChartWithoutYAxis() {
     final dataMax = _visibleSalesData.reduce((a, b) => a > b ? a : b);
     final comparisonMax =
         _visibleComparisonData.reduce((a, b) => a > b ? a : b);
@@ -1102,17 +1422,21 @@ class _SalesSummaryScreenState extends State<SalesSummaryScreen> {
             getTooltipColor: (group) => Colors.black87,
             tooltipPadding: const EdgeInsets.all(8),
             tooltipMargin: 8,
+            fitInsideVertically: true,
+            fitInsideHorizontally: true,
+            direction: TooltipDirection.top,
             getTooltipItem: (group, groupIndex, rod, rodIndex) {
               final index = group.x.toInt();
               final value = rodIndex == 0
                   ? _visibleComparisonData[index]
                   : _visibleSalesData[index];
+              final periodLabel = rodIndex == 0 ? 'Previous' : 'Current';
               return BarTooltipItem(
-                '${labels[index]}\n',
+                '${labels[index]} ($periodLabel)\n',
                 const TextStyle(
                   color: Colors.white,
                   fontWeight: FontWeight.bold,
-                  fontSize: 12,
+                  fontSize: 11,
                 ),
                 children: [
                   TextSpan(
@@ -1135,18 +1459,6 @@ class _SalesSummaryScreenState extends State<SalesSummaryScreen> {
               showTitles: true,
               getTitlesWidget: (value, meta) {
                 if (value.toInt() >= 0 && value.toInt() < labels.length) {
-                  // Label skipping logic to prevent overlap
-                  int interval = 1;
-                  if (labels.length > 15) {
-                    interval = 5;
-                  } else if (labels.length > 10) {
-                    interval = 2;
-                  }
-
-                  if (value.toInt() % interval != 0) {
-                    return const Text('');
-                  }
-
                   return Padding(
                     padding: const EdgeInsets.only(top: 8),
                     child: Text(
@@ -1163,37 +1475,8 @@ class _SalesSummaryScreenState extends State<SalesSummaryScreen> {
               },
             ),
           ),
-          leftTitles: AxisTitles(
-            sideTitles: SideTitles(
-              showTitles: true,
-              reservedSize: 60,
-              getTitlesWidget: (value, meta) {
-                if (value == 0) return const Text('');
-                final showAbsolute =
-                    _isIncomeFilter || _isChecksFilter || _isAvgCheckFilter;
-                String label;
-                if (showAbsolute) {
-                  // For checks: only show whole-number ticks to avoid 0 1 1 2 2 3 3 pattern
-                  if (_isChecksFilter && value % 1 != 0) {
-                    return const Text('');
-                  }
-                  label = _formatValue(value);
-                } else {
-                  final isWhole = value % 1 == 0;
-                  final text = isWhole
-                      ? value.toStringAsFixed(0)
-                      : value.toStringAsFixed(1);
-                  label = '$text%';
-                }
-                return Text(
-                  label,
-                  style: const TextStyle(
-                    fontSize: 10,
-                    color: Colors.black45,
-                  ),
-                );
-              },
-            ),
+          leftTitles: const AxisTitles(
+            sideTitles: SideTitles(showTitles: false), // Y-axis is separate
           ),
           topTitles: const AxisTitles(
             sideTitles: SideTitles(showTitles: false),
@@ -1222,18 +1505,18 @@ class _SalesSummaryScreenState extends State<SalesSummaryScreen> {
             barRods: [
               BarChartRodData(
                 toY: _visibleComparisonData[index],
-                width: 12, // Adjusted for better fitting
+                width: 6,
                 borderRadius:
-                    const BorderRadius.vertical(top: Radius.circular(4)),
+                    const BorderRadius.vertical(top: Radius.circular(2)),
                 color: isPeak
                     ? baseComparisonColor
                     : baseComparisonColor.withValues(alpha: 0.5),
               ),
               BarChartRodData(
                 toY: _visibleSalesData[index],
-                width: 12, // Adjusted for better fitting
+                width: 6,
                 borderRadius:
-                    const BorderRadius.vertical(top: Radius.circular(4)),
+                    const BorderRadius.vertical(top: Radius.circular(2)),
                 color: isPeak
                     ? baseCurrentColor
                     : baseCurrentColor.withValues(alpha: 0.5),
@@ -1312,6 +1595,9 @@ class _FullscreenChartPage extends StatefulWidget {
   final List<double> comparisonData;
   final List<String> chartLabels;
   final bool isIncomeMode;
+  final bool isChecksFilter;
+  final String currentPeriodLabel;
+  final String previousPeriodLabel;
 
   const _FullscreenChartPage({
     required this.title,
@@ -1319,6 +1605,9 @@ class _FullscreenChartPage extends StatefulWidget {
     required this.comparisonData,
     required this.chartLabels,
     required this.isIncomeMode,
+    required this.isChecksFilter,
+    required this.currentPeriodLabel,
+    required this.previousPeriodLabel,
   });
 
   @override
@@ -1326,6 +1615,9 @@ class _FullscreenChartPage extends StatefulWidget {
 }
 
 class _FullscreenChartPageState extends State<_FullscreenChartPage> {
+  final ScrollController _fullscreenScrollController = ScrollController();
+  double _scrollProgress = 0.0;
+
   @override
   void initState() {
     super.initState();
@@ -1338,12 +1630,21 @@ class _FullscreenChartPageState extends State<_FullscreenChartPage> {
 
   @override
   void dispose() {
+    _fullscreenScrollController.dispose();
     // Restore portrait orientation when leaving
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.portraitUp,
       DeviceOrientation.portraitDown,
     ]);
     super.dispose();
+  }
+
+  String _formatValue(double value) {
+    if (widget.isChecksFilter) {
+      return NumberFormat('#,##0', 'en_US').format(value.toInt());
+    } else {
+      return '${CurrencyHelper.getCurrencySymbol()}${NumberFormat('#,##0.00', 'en_US').format(value)}';
+    }
   }
 
   @override
@@ -1356,8 +1657,22 @@ class _FullscreenChartPageState extends State<_FullscreenChartPage> {
         : 0.0;
     final maxValue = dataMax > comparisonMax ? dataMax : comparisonMax;
     final maxY = maxValue > 0 ? maxValue * 1.2 : 100.0;
+    final peakIndex =
+        widget.salesData.isNotEmpty ? widget.salesData.indexOf(dataMax) : -1;
+
+    // Calculate chart width for scrolling - ensure enough space for all labels
+    final dataCount = widget.chartLabels.length;
+    final screenWidth = MediaQuery.of(context).size.width -
+        100; // Account for padding and Y-axis
+    // Each bar group needs ~30px minimum to show label clearly
+    const double minGroupWidth = 30.0;
+    final actualContentWidth = dataCount * minGroupWidth;
+    final chartWidth = actualContentWidth.clamp(screenWidth, double.infinity);
+    // Only show scroll indicator if actual content width exceeds screen width
+    final needsScrolling = actualContentWidth > screenWidth;
 
     return Scaffold(
+      backgroundColor: Colors.grey[50],
       appBar: AppBar(
         automaticallyImplyLeading: false,
         backgroundColor: Colors.white,
@@ -1385,148 +1700,374 @@ class _FullscreenChartPageState extends State<_FullscreenChartPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const SizedBox(height: 12),
+              // Legend showing which color is which period
+              // Container(
+              //   padding:
+              //       const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              //   decoration: BoxDecoration(
+              //     color: Colors.white,
+              //     borderRadius: BorderRadius.circular(8),
+              //     boxShadow: [
+              //       BoxShadow(
+              //         color: Colors.black.withValues(alpha: 0.05),
+              //         blurRadius: 4,
+              //         offset: const Offset(0, 2),
+              //       ),
+              //     ],
+              //   ),
+              //   child: Row(
+              //     mainAxisSize: MainAxisSize.min,
+              //     children: [
+              //       // Previous period (Orange)
+              //       Container(
+              //         width: 12,
+              //         height: 12,
+              //         decoration: BoxDecoration(
+              //           color: const Color(0xFFFFA726),
+              //           borderRadius: BorderRadius.circular(2),
+              //         ),
+              //       ),
+              //       const SizedBox(width: 6),
+              //       Text(
+              //         widget.previousPeriodLabel,
+              //         style: const TextStyle(
+              //           fontSize: 11,
+              //           fontWeight: FontWeight.w500,
+              //           color: Colors.black54,
+              //         ),
+              //       ),
+              //       const SizedBox(width: 16),
+              //       // Current period (Blue)
+              //       Container(
+              //         width: 12,
+              //         height: 12,
+              //         decoration: BoxDecoration(
+              //           color: AppTheme.primaryBlue,
+              //           borderRadius: BorderRadius.circular(2),
+              //         ),
+              //       ),
+              //       const SizedBox(width: 6),
+              //       Text(
+              //         widget.currentPeriodLabel,
+              //         style: const TextStyle(
+              //           fontSize: 11,
+              //           fontWeight: FontWeight.w500,
+              //           color: Colors.black54,
+              //         ),
+              //       ),
+              //     ],
+              //   ),
+              // ),
               Expanded(
-                child: BarChart(
-                  BarChartData(
-                    alignment: BarChartAlignment.spaceAround,
-                    maxY: maxY,
-                    barTouchData: BarTouchData(
-                      enabled: true,
-                      touchTooltipData: BarTouchTooltipData(
-                        getTooltipColor: (group) => Colors.black87,
-                        tooltipPadding: const EdgeInsets.all(8),
-                        tooltipMargin: 8,
-                        getTooltipItem: (group, groupIndex, rod, rodIndex) {
-                          final index = group.x.toInt();
-                          final value = rodIndex == 0
-                              ? widget.comparisonData[index]
-                              : widget.salesData[index];
-                          return BarTooltipItem(
-                            '${widget.chartLabels[index]}\n',
-                            const TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 12,
-                            ),
-                            children: [
-                              TextSpan(
-                                text: widget.isIncomeMode
-                                    ? '${CurrencyHelper.getCurrencySymbol()}${value.toStringAsFixed(2)}'
-                                    : '${value.toStringAsFixed(1)}%',
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                            ],
-                          );
-                        },
+                child: Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(12),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.05),
+                        blurRadius: 8,
+                        offset: const Offset(0, 2),
                       ),
-                    ),
-                    titlesData: FlTitlesData(
-                      show: true,
-                      bottomTitles: AxisTitles(
-                        sideTitles: SideTitles(
-                          showTitles: true,
-                          getTitlesWidget: (value, meta) {
-                            if (value.toInt() >= 0 &&
-                                value.toInt() < widget.chartLabels.length) {
-                              return Padding(
-                                padding: const EdgeInsets.only(top: 8),
-                                child: Text(
-                                  widget.chartLabels[value.toInt()],
-                                  style: const TextStyle(
-                                    color: Colors.grey,
-                                    fontSize: 11,
-                                    fontWeight: FontWeight.w500,
+                    ],
+                  ),
+                  child: Column(
+                    children: [
+                      Expanded(
+                        child: Row(
+                          children: [
+                            // Fixed Y-axis on the left
+                            SizedBox(
+                              width: 55,
+                              child: _buildYAxis(maxY),
+                            ),
+                            // Scrollable chart area
+                            Expanded(
+                              child: NotificationListener<ScrollNotification>(
+                                onNotification: (notification) {
+                                  if (notification
+                                      is ScrollUpdateNotification) {
+                                    final maxExtent =
+                                        notification.metrics.maxScrollExtent;
+                                    if (maxExtent > 0) {
+                                      setState(() {
+                                        _scrollProgress =
+                                            notification.metrics.pixels /
+                                                maxExtent;
+                                      });
+                                    }
+                                  }
+                                  return false;
+                                },
+                                child: SingleChildScrollView(
+                                  controller: _fullscreenScrollController,
+                                  scrollDirection: Axis.horizontal,
+                                  child: SizedBox(
+                                    width: chartWidth,
+                                    child: _buildChartWithoutYAxis(
+                                        maxY, peakIndex),
                                   ),
                                 ),
-                              );
-                            }
-                            return const SizedBox.shrink();
-                          },
-                          reservedSize: 32,
-                        ),
-                      ),
-                      leftTitles: AxisTitles(
-                        sideTitles: SideTitles(
-                          showTitles: true,
-                          reservedSize: 40,
-                          getTitlesWidget: (value, meta) {
-                            if (value == 0) return const Text('');
-                            String label;
-                            if (widget.isIncomeMode) {
-                              label =
-                                  '${CurrencyHelper.getCurrencySymbol()}${value.toStringAsFixed(0)}';
-                            } else {
-                              final isWhole = value % 1 == 0;
-                              final text = isWhole
-                                  ? value.toStringAsFixed(0)
-                                  : value.toStringAsFixed(1);
-                              label = '$text%';
-                            }
-                            return Text(
-                              label,
-                              style: const TextStyle(
-                                color: Colors.grey,
-                                fontSize: 11,
                               ),
-                            );
-                          },
+                            ),
+                          ],
                         ),
                       ),
-                      topTitles: const AxisTitles(
-                        sideTitles: SideTitles(showTitles: false),
-                      ),
-                      rightTitles: const AxisTitles(
-                        sideTitles: SideTitles(showTitles: false),
-                      ),
-                    ),
-                    gridData: FlGridData(
-                      show: true,
-                      drawVerticalLine: false,
-                      horizontalInterval: maxY / 5,
-                      getDrawingHorizontalLine: (value) {
-                        return FlLine(
-                          color: Colors.grey[200],
-                          strokeWidth: 1,
-                          dashArray: [5, 5],
-                        );
-                      },
-                    ),
-                    borderData: FlBorderData(show: false),
-                    barGroups:
-                        List.generate(widget.chartLabels.length, (index) {
-                      return BarChartGroupData(
-                        x: index,
-                        barRods: [
-                          BarChartRodData(
-                            toY: widget.comparisonData[index],
-                            width: 16,
-                            borderRadius: const BorderRadius.vertical(
-                              top: Radius.circular(4),
-                            ),
-                            color: const Color(0xFFFFA726),
-                          ),
-                          BarChartRodData(
-                            toY: widget.salesData[index],
-                            width: 16,
-                            borderRadius: const BorderRadius.vertical(
-                              top: Radius.circular(4),
-                            ),
-                            color: AppTheme.primaryBlue,
-                          ),
-                        ],
-                      );
-                    }),
+                      // Scroll indicator dots
+                      if (needsScrolling)
+                        Padding(
+                          padding: const EdgeInsets.only(top: 8),
+                          child: _buildScrollIndicator(),
+                        ),
+                    ],
                   ),
                 ),
               ),
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  // Calculate nice round interval for Y-axis
+  double _calculateNiceInterval(double maxValue) {
+    if (maxValue <= 0) return 1;
+
+    final magnitude = (maxValue / 5).abs();
+    if (magnitude == 0) return 1;
+
+    final power = (magnitude).toString().split('.')[0].length - 1;
+    final base = pow(10, power).toDouble();
+
+    final normalized = magnitude / base;
+    double niceInterval;
+    if (normalized <= 1) {
+      niceInterval = base;
+    } else if (normalized <= 2) {
+      niceInterval = base * 2;
+    } else if (normalized <= 5) {
+      niceInterval = base * 5;
+    } else {
+      niceInterval = base * 10;
+    }
+
+    return niceInterval;
+  }
+
+  // Format Y-axis label to be compact
+  String _formatYAxisLabel(double value) {
+    if (value == 0) return '0';
+
+    final absValue = value.abs();
+    String formatted;
+
+    if (absValue >= 1000000) {
+      formatted =
+          '${(value / 1000000).toStringAsFixed(absValue % 1000000 == 0 ? 0 : 1)}M';
+    } else if (absValue >= 1000) {
+      formatted =
+          '${(value / 1000).toStringAsFixed(absValue % 1000 == 0 ? 0 : 1)}K';
+    } else if (absValue >= 1) {
+      formatted = value.toStringAsFixed(0);
+    } else {
+      formatted = value.toStringAsFixed(1);
+    }
+
+    return formatted;
+  }
+
+  Widget _buildYAxis(double maxY) {
+    final interval = _calculateNiceInterval(maxY);
+    final niceMaxY = (maxY / interval).ceil() * interval;
+
+    return Column(
+      children: [
+        Expanded(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: List.generate(6, (index) {
+              final value = niceMaxY - (niceMaxY / 5 * index);
+
+              String label;
+              if (widget.isChecksFilter) {
+                label = _formatYAxisLabel(value);
+              } else if (widget.isIncomeMode) {
+                label =
+                    '${CurrencyHelper.getCurrencySymbol()}${_formatYAxisLabel(value)}';
+              } else {
+                label = '${value.toStringAsFixed(0)}%';
+              }
+
+              return Padding(
+                padding: const EdgeInsets.only(right: 4),
+                child: Text(
+                  label,
+                  style: const TextStyle(
+                    fontSize: 9,
+                    color: Colors.black45,
+                  ),
+                  textAlign: TextAlign.right,
+                ),
+              );
+            }),
+          ),
+        ),
+        const SizedBox(height: 24), // Space for bottom labels
+      ],
+    );
+  }
+
+  Widget _buildScrollIndicator() {
+    const int dotCount = 5;
+    final activeDot =
+        (_scrollProgress * (dotCount - 1)).round().clamp(0, dotCount - 1);
+
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: List.generate(dotCount, (index) {
+        final isActive = index == activeDot;
+        return AnimatedContainer(
+          duration: const Duration(milliseconds: 150),
+          margin: const EdgeInsets.symmetric(horizontal: 3),
+          width: isActive ? 16 : 6,
+          height: 6,
+          decoration: BoxDecoration(
+            color: isActive ? AppTheme.primaryBlue : Colors.grey.shade300,
+            borderRadius: BorderRadius.circular(3),
+          ),
+        );
+      }),
+    );
+  }
+
+  Widget _buildChartWithoutYAxis(double maxY, int peakIndex) {
+    final baseComparisonColor = const Color(0xFFFFA726);
+    final baseCurrentColor = AppTheme.primaryBlue;
+    final labels = widget.chartLabels;
+
+    return BarChart(
+      BarChartData(
+        alignment: BarChartAlignment.spaceAround,
+        maxY: maxY,
+        barTouchData: BarTouchData(
+          enabled: true,
+          touchTooltipData: BarTouchTooltipData(
+            getTooltipColor: (group) => Colors.black87,
+            tooltipPadding: const EdgeInsets.all(8),
+            tooltipMargin: 8,
+            fitInsideVertically: true,
+            fitInsideHorizontally: true,
+            direction: TooltipDirection.top,
+            getTooltipItem: (group, groupIndex, rod, rodIndex) {
+              final index = group.x.toInt();
+              final value = rodIndex == 0
+                  ? widget.comparisonData[index]
+                  : widget.salesData[index];
+              final periodLabel = rodIndex == 0
+                  ? widget.previousPeriodLabel
+                  : widget.currentPeriodLabel;
+              return BarTooltipItem(
+                '${labels[index]}\n$periodLabel\n',
+                const TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 12,
+                ),
+                children: [
+                  TextSpan(
+                    text: widget.isIncomeMode
+                        ? _formatValue(value)
+                        : '${value.toStringAsFixed(1)}%',
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
+              );
+            },
+          ),
+        ),
+        titlesData: FlTitlesData(
+          show: true,
+          bottomTitles: AxisTitles(
+            sideTitles: SideTitles(
+              showTitles: true,
+              getTitlesWidget: (value, meta) {
+                final index = value.toInt();
+                if (index >= 0 && index < labels.length) {
+                  return Padding(
+                    padding: const EdgeInsets.only(top: 8),
+                    child: Text(
+                      labels[index],
+                      style: const TextStyle(
+                        color: Colors.black54,
+                        fontSize: 10,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  );
+                }
+                return const SizedBox.shrink();
+              },
+              reservedSize: 32,
+            ),
+          ),
+          leftTitles: const AxisTitles(
+            sideTitles: SideTitles(showTitles: false), // Y-axis is separate
+          ),
+          topTitles: const AxisTitles(
+            sideTitles: SideTitles(showTitles: false),
+          ),
+          rightTitles: const AxisTitles(
+            sideTitles: SideTitles(showTitles: false),
+          ),
+        ),
+        gridData: FlGridData(
+          show: true,
+          drawVerticalLine: false,
+          horizontalInterval: maxY / 5,
+          getDrawingHorizontalLine: (value) {
+            return FlLine(
+              color: Colors.grey[200],
+              strokeWidth: 1,
+              dashArray: [5, 5],
+            );
+          },
+        ),
+        borderData: FlBorderData(show: false),
+        barGroups: List.generate(labels.length, (index) {
+          final isPeak = index == peakIndex;
+          return BarChartGroupData(
+            x: index,
+            barRods: [
+              BarChartRodData(
+                toY: widget.comparisonData[index],
+                width: 6,
+                borderRadius: const BorderRadius.vertical(
+                  top: Radius.circular(2),
+                ),
+                color: isPeak
+                    ? baseComparisonColor
+                    : baseComparisonColor.withValues(alpha: 0.5),
+              ),
+              BarChartRodData(
+                toY: widget.salesData[index],
+                width: 6,
+                borderRadius: const BorderRadius.vertical(
+                  top: Radius.circular(2),
+                ),
+                color: isPeak
+                    ? baseCurrentColor
+                    : baseCurrentColor.withValues(alpha: 0.5),
+              ),
+            ],
+          );
+        }),
       ),
     );
   }
