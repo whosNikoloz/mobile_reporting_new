@@ -1421,33 +1421,14 @@ class _DateRangePickerState extends State<DateRangePicker> {
             BorderRadius? borderRadius;
 
             // Disabled dates (future or same/after period)
-            if (isDisabled && !isInBlueRange) {
-              textColor = Colors.grey.shade300;
-            }
-            // Priority: Blue first, then Orange
-            else if (isInBlueRange) {
-              backgroundColor = AppTheme.primaryBlue;
-              textColor = Colors.white;
-              if (isBlueStart && isBlueEnd) {
-                borderRadius = BorderRadius.circular(20);
-              } else if (isBlueStart) {
-                borderRadius = const BorderRadius.only(
-                  topLeft: Radius.circular(20),
-                  bottomLeft: Radius.circular(20),
-                );
-              } else if (isBlueEnd) {
-                borderRadius = const BorderRadius.only(
-                  topRight: Radius.circular(20),
-                  bottomRight: Radius.circular(20),
-                );
-              } else {
-                borderRadius = BorderRadius.zero;
-              }
-            } else if (isOrangeFirstOnly) {
+            // Priority: Orange > Disabled > Today
+            if (isOrangeFirstOnly) {
+              // ORANGE: First date selected
               backgroundColor = Colors.orange.withOpacity(0.3);
               textColor = Colors.orange;
               borderRadius = BorderRadius.circular(20);
             } else if (isInOrangeRange) {
+              // ORANGE: Full range
               backgroundColor = Colors.orange;
               textColor = Colors.white;
               if (isOrangeStart && isOrangeEnd) {
@@ -1465,13 +1446,17 @@ class _DateRangePickerState extends State<DateRangePicker> {
               } else {
                 borderRadius = BorderRadius.zero;
               }
+            } else if (isDisabled) {
+              textColor = Colors.grey.shade300;
+            } else if (isToday) {
+              backgroundColor = AppTheme.primaryBlue;
+              textColor = Colors.white;
+              borderRadius = BorderRadius.circular(20);
             }
 
-            final hasMargin =
-                !isInBlueRange && !isInOrangeRange && !isOrangeFirstOnly;
+            final hasMargin = !isInOrangeRange && !isOrangeFirstOnly;
 
             if (isToday &&
-                !isInBlueRange &&
                 !isInOrangeRange &&
                 !isDisabled &&
                 borderRadius == null) {
@@ -2109,27 +2094,8 @@ class _DateRangePickerState extends State<DateRangePicker> {
             Color? textColor = Colors.black87;
             BorderRadius? borderRadius;
 
-            // Priority: Blue > Orange > Today
-            if (isInCurrentRange) {
-              // BLUE: Full range
-              backgroundColor = AppTheme.primaryBlue;
-              textColor = Colors.white;
-              if (isCurrentStart && isCurrentEnd) {
-                borderRadius = BorderRadius.circular(20);
-              } else if (isCurrentStart) {
-                borderRadius = const BorderRadius.only(
-                  topLeft: Radius.circular(20),
-                  bottomLeft: Radius.circular(20),
-                );
-              } else if (isCurrentEnd) {
-                borderRadius = const BorderRadius.only(
-                  topRight: Radius.circular(20),
-                  bottomRight: Radius.circular(20),
-                );
-              } else {
-                borderRadius = BorderRadius.zero;
-              }
-            } else if (isCompareOnlyStart) {
+            // Priority: Orange > Today
+            if (isCompareOnlyStart) {
               // ORANGE: First date selected
               backgroundColor = Colors.orange.withOpacity(0.3);
               textColor = Colors.orange;
@@ -2369,25 +2335,21 @@ class _DateRangePickerState extends State<DateRangePicker> {
           child: Container(
             alignment: Alignment.center,
             decoration: BoxDecoration(
-              color: isSelectedPeriod
-                  ? AppTheme.primaryBlue.withOpacity(0.1)
-                  : isCompareMonth
-                      ? Colors.orange.withOpacity(0.1)
-                      : Colors.transparent,
+              color: isCompareMonth
+                  ? Colors.orange.withOpacity(0.1)
+                  : Colors.transparent,
               borderRadius: BorderRadius.circular(8),
             ),
             child: Text(
               months[index],
               style: TextStyle(
                 fontSize: 15,
-                color: isDisabled && !isSelectedPeriod
+                color: isDisabled
                     ? Colors.grey.shade300
-                    : isSelectedPeriod
-                        ? AppTheme.primaryBlue
-                        : isCompareMonth
-                            ? Colors.orange
-                            : Colors.black87,
-                fontWeight: isSelectedPeriod || isCompareMonth
+                    : isCompareMonth
+                        ? Colors.orange
+                        : Colors.black87,
+                fontWeight: isCompareMonth
                     ? FontWeight.w600
                     : FontWeight.normal,
               ),
@@ -2449,25 +2411,21 @@ class _DateRangePickerState extends State<DateRangePicker> {
           child: Container(
             alignment: Alignment.center,
             decoration: BoxDecoration(
-              color: isSelectedPeriod
-                  ? AppTheme.primaryBlue.withOpacity(0.1)
-                  : isCompareYear
-                      ? Colors.orange.withOpacity(0.1)
-                      : Colors.transparent,
+              color: isCompareYear
+                  ? Colors.orange.withOpacity(0.1)
+                  : Colors.transparent,
               borderRadius: BorderRadius.circular(8),
             ),
             child: Text(
               year.toString(),
               style: TextStyle(
                 fontSize: 15,
-                color: isDisabled && !isSelectedPeriod
+                color: isDisabled
                     ? Colors.grey.shade300
-                    : isSelectedPeriod
-                        ? AppTheme.primaryBlue
-                        : isCompareYear
-                            ? Colors.orange
-                            : Colors.black87,
-                fontWeight: isSelectedPeriod || isCompareYear
+                    : isCompareYear
+                        ? Colors.orange
+                        : Colors.black87,
+                fontWeight: isCompareYear
                     ? FontWeight.w600
                     : FontWeight.normal,
               ),

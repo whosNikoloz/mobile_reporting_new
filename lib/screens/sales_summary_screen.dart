@@ -37,6 +37,25 @@ enum _ReportFilterType { income, checks, avgCheck }
 class _SalesSummaryScreenState extends State<SalesSummaryScreen> {
   final ReportsService _reportsService = ReportsService();
   final ScrollController _chartScrollController = ScrollController();
+  bool _filtersLoaded = false;
+
+
+
+
+  Future<void> _loadFilters() async {
+    await application.loadFilters();
+    if (mounted) {
+      setState(() {
+        startCurrentPeriod = application.startCurrentPeriod ?? DateTime.now();
+        endCurrentPeriod = application.endCurrentPeriod ?? DateTime.now();
+        startOldPeriod = application.startOldPeriod ?? 
+            DateTime.now().subtract(const Duration(days: 1));
+        endOldPeriod = application.endOldPeriod ?? 
+            DateTime.now().subtract(const Duration(days: 1));
+        _filtersLoaded = true;
+      });
+    }
+  }
 
   double _scrollProgress = 0.0; // Track scroll progress (0.0 to 1.0)
 
@@ -609,6 +628,7 @@ class _SalesSummaryScreenState extends State<SalesSummaryScreen> {
   @override
   void initState() {
     super.initState();
+    _loadFilters();
     _loadUserData();
   }
 
@@ -725,7 +745,9 @@ class _SalesSummaryScreenState extends State<SalesSummaryScreen> {
           ),
         ),
       ),
-      body: Column(
+      body: !_filtersLoaded 
+          ? const Center(child: CircularProgressIndicator())
+          : Column(
         children: [
           // Date and Store Pickers
           PickerWidget(
@@ -1502,24 +1524,19 @@ class _SalesSummaryScreenState extends State<SalesSummaryScreen> {
           final isPeak = index == peakIndex;
           return BarChartGroupData(
             x: index,
+            barsSpace: 0,
             barRods: [
               BarChartRodData(
                 toY: _visibleComparisonData[index],
                 width: 6,
-                borderRadius:
-                    const BorderRadius.vertical(top: Radius.circular(2)),
-                color: isPeak
-                    ? baseComparisonColor
-                    : baseComparisonColor.withValues(alpha: 0.5),
+                borderRadius: BorderRadius.zero,
+                color: baseComparisonColor,
               ),
               BarChartRodData(
                 toY: _visibleSalesData[index],
                 width: 6,
-                borderRadius:
-                    const BorderRadius.vertical(top: Radius.circular(2)),
-                color: isPeak
-                    ? baseCurrentColor
-                    : baseCurrentColor.withValues(alpha: 0.5),
+                borderRadius: BorderRadius.zero,
+                color: baseCurrentColor,
               ),
             ],
           );
@@ -2044,26 +2061,19 @@ class _FullscreenChartPageState extends State<_FullscreenChartPage> {
           final isPeak = index == peakIndex;
           return BarChartGroupData(
             x: index,
+            barsSpace: 0,
             barRods: [
               BarChartRodData(
                 toY: widget.comparisonData[index],
                 width: 6,
-                borderRadius: const BorderRadius.vertical(
-                  top: Radius.circular(2),
-                ),
-                color: isPeak
-                    ? baseComparisonColor
-                    : baseComparisonColor.withValues(alpha: 0.5),
+                borderRadius: BorderRadius.zero,
+                color: baseComparisonColor,
               ),
               BarChartRodData(
                 toY: widget.salesData[index],
                 width: 6,
-                borderRadius: const BorderRadius.vertical(
-                  top: Radius.circular(2),
-                ),
-                color: isPeak
-                    ? baseCurrentColor
-                    : baseCurrentColor.withValues(alpha: 0.5),
+                borderRadius: BorderRadius.zero,
+                color: baseCurrentColor,
               ),
             ],
           );

@@ -159,4 +159,69 @@ class PreferencesHelper {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getString('account_lang');
   }
+
+  // Unified Report Filters
+
+  Future<void> setSelectedStoreId(int? storeId) async {
+    final prefs = await SharedPreferences.getInstance();
+    if (storeId == null) {
+      await prefs.remove('selected_store_id');
+    } else {
+      await prefs.setInt('selected_store_id', storeId);
+    }
+  }
+
+  Future<int?> getSelectedStoreId() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getInt('selected_store_id');
+  }
+
+  Future<void> setReportDateType(String dateType) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('report_date_type', dateType);
+  }
+
+  Future<String?> getReportDateType() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString('report_date_type');
+  }
+
+  Future<void> setReportPeriod(DateTime start, DateTime end) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('report_start_date', start.toIso8601String());
+    await prefs.setString('report_end_date', end.toIso8601String());
+  }
+
+  Future<(String?, String?)> getReportPeriod() async {
+    final prefs = await SharedPreferences.getInstance();
+    return (
+      prefs.getString('report_start_date'),
+      prefs.getString('report_end_date')
+    );
+  }
+
+  Future<void> setReportCompareDateType(String dateType) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('report_compare_date_type', dateType);
+  }
+
+  Future<String?> getReportCompareDateType() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString('report_compare_date_type');
+  }
+
+  Future<void> setReportComparePeriod(DateTime start, DateTime end) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(
+        'report_compare_start_date', start.toIso8601String());
+    await prefs.setString('report_compare_end_date', end.toIso8601String());
+  }
+
+  Future<(String?, String?)> getReportComparePeriod() async {
+    final prefs = await SharedPreferences.getInstance();
+    return (
+      prefs.getString('report_compare_start_date'),
+      prefs.getString('report_compare_end_date')
+    );
+  }
 }

@@ -162,15 +162,36 @@ class _ReportsScreenState extends State<ReportsScreen> {
   }
 
   Future<void> _scrollToSection(String section) async {
-    final key = _sectionKeys[section];
-    if (key?.currentContext != null) {
-      _isScrollingToSection = true;
-      await Scrollable.ensureVisible(
-        key!.currentContext!,
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeOut,
-      );
+    _isScrollingToSection = true;
+    try {
+      // Special case for the first section to ensure we hit the top
+      if (section == 'Sales') {
+        if (_scrollController.hasClients) {
+          await _scrollController.animateTo(
+            0,
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeOut,
+          );
+        }
+      } else {
+        final key = _sectionKeys[section];
+        if (key?.currentContext != null) {
+          await Scrollable.ensureVisible(
+            key!.currentContext!,
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeOut,
+            alignment: 0.0, // Force alignment to top
+          );
+        }
+      }
+    } catch (e) {
+      debugPrint('Error scrolling to section: $e');
+    } finally {
+      // Small delay to let scroll momentum settle before enabling scroll listener again
+      await Future.delayed(const Duration(milliseconds: 100));
       _isScrollingToSection = false;
+      // Manually trigger one update to correct the tab selection
+      _onScroll();
     }
   }
 
@@ -324,7 +345,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
         trailing: Icon(
           Icons.chevron_right,
           color: Colors.blue[600],
-          size: 24,
+          size: 35,
         ),
         onTap: () {
           Navigator.push(

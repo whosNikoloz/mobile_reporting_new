@@ -58,23 +58,14 @@ class PickerWidgetState extends State<PickerWidget> {
   }
 
   void _initializeDates() {
-    if (widget.screenType == ScreenType.dashboardScreen &&
-        application.dashboardDateType == null) {
+    // Always load from unified application state
+    if (application.dateType != null) {
+      _loadSavedDates();
+    } else {
       _setTodayDates();
       dt = DateType.day;
       cdt = CompareDateType.lastDay;
-    } else if (widget.screenType == ScreenType.dashboardScreen &&
-        application.dashboardDateType != null) {
-      _loadSavedDashboardDates();
-    } else if (widget.screenType == ScreenType.reportssScreen &&
-        application.dashboardDateType != null) {
-      // Use dashboard dates for reports screen
-      _loadSavedDashboardDates();
-      _saveDates();
-    } else if (widget.screenType == ScreenType.reportssScreen) {
-      _setTodayDates();
-      dt = DateType.day;
-      cdt = CompareDateType.lastDay;
+      // Initialize unified store with default settings if empty
       _saveDates();
     }
   }
@@ -96,40 +87,25 @@ class PickerWidgetState extends State<PickerWidget> {
     oldDate2 = DateTime(now.year, now.month, 0, 23, 59);
   }
 
-  void _loadSavedDashboardDates() {
-    dt = application.dashboardDateType!;
-    cdt = application.dashboardCompareDateType!;
-    currentDate1 = application.dashboardStartCurrentPeriod!;
-    currentDate2 = application.dashboardEndCurrentPeriod!;
-    oldDate1 = application.dashboardStartOldPeriod!;
-    oldDate2 = application.dashboardEndOldPeriod!;
-  }
-
-  void _loadSavedReportDates() {
-    dt = application.dateType!;
-    cdt = application.compareDateType!;
-    currentDate1 = application.startCurrentPeriod!;
-    currentDate2 = application.endCurrentPeriod!;
-    oldDate1 = application.startOldPeriod!;
-    oldDate2 = application.endOldPeriod!;
+  void _loadSavedDates() {
+    dt = application.dateType ?? DateType.day;
+    cdt = application.compareDateType ?? CompareDateType.lastDay;
+    currentDate1 = application.startCurrentPeriod ?? DateTime.now();
+    currentDate2 = application.endCurrentPeriod ?? DateTime.now();
+    oldDate1 = application.startOldPeriod ?? DateTime.now().subtract(const Duration(days: 1));
+    oldDate2 = application.endOldPeriod ?? DateTime.now().subtract(const Duration(days: 1));
   }
 
   void _saveDates() {
-    if (widget.screenType == ScreenType.dashboardScreen) {
-      application.dashboardDateType = dt;
-      application.dashboardCompareDateType = cdt;
-      application.dashboardStartCurrentPeriod = currentDate1;
-      application.dashboardEndCurrentPeriod = currentDate2;
-      application.dashboardStartOldPeriod = oldDate1;
-      application.dashboardEndOldPeriod = oldDate2;
-    } else {
-      application.startCurrentPeriod = currentDate1;
-      application.endCurrentPeriod = currentDate2;
-      application.startOldPeriod = oldDate1;
-      application.endOldPeriod = oldDate2;
-      application.dateType = dt;
-      application.compareDateType = cdt;
-    }
+    application.startCurrentPeriod = currentDate1;
+    application.endCurrentPeriod = currentDate2;
+    application.startOldPeriod = oldDate1;
+    application.endOldPeriod = oldDate2;
+    application.dateType = dt;
+    application.compareDateType = cdt;
+    
+    // Persist changes
+    application.saveFilters();
   }
 
   Future<void> _loadData() async {
@@ -208,7 +184,11 @@ class PickerWidgetState extends State<PickerWidget> {
               ),
             ),
           if (showStore) const SizedBox(height: 6),
-          if (showStore) _StoreSelector(onStoreChanged: _loadData),
+          if (showStore) _StoreSelector(onStoreChanged: () {
+            // Save store selection when changed
+            application.saveFilters();
+            _loadData();
+          }),
         ],
       ),
     );
