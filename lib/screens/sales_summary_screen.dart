@@ -764,6 +764,32 @@ class _SalesSummaryScreenState extends State<SalesSummaryScreen> {
             },
             onlyDayPicker: false,
           ),
+          
+          // Sticky Display Value Filter
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+            color: Colors.grey.shade100,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  S.of(context).displayValue,
+                  style: const TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w500,
+                    color: Colors.black54,
+                  ),
+                ),
+                const SizedBox(height: 6),
+                _buildFilterDropdown(
+                  Icons.tune,
+                  _currentFilterLabel,
+                  () => _showFilterSelector(),
+                ),
+              ],
+            ),
+          ),
 
           Expanded(
             child: isLoading
@@ -771,28 +797,7 @@ class _SalesSummaryScreenState extends State<SalesSummaryScreen> {
                 : ListView(
                     padding: const EdgeInsets.all(16),
                     children: [
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            S.of(context).displayValue,
-                            style: const TextStyle(
-                              fontSize: 13,
-                              fontWeight: FontWeight.w500,
-                              color: Colors.black54,
-                            ),
-                          ),
-                          const SizedBox(height: 4),
-                          Container(
-                            margin: const EdgeInsets.only(bottom: 8),
-                            child: _buildFilterDropdown(
-                              Icons.tune,
-                              _currentFilterLabel,
-                              () => _showFilterSelector(),
-                            ),
-                          ),
-                        ],
-                      ),
+
                       // Chart Section
                       Container(
                         padding: const EdgeInsets.all(16),
@@ -1938,7 +1943,7 @@ class _FullscreenChartPageState extends State<_FullscreenChartPage> {
   }
 
   Widget _buildScrollIndicator() {
-    const int dotCount = 5;
+    const int dotCount = 3;
     final activeDot =
         (_scrollProgress * (dotCount - 1)).round().clamp(0, dotCount - 1);
 
