@@ -39,18 +39,15 @@ class _SalesSummaryScreenState extends State<SalesSummaryScreen> {
   final ScrollController _chartScrollController = ScrollController();
   bool _filtersLoaded = false;
 
-
-
-
   Future<void> _loadFilters() async {
     await application.loadFilters();
     if (mounted) {
       setState(() {
         startCurrentPeriod = application.startCurrentPeriod ?? DateTime.now();
         endCurrentPeriod = application.endCurrentPeriod ?? DateTime.now();
-        startOldPeriod = application.startOldPeriod ?? 
+        startOldPeriod = application.startOldPeriod ??
             DateTime.now().subtract(const Duration(days: 1));
-        endOldPeriod = application.endOldPeriod ?? 
+        endOldPeriod = application.endOldPeriod ??
             DateTime.now().subtract(const Duration(days: 1));
         _filtersLoaded = true;
       });
@@ -174,8 +171,8 @@ class _SalesSummaryScreenState extends State<SalesSummaryScreen> {
     // Check if all data is within the same month
     final firstMonth = data.first.date.month;
     final firstYear = data.first.date.year;
-    final allSameMonth = data.every(
-        (d) => d.date.month == firstMonth && d.date.year == firstYear);
+    final allSameMonth = data
+        .every((d) => d.date.month == firstMonth && d.date.year == firstYear);
 
     final labels = <String>[];
     int? lastMonth;
@@ -565,8 +562,8 @@ class _SalesSummaryScreenState extends State<SalesSummaryScreen> {
       // Check if all data is within the same month
       final firstMonth = _dailySalesData.first.date.month;
       final firstYear = _dailySalesData.first.date.year;
-      final allSameMonth = _dailySalesData.every(
-          (d) => d.date.month == firstMonth && d.date.year == firstYear);
+      final allSameMonth = _dailySalesData
+          .every((d) => d.date.month == firstMonth && d.date.year == firstYear);
 
       int? lastMonth;
       final result = <Map<String, dynamic>>[];
@@ -745,227 +742,233 @@ class _SalesSummaryScreenState extends State<SalesSummaryScreen> {
           ),
         ),
       ),
-      body: !_filtersLoaded 
+      body: !_filtersLoaded
           ? const Center(child: CircularProgressIndicator())
           : Column(
-        children: [
-          // Date and Store Pickers
-          PickerWidget(
-            screenType: ScreenType.reportssScreen,
-            showCompareDateFilter: true,
-            showStoreFilter: true,
-            getDate: (DateTime dt1, DateTime dt2, DateTime dt3, DateTime dt4,
-                double? minAmount, double? maxAmount, String? billNum) async {
-              startCurrentPeriod = dt1;
-              endCurrentPeriod = dt2;
-              startOldPeriod = dt3;
-              endOldPeriod = dt4;
-              await _loadData();
-            },
-            onlyDayPicker: false,
-          ),
-          
-          // Sticky Display Value Filter
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
-            color: Colors.grey.shade100,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  S.of(context).displayValue,
-                  style: const TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w500,
-                    color: Colors.black54,
+                // Date and Store Pickers
+                PickerWidget(
+                  screenType: ScreenType.reportssScreen,
+                  showCompareDateFilter: true,
+                  showStoreFilter: true,
+                  getDate: (DateTime dt1,
+                      DateTime dt2,
+                      DateTime dt3,
+                      DateTime dt4,
+                      double? minAmount,
+                      double? maxAmount,
+                      String? billNum) async {
+                    startCurrentPeriod = dt1;
+                    endCurrentPeriod = dt2;
+                    startOldPeriod = dt3;
+                    endOldPeriod = dt4;
+                    await _loadData();
+                  },
+                  onlyDayPicker: false,
+                ),
+
+                // Sticky Display Value Filter
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+                  color: Colors.grey.shade100,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        S.of(context).displayValue,
+                        style: const TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.black54,
+                        ),
+                      ),
+                      const SizedBox(height: 6),
+                      _buildFilterDropdown(
+                        Icons.tune,
+                        _currentFilterLabel,
+                        () => _showFilterSelector(),
+                      ),
+                    ],
                   ),
                 ),
-                const SizedBox(height: 6),
-                _buildFilterDropdown(
-                  Icons.tune,
-                  _currentFilterLabel,
-                  () => _showFilterSelector(),
-                ),
-              ],
-            ),
-          ),
 
-          Expanded(
-            child: isLoading
-                ? const Center(child: CircularProgressIndicator())
-                : ListView(
-                    padding: const EdgeInsets.all(16),
-                    children: [
-
-                      // Chart Section
-                      Container(
-                        padding: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(16),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withValues(alpha: 0.05),
-                              blurRadius: 10,
-                              offset: const Offset(0, 2),
-                            ),
-                          ],
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                Expanded(
+                  child: isLoading
+                      ? const Center(child: CircularProgressIndicator())
+                      : ListView(
+                          padding: const EdgeInsets.all(16),
                           children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Expanded(
-                                  child: Column(
+                            // Chart Section
+                            Container(
+                              padding: const EdgeInsets.all(16),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(16),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withValues(alpha: 0.05),
+                                    blurRadius: 10,
+                                    offset: const Offset(0, 2),
+                                  ),
+                                ],
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
-                                    children: [],
-                                  ),
-                                ),
-                                const SizedBox(width: 12),
-                                Row(
-                                  children: [
-                                    // Left arrow
-                                    // GestureDetector(
-                                    //   onTap: _scrollChartLeft,
-                                    //   child: Container(
-                                    //     padding: const EdgeInsets.all(8),
-                                    //     decoration: BoxDecoration(
-                                    //       color: AppTheme.primaryBlue
-                                    //           .withValues(alpha: 0.1),
-                                    //       borderRadius:
-                                    //           BorderRadius.circular(8),
-                                    //     ),
-                                    //     child: const Icon(
-                                    //       Icons.chevron_left,
-                                    //       color: AppTheme.primaryBlue,
-                                    //       size: 20,
-                                    //     ),
-                                    //   ),
-                                    // ),
-                                    // const SizedBox(width: 8),
-                                    // // Right arrow
-                                    // GestureDetector(
-                                    //   onTap: _scrollChartRight,
-                                    //   child: Container(
-                                    //     padding: const EdgeInsets.all(8),
-                                    //     decoration: BoxDecoration(
-                                    //       color: AppTheme.primaryBlue
-                                    //           .withValues(alpha: 0.1),
-                                    //       borderRadius:
-                                    //           BorderRadius.circular(8),
-                                    //     ),
-                                    //     child: const Icon(
-                                    //       Icons.chevron_right,
-                                    //       color: AppTheme.primaryBlue,
-                                    //       size: 20,
-                                    //     ),
-                                    //   ),
-                                    // ),
-                                    const SizedBox(width: 8),
-                                    // Fullscreen button
-                                    GestureDetector(
-                                      onTap: _showFullscreenChart,
-                                      child: Container(
-                                        padding: const EdgeInsets.all(8),
-                                        decoration: BoxDecoration(
-                                          color: AppTheme.primaryBlue
-                                              .withValues(alpha: 0.1),
-                                          borderRadius:
-                                              BorderRadius.circular(8),
+                                    children: [
+                                      Expanded(
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [],
                                         ),
-                                        child: const Icon(
-                                          Icons.fullscreen,
-                                          color: AppTheme.primaryBlue,
-                                          size: 20,
+                                      ),
+                                      const SizedBox(width: 12),
+                                      Row(
+                                        children: [
+                                          // Left arrow
+                                          // GestureDetector(
+                                          //   onTap: _scrollChartLeft,
+                                          //   child: Container(
+                                          //     padding: const EdgeInsets.all(8),
+                                          //     decoration: BoxDecoration(
+                                          //       color: AppTheme.primaryBlue
+                                          //           .withValues(alpha: 0.1),
+                                          //       borderRadius:
+                                          //           BorderRadius.circular(8),
+                                          //     ),
+                                          //     child: const Icon(
+                                          //       Icons.chevron_left,
+                                          //       color: AppTheme.primaryBlue,
+                                          //       size: 20,
+                                          //     ),
+                                          //   ),
+                                          // ),
+                                          // const SizedBox(width: 8),
+                                          // // Right arrow
+                                          // GestureDetector(
+                                          //   onTap: _scrollChartRight,
+                                          //   child: Container(
+                                          //     padding: const EdgeInsets.all(8),
+                                          //     decoration: BoxDecoration(
+                                          //       color: AppTheme.primaryBlue
+                                          //           .withValues(alpha: 0.1),
+                                          //       borderRadius:
+                                          //           BorderRadius.circular(8),
+                                          //     ),
+                                          //     child: const Icon(
+                                          //       Icons.chevron_right,
+                                          //       color: AppTheme.primaryBlue,
+                                          //       size: 20,
+                                          //     ),
+                                          //   ),
+                                          // ),
+                                          const SizedBox(width: 8),
+                                          // Fullscreen button
+                                          GestureDetector(
+                                            onTap: _showFullscreenChart,
+                                            child: Container(
+                                              padding: const EdgeInsets.all(8),
+                                              decoration: BoxDecoration(
+                                                color: AppTheme.primaryBlue
+                                                    .withValues(alpha: 0.1),
+                                                borderRadius:
+                                                    BorderRadius.circular(8),
+                                              ),
+                                              child: const Icon(
+                                                Icons.fullscreen,
+                                                color: AppTheme.primaryBlue,
+                                                size: 20,
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      )
+                                    ],
+                                  ),
+                                  const SizedBox(height: 12),
+                                  SizedBox(
+                                    height: 280,
+                                    child: _buildScrollableChart(),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(height: 16),
+                            // List Section
+                            Container(
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(16),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withValues(alpha: 0.05),
+                                    blurRadius: 10,
+                                    offset: const Offset(0, 2),
+                                  ),
+                                ],
+                              ),
+                              child: Column(
+                                children: [
+                                  // List Header
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 20,
+                                      vertical: 16,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      border: Border(
+                                        bottom: BorderSide(
+                                          color: Colors.grey.shade200,
+                                          width: 1,
                                         ),
                                       ),
                                     ),
-                                  ],
-                                )
-                              ],
-                            ),
-                            const SizedBox(height: 12),
-                            SizedBox(
-                              height: 280,
-                              child: _buildScrollableChart(),
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      // List Section
-                      Container(
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(16),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withValues(alpha: 0.05),
-                              blurRadius: 10,
-                              offset: const Offset(0, 2),
-                            ),
-                          ],
-                        ),
-                        child: Column(
-                          children: [
-                            // List Header
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 20,
-                                vertical: 16,
-                              ),
-                              decoration: BoxDecoration(
-                                border: Border(
-                                  bottom: BorderSide(
-                                    color: Colors.grey.shade200,
-                                    width: 1,
-                                  ),
-                                ),
-                              ),
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Text(
-                                    _listHeaderLabel,
-                                    style: const TextStyle(
-                                      fontSize: 13,
-                                      fontWeight: FontWeight.w600,
-                                      color: Colors.black54,
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Text(
+                                          _listHeaderLabel,
+                                          style: const TextStyle(
+                                            fontSize: 13,
+                                            fontWeight: FontWeight.w600,
+                                            color: Colors.black54,
+                                          ),
+                                        ),
+                                        Text(
+                                          _filterTitle,
+                                          style: const TextStyle(
+                                            fontSize: 13,
+                                            fontWeight: FontWeight.w600,
+                                            color: Colors.black54,
+                                          ),
+                                        ),
+                                      ],
                                     ),
                                   ),
-                                  Text(
-                                    _filterTitle,
-                                    style: const TextStyle(
-                                      fontSize: 13,
-                                      fontWeight: FontWeight.w600,
-                                      color: Colors.black54,
+                                  // List Items
+                                  ..._visibleListData.map(
+                                    (item) => _buildListItem(
+                                      item['label'],
+                                      item['value'],
+                                      item['percentChange'],
                                     ),
                                   ),
                                 ],
                               ),
                             ),
-                            // List Items
-                            ..._visibleListData.map(
-                              (item) => _buildListItem(
-                                item['label'],
-                                item['value'],
-                                item['percentChange'],
-                              ),
-                            ),
                           ],
                         ),
-                      ),
-                    ],
-                  ),
-          ),
-        ],
-      ),
+                ),
+              ],
+            ),
     );
   }
 
@@ -1234,7 +1237,9 @@ class _SalesSummaryScreenState extends State<SalesSummaryScreen> {
   }
 
   Widget _buildScrollableChart() {
-    if (_visibleSalesData.isEmpty || _visibleComparisonData.isEmpty || _visibleChartLabels.isEmpty) {
+    if (_visibleSalesData.isEmpty ||
+        _visibleComparisonData.isEmpty ||
+        _visibleChartLabels.isEmpty) {
       return Center(
         child: Text(
           S.of(context).noDataAvailable,
@@ -1445,6 +1450,17 @@ class _SalesSummaryScreenState extends State<SalesSummaryScreen> {
         maxY: maxY,
         barTouchData: BarTouchData(
           enabled: true,
+          touchCallback: (FlTouchEvent event, barTouchResponse) {
+            if (event is FlTapUpEvent && barTouchResponse != null) {
+              final spot = barTouchResponse.spot;
+              if (spot != null) {
+                final index = spot.touchedBarGroup.x.toInt();
+                if (index >= 0 && index < labels.length) {
+                  _showDataPointDetails(index, labels[index]);
+                }
+              }
+            }
+          },
           touchTooltipData: BarTouchTooltipData(
             getTooltipColor: (group) => Colors.black87,
             tooltipPadding: const EdgeInsets.all(8),
@@ -1561,6 +1577,132 @@ class _SalesSummaryScreenState extends State<SalesSummaryScreen> {
     }
   }
 
+  void _showDataPointDetails(int index, String label) {
+    final currentValue = _visibleCurrentAbsoluteData[index];
+    final previousValue = _visiblePreviousAbsoluteData[index];
+    double percentChange = 0;
+    if (previousValue > 0) {
+      percentChange = ((currentValue - previousValue) / previousValue) * 100;
+    }
+    final isPositive = percentChange >= 0;
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (context) => Container(
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(20),
+            topRight: Radius.circular(20),
+          ),
+        ),
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Header
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                  child: Text(
+                    label,
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.black87,
+                    ),
+                  ),
+                ),
+                IconButton(
+                  onPressed: () => Navigator.pop(context),
+                  icon: Icon(Icons.close, color: Colors.grey.shade600),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            // Current period
+            Row(
+              children: [
+                Container(
+                  width: 12,
+                  height: 12,
+                  color: AppTheme.primaryBlue,
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  '${S.of(context).period}: ',
+                  style: const TextStyle(
+                    fontSize: 14,
+                    color: Colors.black54,
+                  ),
+                ),
+                Text(
+                  _formatValue(currentValue),
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    color: AppTheme.primaryBlue,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            // Previous period
+            Row(
+              children: [
+                Container(
+                  width: 12,
+                  height: 12,
+                  color: const Color(0xFFFFA726),
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  '${S.of(context).comparisonLabel}: ',
+                  style: const TextStyle(
+                    fontSize: 14,
+                    color: Colors.black54,
+                  ),
+                ),
+                Text(
+                  _formatValue(previousValue),
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    color: Color(0xFFFFA726),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            // Change percentage
+            Row(
+              children: [
+                Icon(
+                  isPositive ? Icons.trending_up : Icons.trending_down,
+                  color: isPositive ? Colors.green : Colors.red,
+                  size: 20,
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  '${isPositive ? '+' : ''}${percentChange.toStringAsFixed(1)}%',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    color: isPositive ? Colors.green : Colors.red,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _buildListItem(String day, double value, double percentChange) {
     final isPositive = percentChange >= 0;
     final color = isPositive ? Colors.green : Colors.red;
@@ -1667,6 +1809,132 @@ class _FullscreenChartPageState extends State<_FullscreenChartPage> {
     } else {
       return '${CurrencyHelper.getCurrencySymbol()}${NumberFormat('#,##0.00', 'en_US').format(value)}';
     }
+  }
+
+  void _showDataPointDetails(int index, String label) {
+    final currentValue = widget.salesData[index];
+    final previousValue = widget.comparisonData[index];
+    double percentChange = 0;
+    if (previousValue > 0) {
+      percentChange = ((currentValue - previousValue) / previousValue) * 100;
+    }
+    final isPositive = percentChange >= 0;
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (context) => Container(
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(20),
+            topRight: Radius.circular(20),
+          ),
+        ),
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Header
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                  child: Text(
+                    label,
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.black87,
+                    ),
+                  ),
+                ),
+                IconButton(
+                  onPressed: () => Navigator.pop(context),
+                  icon: Icon(Icons.close, color: Colors.grey.shade600),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            // Current period
+            Row(
+              children: [
+                Container(
+                  width: 12,
+                  height: 12,
+                  color: AppTheme.primaryBlue,
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  '${S.of(context).period}: ',
+                  style: const TextStyle(
+                    fontSize: 14,
+                    color: Colors.black54,
+                  ),
+                ),
+                Text(
+                  _formatValue(currentValue),
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    color: AppTheme.primaryBlue,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            // Previous period
+            Row(
+              children: [
+                Container(
+                  width: 12,
+                  height: 12,
+                  color: const Color(0xFFFFA726),
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  '${S.of(context).comparisonLabel}: ',
+                  style: const TextStyle(
+                    fontSize: 14,
+                    color: Colors.black54,
+                  ),
+                ),
+                Text(
+                  _formatValue(previousValue),
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    color: Color(0xFFFFA726),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            // Change percentage
+            Row(
+              children: [
+                Icon(
+                  isPositive ? Icons.trending_up : Icons.trending_down,
+                  color: isPositive ? Colors.green : Colors.red,
+                  size: 20,
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  '${isPositive ? '+' : ''}${percentChange.toStringAsFixed(1)}%',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    color: isPositive ? Colors.green : Colors.red,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+          ],
+        ),
+      ),
+    );
   }
 
   @override
@@ -1976,6 +2244,17 @@ class _FullscreenChartPageState extends State<_FullscreenChartPage> {
         maxY: maxY,
         barTouchData: BarTouchData(
           enabled: true,
+          touchCallback: (FlTouchEvent event, barTouchResponse) {
+            if (event is FlTapUpEvent && barTouchResponse != null) {
+              final spot = barTouchResponse.spot;
+              if (spot != null) {
+                final index = spot.touchedBarGroup.x.toInt();
+                if (index >= 0 && index < labels.length) {
+                  _showDataPointDetails(index, labels[index]);
+                }
+              }
+            }
+          },
           touchTooltipData: BarTouchTooltipData(
             getTooltipColor: (group) => Colors.black87,
             tooltipPadding: const EdgeInsets.all(8),

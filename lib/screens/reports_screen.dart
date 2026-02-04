@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:mobile_reporting/localization/generated/l10n.dart';
 import 'package:mobile_reporting/screens/sales_summary_screen.dart';
+import 'package:mobile_reporting/screens/store_sales_screen.dart';
 import 'package:mobile_reporting/theme/app_theme.dart';
 
 class ReportsScreen extends StatefulWidget {
@@ -38,6 +39,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
       'Sales by Days',
       'Sales by Hour',
       'Sales by Weekdays',
+      'Sales by Stores',
     ],
     'Finances': [
       'Revenue Report',
@@ -83,6 +85,8 @@ class _ReportsScreenState extends State<ReportsScreen> {
         return l10n.salesByHours;
       case 'Sales by Weekdays':
         return l10n.salesByWeekday;
+      case 'Sales by Stores':
+        return l10n.salesByStores;
       case 'Revenue Report':
         return l10n.revenueReport;
       case 'Expense Report':
@@ -348,12 +352,21 @@ class _ReportsScreenState extends State<ReportsScreen> {
           size: 35,
         ),
         onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => SalesSummaryScreen(reportTitle: title),
-            ),
-          );
+          if (title == 'Sales by Stores') {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const StoreSalesScreen(),
+              ),
+            );
+          } else {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => SalesSummaryScreen(reportTitle: title),
+              ),
+            );
+          }
         },
       ),
     );

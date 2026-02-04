@@ -164,5 +164,10 @@ class MessageLookup extends MessageLookupByLibrary {
           "Weekday Sales Overview",
         ),
         "year": MessageLookupByLibrary.simpleMessage("Year"),
+        "salesByStores": MessageLookupByLibrary.simpleMessage("Sales by Stores"),
+        "storeSalesOverview": MessageLookupByLibrary.simpleMessage(
+          "Store Sales Overview",
+        ),
+        "store": MessageLookupByLibrary.simpleMessage("Store"),
       };
 }

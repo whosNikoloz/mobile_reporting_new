@@ -110,5 +110,8 @@
     "salesOverview": "Sales Overview",
     "displayValue": "Display Value",
     "hour": "Hour",
-    "weekday": "Weekday"
+    "weekday": "Weekday",
+    "salesByStores": "Sales by Stores",
+    "storeSalesOverview": "Store Sales Overview",
+    "store": "Store"
 }

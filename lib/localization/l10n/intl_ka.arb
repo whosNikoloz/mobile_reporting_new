@@ -110,5 +110,8 @@
     "salesOverview": "გაყიდვების მიმოხილვა",
     "displayValue": "აირჩიეთ მნიშვნელობა",
     "hour": "საათი",
-    "weekday": "კვირის დღე"
+    "weekday": "კვირის დღე",
+    "salesByStores": "გაყიდვები მაღაზიებით",
+    "storeSalesOverview": "მაღაზიების გაყიდვების მიმოხილვა",
+    "store": "მაღაზია"
 }

@@ -108,5 +108,12 @@ class MessageLookup extends MessageLookupByLibrary {
         "wed": MessageLookupByLibrary.simpleMessage("Ср"),
         "week": MessageLookupByLibrary.simpleMessage("Неделя"),
         "year": MessageLookupByLibrary.simpleMessage("Год"),
+        "salesByStores": MessageLookupByLibrary.simpleMessage(
+          "Продажи по магазинам",
+        ),
+        "storeSalesOverview": MessageLookupByLibrary.simpleMessage(
+          "Обзор продаж по магазинам",
+        ),
+        "store": MessageLookupByLibrary.simpleMessage("Магазин"),
       };
 }

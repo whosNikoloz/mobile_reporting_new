@@ -4,6 +4,7 @@ import 'package:mobile_reporting/api/response_models/dashboard_response_model.da
 import 'package:mobile_reporting/api/response_models/daily_sales_response_model.dart';
 import 'package:mobile_reporting/api/response_models/hourly_sales_response_model.dart';
 import 'package:mobile_reporting/api/response_models/weekday_sales_response_model.dart';
+import 'package:mobile_reporting/api/response_models/store_sales_response_model.dart';
 import 'package:mobile_reporting/helpers/helpers_module.dart';
 import 'package:mobile_reporting/helpers/http_helper.dart';
 import 'package:mobile_reporting/helpers/preferences_helper.dart';
@@ -187,6 +188,45 @@ class ReportsService {
       return null;
     } catch (err) {
       print('❌ Error in getWeekdaySalesReport: $err');
+      return null;
+    }
+  }
+
+  /// Get store sales report
+  Future<List<StoreSalesResponseModel>?> getStoreSalesReport({
+    required DateTime startCurrentPeriod,
+    required DateTime endCurrentPeriod,
+    required DateTime startPreviousPeriod,
+    required DateTime endPreviousPeriod,
+  }) async {
+    try {
+      final requestBody = DashboardRequest(
+        paramId: 0, // 0 means all stores
+        startCurrentPeriod: startCurrentPeriod,
+        endCurrentPeriod: endCurrentPeriod,
+        startPreviousPeriod: startPreviousPeriod,
+        endPreviousPeriod: endPreviousPeriod,
+      );
+
+      final serverUrl = await _getServerUrl();
+      final ck = await getIt<PreferencesHelper>().getDatabase();
+      if (ck == null) return null;
+
+      final response = await _httpHelper.fetchPost(
+        ck,
+        serverUrl,
+        'get_store_sales_report',
+        body: requestBody.toJson(),
+      );
+
+      if (response != null) {
+        final List<dynamic> data = json.decode(response);
+        return data.map((e) => StoreSalesResponseModel.fromJson(e)).toList();
+      }
+
+      return null;
+    } catch (err) {
+      print('❌ Error in getStoreSalesReport: $err');
       return null;
     }
   }

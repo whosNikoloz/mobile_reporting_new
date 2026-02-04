@@ -808,6 +808,31 @@ class S {
   String get weekday {
     return Intl.message('Weekday', name: 'weekday', desc: '', args: []);
   }
+
+  /// `Sales by Stores`
+  String get salesByStores {
+    return Intl.message(
+      'Sales by Stores',
+      name: 'salesByStores',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Store Sales Overview`
+  String get storeSalesOverview {
+    return Intl.message(
+      'Store Sales Overview',
+      name: 'storeSalesOverview',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Store`
+  String get store {
+    return Intl.message('Store', name: 'store', desc: '', args: []);
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {

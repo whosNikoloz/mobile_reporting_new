@@ -182,5 +182,12 @@ class MessageLookup extends MessageLookupByLibrary {
           "კვირის დღეების გაყიდვების მიმოხილვა",
         ),
         "year": MessageLookupByLibrary.simpleMessage("წელი"),
+        "salesByStores": MessageLookupByLibrary.simpleMessage(
+          "გაყიდვები მაღაზიებით",
+        ),
+        "storeSalesOverview": MessageLookupByLibrary.simpleMessage(
+          "მაღაზიების გაყიდვების მიმოხილვა",
+        ),
+        "store": MessageLookupByLibrary.simpleMessage("მაღაზია"),
       };
 }
