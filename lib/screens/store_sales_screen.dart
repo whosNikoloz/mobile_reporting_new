@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mobile_reporting/widgets/chart_details_modal.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:mobile_reporting/api/response_models/store_sales_response_model.dart';
@@ -746,122 +747,30 @@ class _StoreSalesScreenState extends State<StoreSalesScreen> {
     if (previousValue > 0) {
       percentChange = ((currentValue - previousValue) / previousValue) * 100;
     }
-    final isPositive = percentChange >= 0;
 
-    showModalBottomSheet(
+    String formattedValue = "";
+    String formattedPrevious = "";
+
+    if (_selectedFilterType == _ReportFilterType.checks) {
+      formattedValue = NumberFormat('#,##0', 'en_US').format(currentValue.toInt());
+      formattedPrevious = NumberFormat('#,##0', 'en_US').format(previousValue.toInt());
+    } else {
+      formattedValue = CurrencyHelper.format(currentValue);
+      formattedPrevious = CurrencyHelper.format(previousValue);
+    }
+
+    ChartDetailsModal.show(
       context: context,
-      backgroundColor: Colors.transparent,
-      builder: (context) => Container(
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.only(
-            topLeft: Radius.circular(20),
-            topRight: Radius.circular(20),
-          ),
-        ),
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Header
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Expanded(
-                  child: Text(
-                    store.name,
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.black87,
-                    ),
-                  ),
-                ),
-                IconButton(
-                  onPressed: () => Navigator.pop(context),
-                  icon: Icon(Icons.close, color: Colors.grey.shade600),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            // Current period
-            Row(
-              children: [
-                Container(
-                  width: 12,
-                  height: 12,
-                  color: AppTheme.primaryBlue,
-                ),
-                const SizedBox(width: 8),
-                Text(
-                  '${S.of(context).period}: ',
-                  style: const TextStyle(
-                    fontSize: 14,
-                    color: Colors.black54,
-                  ),
-                ),
-                Text(
-                  _formatValue(currentValue),
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    color: AppTheme.primaryBlue,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
-            // Previous period
-            Row(
-              children: [
-                Container(
-                  width: 12,
-                  height: 12,
-                  color: const Color(0xFFFFA726),
-                ),
-                const SizedBox(width: 8),
-                Text(
-                  '${S.of(context).comparisonLabel}: ',
-                  style: const TextStyle(
-                    fontSize: 14,
-                    color: Colors.black54,
-                  ),
-                ),
-                Text(
-                  _formatValue(previousValue),
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    color: Color(0xFFFFA726),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
-            // Change percentage
-            Row(
-              children: [
-                Icon(
-                  isPositive ? Icons.trending_up : Icons.trending_down,
-                  color: isPositive ? Colors.green : Colors.red,
-                  size: 20,
-                ),
-                const SizedBox(width: 8),
-                Text(
-                  '${isPositive ? '+' : ''}${percentChange.toStringAsFixed(1)}%',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    color: isPositive ? Colors.green : Colors.red,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-          ],
-        ),
-      ),
+      title: store.name,
+      currentValueLabel: S.of(context).period,
+      currentValueText: formattedValue,
+      previousValueLabel: S.of(context).comparisonLabel,
+      previousValueText: formattedPrevious,
+      changeLabel: S.of(context).change ?? "Change",
+      percentChange: percentChange,
+      closeLabel: S.of(context).close ?? "Close",
+      currentValueColor: AppTheme.primaryBlue,
+      previousValueColor: const Color(0xFFFFA726),
     );
   }
 
@@ -1168,122 +1077,19 @@ class _FullscreenStoreSalesChartState
     if (previousValue > 0) {
       percentChange = ((currentValue - previousValue) / previousValue) * 100;
     }
-    final isPositive = percentChange >= 0;
 
-    showModalBottomSheet(
+    ChartDetailsModal.show(
       context: context,
-      backgroundColor: Colors.transparent,
-      builder: (context) => Container(
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.only(
-            topLeft: Radius.circular(20),
-            topRight: Radius.circular(20),
-          ),
-        ),
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Header
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Expanded(
-                  child: Text(
-                    store.name,
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.black87,
-                    ),
-                  ),
-                ),
-                IconButton(
-                  onPressed: () => Navigator.pop(context),
-                  icon: Icon(Icons.close, color: Colors.grey.shade600),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            // Current period
-            Row(
-              children: [
-                Container(
-                  width: 12,
-                  height: 12,
-                  color: AppTheme.primaryBlue,
-                ),
-                const SizedBox(width: 8),
-                Text(
-                  '${S.of(context).period}: ',
-                  style: const TextStyle(
-                    fontSize: 14,
-                    color: Colors.black54,
-                  ),
-                ),
-                Text(
-                  _formatValue(currentValue),
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    color: AppTheme.primaryBlue,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
-            // Previous period
-            Row(
-              children: [
-                Container(
-                  width: 12,
-                  height: 12,
-                  color: const Color(0xFFFFA726),
-                ),
-                const SizedBox(width: 8),
-                Text(
-                  '${S.of(context).comparisonLabel}: ',
-                  style: const TextStyle(
-                    fontSize: 14,
-                    color: Colors.black54,
-                  ),
-                ),
-                Text(
-                  _formatValue(previousValue),
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    color: Color(0xFFFFA726),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
-            // Change percentage
-            Row(
-              children: [
-                Icon(
-                  isPositive ? Icons.trending_up : Icons.trending_down,
-                  color: isPositive ? Colors.green : Colors.red,
-                  size: 20,
-                ),
-                const SizedBox(width: 8),
-                Text(
-                  '${isPositive ? '+' : ''}${percentChange.toStringAsFixed(1)}%',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    color: isPositive ? Colors.green : Colors.red,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-          ],
-        ),
-      ),
+      title: store.name,
+      currentValueLabel: S.of(context).period,
+      currentValueText: _formatValue(currentValue),
+      previousValueLabel: S.of(context).comparisonLabel,
+      previousValueText: _formatValue(previousValue),
+      changeLabel: S.of(context).change ?? "Change",
+      percentChange: percentChange,
+      closeLabel: S.of(context).close ?? "Close",
+      currentValueColor: AppTheme.primaryBlue,
+      previousValueColor: const Color(0xFFFFA726),
     );
   }
 

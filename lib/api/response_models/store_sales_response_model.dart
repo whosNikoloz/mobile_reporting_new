@@ -25,16 +25,16 @@ class StoreSalesResponseModel {
 
   factory StoreSalesResponseModel.fromJson(Map<String, dynamic> json) {
     return StoreSalesResponseModel(
-      storeId: (json['storeId'] ?? 0).toInt(),
+      storeId: (json['store_id'] ?? 0) as int,
       name: json['name'] ?? '',
-      previousSales: (json['previousSales'] ?? 0).toDouble(),
-      previousChecks: (json['previousChecks'] ?? 0).toInt(),
-      previousAvgCheck: (json['previousAvgCheck'] ?? 0).toDouble(),
-      previousSalesPercent: (json['previousSalesPercent'] ?? 0).toDouble(),
-      currentSales: (json['currentSales'] ?? 0).toDouble(),
-      currentChecks: (json['currentChecks'] ?? 0).toInt(),
-      currentAvgCheck: (json['currentAvgCheck'] ?? 0).toDouble(),
-      currentSalesPercent: (json['currentSalesPercent'] ?? 0).toDouble(),
+      previousSales: (json['previous_sales'] ?? 0).toDouble(),
+      previousChecks: (json['previous_checks'] ?? 0) as int,
+      previousAvgCheck: (json['previous_avg_check'] ?? 0).toDouble(),
+      previousSalesPercent: (json['previous_sales_percent'] ?? 0).toDouble(),
+      currentSales: (json['current_sales'] ?? 0).toDouble(),
+      currentChecks: (json['current_checks'] ?? 0) as int,
+      currentAvgCheck: (json['current_avg_check'] ?? 0).toDouble(),
+      currentSalesPercent: (json['current_sales_percent'] ?? 0).toDouble(),
     );
   }
 }

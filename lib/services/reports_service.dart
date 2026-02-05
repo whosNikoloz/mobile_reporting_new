@@ -5,6 +5,14 @@ import 'package:mobile_reporting/api/response_models/daily_sales_response_model.
 import 'package:mobile_reporting/api/response_models/hourly_sales_response_model.dart';
 import 'package:mobile_reporting/api/response_models/weekday_sales_response_model.dart';
 import 'package:mobile_reporting/api/response_models/store_sales_response_model.dart';
+import 'package:mobile_reporting/api/request_models/top_products_request_model.dart';
+import 'package:mobile_reporting/api/response_models/top_product_sales_response_model.dart';
+import 'package:mobile_reporting/api/request_models/top_category_request_model.dart';
+import 'package:mobile_reporting/api/response_models/category_sales_response_model.dart';
+import 'package:mobile_reporting/api/request_models/staff_sales_request_model.dart';
+import 'package:mobile_reporting/api/response_models/staff_sales_response_model.dart';
+import 'package:mobile_reporting/api/request_models/payment_entities_request_model.dart';
+import 'package:mobile_reporting/api/response_models/payment_entities_response_model.dart';
 import 'package:mobile_reporting/helpers/helpers_module.dart';
 import 'package:mobile_reporting/helpers/http_helper.dart';
 import 'package:mobile_reporting/helpers/preferences_helper.dart';
@@ -227,6 +235,175 @@ class ReportsService {
       return null;
     } catch (err) {
       print('❌ Error in getStoreSalesReport: $err');
+      return null;
+    }
+  }
+  /// Get top products report
+  Future<List<TopProductSalesResponseModel>?> getTopProductsReport({
+    required int storeId,
+    required int top,
+    required DateTime startCurrentPeriod,
+    required DateTime endCurrentPeriod,
+    required DateTime startPreviousPeriod,
+    required DateTime endPreviousPeriod,
+  }) async {
+    try {
+      final requestBody = TopProductsRequestModel(
+        paramId: storeId,
+        top: top,
+        startCurrentPeriod: startCurrentPeriod,
+        endCurrentPeriod: endCurrentPeriod,
+        startPreviousPeriod: startPreviousPeriod,
+        endPreviousPeriod: endPreviousPeriod,
+      );
+
+      final serverUrl = await _getServerUrl();
+      final ck = await getIt<PreferencesHelper>().getDatabase();
+      if (ck == null) return null;
+
+      final response = await _httpHelper.fetchPost(
+        ck,
+        serverUrl,
+        'get_top_products_report',
+        body: requestBody.toJson(),
+      );
+
+      if (response != null) {
+        final List<dynamic> data = json.decode(response);
+        return data.map((e) => TopProductSalesResponseModel.fromJson(e)).toList();
+      }
+
+      return null;
+    } catch (err) {
+      print('❌ Error in getTopProductsReport: $err');
+      return null;
+    }
+  }
+
+
+  /// Get category sales report
+  Future<List<CategorySalesResponseModel>?> getCategorySalesReport({
+    required int storeId,
+    required int top,
+    required DateTime startCurrentPeriod,
+    required DateTime endCurrentPeriod,
+    required DateTime startPreviousPeriod,
+    required DateTime endPreviousPeriod,
+  }) async {
+    try {
+      final requestBody = TopCategoryRequestModel(
+        paramId: storeId,
+        top: top,
+        startCurrentPeriod: startCurrentPeriod,
+        endCurrentPeriod: endCurrentPeriod,
+        startPreviousPeriod: startPreviousPeriod,
+        endPreviousPeriod: endPreviousPeriod,
+      );
+
+      final serverUrl = await _getServerUrl();
+      final ck = await getIt<PreferencesHelper>().getDatabase();
+      if (ck == null) return null;
+
+      final response = await _httpHelper.fetchPost(
+        ck,
+        serverUrl,
+        'get_category_sales_report',
+        body: requestBody.toJson(),
+      );
+
+      if (response != null) {
+        final List<dynamic> data = json.decode(response);
+        return data.map((e) => CategorySalesResponseModel.fromJson(e)).toList();
+      }
+
+      return null;
+    } catch (err) {
+      print('❌ Error in getCategorySalesReport: $err');
+      return null;
+    }
+
+  }
+
+  /// Get staff sales report
+  Future<List<StaffSalesResponseModel>?> getStaffSalesReport({
+    required int storeId,
+    required int top,
+    required DateTime startCurrentPeriod,
+    required DateTime endCurrentPeriod,
+    required DateTime startPreviousPeriod,
+    required DateTime endPreviousPeriod,
+  }) async {
+    try {
+      final requestBody = StaffSalesRequestModel(
+        storeId: storeId,
+        top: top,
+        startCurrentPeriod: startCurrentPeriod,
+        endCurrentPeriod: endCurrentPeriod,
+        startPreviousPeriod: startPreviousPeriod,
+        endPreviousPeriod: endPreviousPeriod,
+      );
+
+      final serverUrl = await _getServerUrl();
+      final ck = await getIt<PreferencesHelper>().getDatabase();
+      if (ck == null) return null;
+
+      final response = await _httpHelper.fetchPost(
+        ck,
+        serverUrl,
+        'get_staff_sales_report',
+        body: requestBody.toJson(),
+      );
+
+      if (response != null) {
+        final List<dynamic> data = json.decode(response);
+        return data.map((e) => StaffSalesResponseModel.fromJson(e)).toList();
+      }
+
+      return null;
+    } catch (err) {
+      print('❌ Error in getStaffSalesReport: $err');
+      return null;
+    }
+  }
+
+  /// Get payment entities report
+  Future<List<PaymentEntitiesResponseModel>?> getPaymentEntitiesReport({
+    required int storeId,
+    required int top,
+    required DateTime startCurrentPeriod,
+    required DateTime endCurrentPeriod,
+    required DateTime startPreviousPeriod,
+    required DateTime endPreviousPeriod,
+  }) async {
+    try {
+      final requestBody = PaymentEntitiesRequestModel(
+        storeId: storeId,
+        top: top,
+        startCurrentPeriod: startCurrentPeriod,
+        endCurrentPeriod: endCurrentPeriod,
+        startPreviousPeriod: startPreviousPeriod,
+        endPreviousPeriod: endPreviousPeriod,
+      );
+
+      final serverUrl = await _getServerUrl();
+      final ck = await getIt<PreferencesHelper>().getDatabase();
+      if (ck == null) return null;
+
+      final response = await _httpHelper.fetchPost(
+        ck,
+        serverUrl,
+        'get_payment_entities_report',
+        body: requestBody.toJson(),
+      );
+
+      if (response != null) {
+        final List<dynamic> data = json.decode(response);
+        return data.map((e) => PaymentEntitiesResponseModel.fromJson(e)).toList();
+      }
+
+      return null;
+    } catch (err) {
+      print('❌ Error in getPaymentEntitiesReport: $err');
       return null;
     }
   }

@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:mobile_reporting/widgets/chart_details_modal.dart';
 import 'package:flutter/services.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:intl/intl.dart';
@@ -373,39 +374,35 @@ class _SalesSummaryScreenState extends State<SalesSummaryScreen> {
     }
   }
 
-  // Georgian Weekdays Map
-  final Map<String, String> _geoWeekdays = {
-    // English Full
-    'Monday': 'ორშ',
-    'Tuesday': 'სამ',
-    'Wednesday': 'ოთხ',
-    'Thursday': 'ხუთ',
-    'Friday': 'პარ',
-    'Saturday': 'შაბ',
-    'Sunday': 'კვი',
-    // English Short
-    'Mon': 'ორშ',
-    'Tue': 'სამ',
-    'Wed': 'ოთხ',
-    'Thu': 'ხუთ',
-    'Fri': 'პარ',
-    'Sat': 'შაბ',
-    'Sun': 'კვი',
-    // Georgian Full
-    'ორშაბათი': 'ორშ',
-    'სამშაბათი': 'სამ',
-    'ოთხშაბათი': 'ოთხ',
-    'ხუთშაბათი': 'ხუთ',
-    'პარასკევი': 'პარ',
-    'შაბათი': 'შაბ',
-    'კვირა': 'კვი',
-  };
-
   String _getLocalizedDayName(String? name) {
     if (name == null) return '';
-    // Normalize input: trim and match against keys
-    final key = name.trim();
-    return _geoWeekdays[key] ?? _geoWeekdays[key.split(',')[0].trim()] ?? name;
+    final l10n = S.of(context);
+    final key = name.trim().toLowerCase();
+
+    // Map incoming names to localization keys
+    if (key.contains('monday') || key == 'ორშაბათი' || key == 'ორშ') {
+      return l10n.mon;
+    }
+    if (key.contains('tuesday') || key == 'სამშაბათი' || key == 'სამ') {
+      return l10n.tue;
+    }
+    if (key.contains('wednesday') || key == 'ოთხშაბათი' || key == 'ოთხ') {
+      return l10n.wed;
+    }
+    if (key.contains('thursday') || key == 'ხუთშაბათი' || key == 'ხუთ') {
+      return l10n.thu;
+    }
+    if (key.contains('friday') || key == 'პარასკევი' || key == 'პარ') {
+      return l10n.fri;
+    }
+    if (key.contains('saturday') || key == 'შაბათი' || key == 'შაბ') {
+      return l10n.sat;
+    }
+    if (key.contains('sunday') || key == 'კვირა' || key == 'კვი') {
+      return l10n.sun;
+    }
+
+    return name;
   }
 
   String _getLocalizedReportTitle(BuildContext context) {
@@ -1255,9 +1252,10 @@ class _SalesSummaryScreenState extends State<SalesSummaryScreen> {
     final actualContentWidth = dataCount * minGroupWidth;
     final chartWidth = actualContentWidth.clamp(300.0, double.infinity);
 
-    final dataMax = _visibleSalesData.reduce((a, b) => a > b ? a : b);
-    final comparisonMax =
-        _visibleComparisonData.reduce((a, b) => a > b ? a : b);
+    final dataMax = _visibleSalesData.isEmpty ? 0.0 : _visibleSalesData.reduce((a, b) => a > b ? a : b);
+    final comparisonMax = _visibleComparisonData.isEmpty
+        ? 0.0
+        : _visibleComparisonData.reduce((a, b) => a > b ? a : b);
     final maxValue = dataMax > comparisonMax ? dataMax : comparisonMax;
     final maxY = maxValue > 0 ? maxValue * 1.2 : 100.0;
 
@@ -1434,9 +1432,10 @@ class _SalesSummaryScreenState extends State<SalesSummaryScreen> {
   }
 
   Widget _buildSalesChartWithoutYAxis() {
-    final dataMax = _visibleSalesData.reduce((a, b) => a > b ? a : b);
-    final comparisonMax =
-        _visibleComparisonData.reduce((a, b) => a > b ? a : b);
+    final dataMax = _visibleSalesData.isEmpty ? 0.0 : _visibleSalesData.reduce((a, b) => a > b ? a : b);
+    final comparisonMax = _visibleComparisonData.isEmpty
+        ? 0.0
+        : _visibleComparisonData.reduce((a, b) => a > b ? a : b);
     final maxValue = dataMax > comparisonMax ? dataMax : comparisonMax;
     final maxY = maxValue > 0 ? maxValue * 1.2 : 100.0;
     final labels = _visibleChartLabels;
@@ -1584,122 +1583,19 @@ class _SalesSummaryScreenState extends State<SalesSummaryScreen> {
     if (previousValue > 0) {
       percentChange = ((currentValue - previousValue) / previousValue) * 100;
     }
-    final isPositive = percentChange >= 0;
 
-    showModalBottomSheet(
+    ChartDetailsModal.show(
       context: context,
-      backgroundColor: Colors.transparent,
-      builder: (context) => Container(
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.only(
-            topLeft: Radius.circular(20),
-            topRight: Radius.circular(20),
-          ),
-        ),
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Header
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Expanded(
-                  child: Text(
-                    label,
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.black87,
-                    ),
-                  ),
-                ),
-                IconButton(
-                  onPressed: () => Navigator.pop(context),
-                  icon: Icon(Icons.close, color: Colors.grey.shade600),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            // Current period
-            Row(
-              children: [
-                Container(
-                  width: 12,
-                  height: 12,
-                  color: AppTheme.primaryBlue,
-                ),
-                const SizedBox(width: 8),
-                Text(
-                  '${S.of(context).period}: ',
-                  style: const TextStyle(
-                    fontSize: 14,
-                    color: Colors.black54,
-                  ),
-                ),
-                Text(
-                  _formatValue(currentValue),
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    color: AppTheme.primaryBlue,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
-            // Previous period
-            Row(
-              children: [
-                Container(
-                  width: 12,
-                  height: 12,
-                  color: const Color(0xFFFFA726),
-                ),
-                const SizedBox(width: 8),
-                Text(
-                  '${S.of(context).comparisonLabel}: ',
-                  style: const TextStyle(
-                    fontSize: 14,
-                    color: Colors.black54,
-                  ),
-                ),
-                Text(
-                  _formatValue(previousValue),
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    color: Color(0xFFFFA726),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
-            // Change percentage
-            Row(
-              children: [
-                Icon(
-                  isPositive ? Icons.trending_up : Icons.trending_down,
-                  color: isPositive ? Colors.green : Colors.red,
-                  size: 20,
-                ),
-                const SizedBox(width: 8),
-                Text(
-                  '${isPositive ? '+' : ''}${percentChange.toStringAsFixed(1)}%',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    color: isPositive ? Colors.green : Colors.red,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-          ],
-        ),
-      ),
+      title: label,
+      currentValueLabel: S.of(context).period,
+      currentValueText: _formatValue(currentValue),
+      previousValueLabel: S.of(context).comparisonLabel,
+      previousValueText: _formatValue(previousValue),
+      changeLabel: S.of(context).change ?? "Change",
+      percentChange: percentChange,
+      closeLabel: S.of(context).close ?? "Close",
+      currentValueColor: AppTheme.primaryBlue,
+      previousValueColor: const Color(0xFFFFA726),
     );
   }
 
@@ -1818,122 +1714,19 @@ class _FullscreenChartPageState extends State<_FullscreenChartPage> {
     if (previousValue > 0) {
       percentChange = ((currentValue - previousValue) / previousValue) * 100;
     }
-    final isPositive = percentChange >= 0;
 
-    showModalBottomSheet(
+    ChartDetailsModal.show(
       context: context,
-      backgroundColor: Colors.transparent,
-      builder: (context) => Container(
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.only(
-            topLeft: Radius.circular(20),
-            topRight: Radius.circular(20),
-          ),
-        ),
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Header
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Expanded(
-                  child: Text(
-                    label,
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.black87,
-                    ),
-                  ),
-                ),
-                IconButton(
-                  onPressed: () => Navigator.pop(context),
-                  icon: Icon(Icons.close, color: Colors.grey.shade600),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            // Current period
-            Row(
-              children: [
-                Container(
-                  width: 12,
-                  height: 12,
-                  color: AppTheme.primaryBlue,
-                ),
-                const SizedBox(width: 8),
-                Text(
-                  '${S.of(context).period}: ',
-                  style: const TextStyle(
-                    fontSize: 14,
-                    color: Colors.black54,
-                  ),
-                ),
-                Text(
-                  _formatValue(currentValue),
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    color: AppTheme.primaryBlue,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
-            // Previous period
-            Row(
-              children: [
-                Container(
-                  width: 12,
-                  height: 12,
-                  color: const Color(0xFFFFA726),
-                ),
-                const SizedBox(width: 8),
-                Text(
-                  '${S.of(context).comparisonLabel}: ',
-                  style: const TextStyle(
-                    fontSize: 14,
-                    color: Colors.black54,
-                  ),
-                ),
-                Text(
-                  _formatValue(previousValue),
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    color: Color(0xFFFFA726),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
-            // Change percentage
-            Row(
-              children: [
-                Icon(
-                  isPositive ? Icons.trending_up : Icons.trending_down,
-                  color: isPositive ? Colors.green : Colors.red,
-                  size: 20,
-                ),
-                const SizedBox(width: 8),
-                Text(
-                  '${isPositive ? '+' : ''}${percentChange.toStringAsFixed(1)}%',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    color: isPositive ? Colors.green : Colors.red,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-          ],
-        ),
-      ),
+      title: label,
+      currentValueLabel: S.of(context).period,
+      currentValueText: _formatValue(currentValue),
+      previousValueLabel: S.of(context).comparisonLabel,
+      previousValueText: _formatValue(previousValue),
+      changeLabel: S.of(context).change ?? "Change",
+      percentChange: percentChange,
+      closeLabel: S.of(context).close ?? "Close",
+      currentValueColor: AppTheme.primaryBlue,
+      previousValueColor: const Color(0xFFFFA726),
     );
   }
 

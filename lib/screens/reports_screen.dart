@@ -3,6 +3,10 @@ import 'package:flutter_svg/svg.dart';
 import 'package:mobile_reporting/localization/generated/l10n.dart';
 import 'package:mobile_reporting/screens/sales_summary_screen.dart';
 import 'package:mobile_reporting/screens/store_sales_screen.dart';
+import 'package:mobile_reporting/screens/top_products_screen.dart';
+import 'package:mobile_reporting/screens/category_sales_screen.dart';
+import 'package:mobile_reporting/screens/staff_sales_screen.dart';
+import 'package:mobile_reporting/screens/payment_entities_screen.dart';
 import 'package:mobile_reporting/theme/app_theme.dart';
 
 class ReportsScreen extends StatefulWidget {
@@ -40,6 +44,9 @@ class _ReportsScreenState extends State<ReportsScreen> {
       'Sales by Hour',
       'Sales by Weekdays',
       'Sales by Stores',
+      'Sales by Products',
+      'Sales by Category',
+      'Sales by Payment Method',
     ],
     'Finances': [
       'Revenue Report',
@@ -47,6 +54,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
       'Profit & Loss',
     ],
     'Staff': [
+      'Sales by Staff',
       'Staff Performance',
       'Attendance Report',
       'Commission Report',
@@ -87,6 +95,14 @@ class _ReportsScreenState extends State<ReportsScreen> {
         return l10n.salesByWeekday;
       case 'Sales by Stores':
         return l10n.salesByStores;
+      case 'Sales by Products':
+        return l10n.salesByProducts;
+      case 'Sales by Category':
+        return l10n.salesByCategory;
+      case 'Sales by Staff':
+        return l10n.salesByStaff;
+      case 'Sales by Payment Method':
+        return l10n.salesByPaymentMethod;
       case 'Revenue Report':
         return l10n.revenueReport;
       case 'Expense Report':
@@ -357,6 +373,34 @@ class _ReportsScreenState extends State<ReportsScreen> {
               context,
               MaterialPageRoute(
                 builder: (context) => const StoreSalesScreen(),
+              ),
+            );
+          } else if (title == 'Sales by Products') {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const TopProductsScreen(),
+              ),
+            );
+          } else if (title == 'Sales by Category') {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const CategorySalesScreen(),
+              ),
+            );
+          } else if (title == 'Sales by Staff') {
+             Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const StaffSalesScreen(),
+              ),
+            );
+          } else if (title == 'Sales by Payment Method') {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const PaymentEntitiesScreen(),
               ),
             );
           } else {

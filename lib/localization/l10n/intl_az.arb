@@ -113,5 +113,8 @@
     "orders": "Sifarişlər",
     "finances": "Maliyyə",
     "checks": "Çeklər",
-    "incorrectCredentials": "İstifadəçi adı və ya şifrə səhvdir!"
+    "incorrectCredentials": "İstifadəçi adı və ya şifrə səhvdir!",
+    "currentValue": "Cari dəyər",
+    "previousValue": "Əvvəlki dəyər",
+    "change": "Dəyişiklik"
 }

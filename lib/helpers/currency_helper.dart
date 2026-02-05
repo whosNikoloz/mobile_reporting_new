@@ -16,4 +16,9 @@ class CurrencyHelper {
         return '₾';
     }
   }
+
+  static String format(double value) {
+    final symbol = getCurrencySymbol();
+    return '$symbol${value.toStringAsFixed(2)}';
+  }
 }

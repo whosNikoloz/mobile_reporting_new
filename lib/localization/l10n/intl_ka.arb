@@ -113,5 +113,8 @@
     "weekday": "კვირის დღე",
     "salesByStores": "გაყიდვები მაღაზიებით",
     "storeSalesOverview": "მაღაზიების გაყიდვების მიმოხილვა",
-    "store": "მაღაზია"
+    "store": "მაღაზია",
+    "currentValue": "მიმდინარე მნიშვნელობა",
+    "previousValue": "წინა მნიშვნელობა",
+    "change": "ცვლილება"
 }

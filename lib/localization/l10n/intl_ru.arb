@@ -113,5 +113,8 @@
     "orders": "Заказы",
     "finances": "Финансы",
     "checks": "Чеки",
-    "incorrectCredentials": "Неверное имя пользователя или пароль!"
+    "incorrectCredentials": "Неверное имя пользователя или пароль!",
+    "currentValue": "Текущее значение",
+    "previousValue": "Предыдущее значение",
+    "change": "Изменение"
 }

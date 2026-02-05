@@ -272,7 +272,7 @@ class S {
   /// `Comparison`
   String get comparisonLabel {
     return Intl.message(
-      'Compare to',
+      'Comparison',
       name: 'comparisonLabel',
       desc: '',
       args: [],
@@ -394,6 +394,7 @@ class S {
     );
   }
 
+  /// `Select Location`
   String get selectLocation {
     return Intl.message(
       'Select Location',
@@ -603,7 +604,7 @@ class S {
     );
   }
 
-  /// `Sales by Weekday`
+  /// `Sales by Weekdays`
   String get salesByWeekday {
     return Intl.message(
       'Sales by Weekdays',
@@ -723,25 +724,24 @@ class S {
     );
   }
 
-  /// `Income`
+  /// `Sales`
   String get income {
-    return Intl.message('Income', name: 'income', desc: '', args: []);
+    return Intl.message('Sales', name: 'income', desc: '', args: []);
   }
 
-  /// `Checks`
+  /// `Bills Count`
   String get checksFilter {
-    return Intl.message('Bills Count',
-        name: 'checksFilter', desc: '', args: []);
-  }
-
-  /// `Average Check`
-  String get averageCheck {
     return Intl.message(
-      'Average Check',
-      name: 'averageCheck',
+      'Bills Count',
+      name: 'checksFilter',
       desc: '',
       args: [],
     );
+  }
+
+  /// `AvgCheck`
+  String get averageCheck {
+    return Intl.message('AvgCheck', name: 'averageCheck', desc: '', args: []);
   }
 
   /// `Hourly Sales Overview`
@@ -794,9 +794,14 @@ class S {
     );
   }
 
+  /// `Display Value`
   String get displayValue {
-    return Intl.message('Display Value',
-        name: 'displayValue', desc: '', args: []);
+    return Intl.message(
+      'Display Value',
+      name: 'displayValue',
+      desc: '',
+      args: [],
+    );
   }
 
   /// `Hour`
@@ -832,6 +837,106 @@ class S {
   /// `Store`
   String get store {
     return Intl.message('Store', name: 'store', desc: '', args: []);
+  }
+
+  /// `Sales by Products`
+  String get salesByProducts {
+    return Intl.message(
+      'Sales by Products',
+      name: 'salesByProducts',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Sales by Category`
+  String get salesByCategory {
+    return Intl.message(
+      'Sales by Category',
+      name: 'salesByCategory',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Quantity`
+  String get quantity {
+    return Intl.message('Quantity', name: 'quantity', desc: '', args: []);
+  }
+
+  /// `Product`
+  String get product {
+    return Intl.message('Product', name: 'product', desc: '', args: []);
+  }
+
+  /// `Category`
+  String get category {
+    return Intl.message('Category', name: 'category', desc: '', args: []);
+  }
+
+  /// `Sales by Staff`
+  String get salesByStaff {
+    return Intl.message(
+      'Sales by Staff',
+      name: 'salesByStaff',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Staff Member`
+  String get staffMember {
+    return Intl.message(
+      'Staff Member',
+      name: 'staffMember',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Sales by Payment Method`
+  String get salesByPaymentMethod {
+    return Intl.message(
+      'Sales by Payment Method',
+      name: 'salesByPaymentMethod',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Payment Method`
+  String get paymentMethod {
+    return Intl.message(
+      'Payment Method',
+      name: 'paymentMethod',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Current Value`
+  String get currentValue {
+    return Intl.message(
+      'Current Value',
+      name: 'currentValue',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Previous Value`
+  String get previousValue {
+    return Intl.message(
+      'Previous Value',
+      name: 'previousValue',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Change`
+  String get change {
+    return Intl.message('Change', name: 'change', desc: '', args: []);
   }
 }
 
