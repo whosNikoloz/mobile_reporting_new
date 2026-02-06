@@ -324,7 +324,7 @@ class _DateSelector extends StatelessWidget {
                             ),
                           ),
                           TextSpan(
-                              text: _getComparisonPeriodText()), // right side
+                              text: '${_getComparisonPeriodText()})'), // right side
                         ],
                       ),
                       style: const TextStyle(
@@ -370,13 +370,13 @@ class _DateSelector extends StatelessWidget {
 
   String _getCurrentDateText() {
     if (dateType == DateType.day) {
-      return DateFormat('dd.MM.yy').format(currentDate1);
+      return DateFormat('dd-MM-yyyy').format(currentDate1);
     } else if (dateType == DateType.month) {
       return DateFormat('MMM yyyy').format(currentDate1);
     } else if (dateType == DateType.year) {
       return currentDate1.year.toString();
     } else {
-      return '${DateFormat('dd.MM.yy').format(currentDate1)} - ${DateFormat('dd.MM.yy').format(currentDate2)}';
+      return '${DateFormat('dd-MM-yyyy').format(currentDate1)} - ${DateFormat('dd-MM-yyyy').format(currentDate2)}';
     }
   }
 
@@ -406,35 +406,32 @@ class _DateSelector extends StatelessWidget {
 
   String _getCurrentPeriodText() {
     if (dateType == DateType.day) {
-      return DateFormat('dd.MM.yy').format(currentDate1);
+      return DateFormat('dd-MM-yyyy').format(currentDate1);
     } else if (dateType == DateType.month) {
       return DateFormat('MMM yyyy').format(currentDate1);
     } else if (dateType == DateType.year) {
       return currentDate1.year.toString();
     } else {
-      return '${DateFormat('dd.MM.yy').format(currentDate1)} - ${DateFormat('dd.MM.yy').format(currentDate2)}';
+      return '${DateFormat('dd-MM-yyyy').format(currentDate1)} - ${DateFormat('dd-MM-yyyy').format(currentDate2)}';
     }
   }
 
   String _getComparisonPeriodText() {
     if (dateType == DateType.day) {
-      return DateFormat('dd.MM.yy').format(oldDate1);
+      return DateFormat('dd-MM-yyyy').format(oldDate1);
     } else if (dateType == DateType.month) {
       return DateFormat('MMM yyyy').format(oldDate1);
     } else if (dateType == DateType.year) {
       return oldDate1.year.toString();
     } else {
-      return '${DateFormat('dd.MM.yy').format(oldDate1)} - ${DateFormat('dd.MM.yy').format(oldDate2)}';
+      return '${DateFormat('dd-MM-yyyy').format(oldDate1)} - ${DateFormat('dd-MM-yyyy').format(oldDate2)}';
     }
   }
 
   /// Returns the separator between current and comparison periods
   /// "-" for day/month/year comparisons, "to" for week/period ranges
   String _getComparisonSeparator() {
-    if (dateType == DateType.week || dateType == DateType.period) {
-      return ' to ';
-    }
-    return ' - ';
+    return '  (Compared to ';
   }
 
   String _getComparisonText(BuildContext context) {
@@ -459,11 +456,11 @@ class _DateSelector extends StatelessWidget {
         return S.of(context).todayVsYesterday;
       }
 
-      return '${DateFormat('dd.MM.yy').format(currentDate1)} vs ${DateFormat('dd.MM.yy').format(oldDate1)}';
+      return '${DateFormat('dd-MM-yyyy').format(currentDate1)} vs ${DateFormat('dd-MM-yyyy').format(oldDate1)}';
     }
 
     // For week/period comparisons, show date ranges
-    return '${DateFormat('dd.MM').format(oldDate1)} - ${DateFormat('dd.MM').format(oldDate2)}';
+    return '${DateFormat('dd-MM-yyyy').format(oldDate1)} - ${DateFormat('dd-MM-yyyy').format(oldDate2)}';
   }
 
   bool _isSameDay(DateTime a, DateTime b) {
@@ -721,11 +718,11 @@ class _CompareDateFilter extends StatelessWidget {
 
   String _getOldDateText() {
     if (dateType == DateType.day) {
-      return DateFormat('dd.MM.yy').format(oldDate1);
+      return DateFormat('dd-MM-yyyy').format(oldDate1);
     } else if (dateType == DateType.month) {
       return DateFormat('MMM-yyyy').format(oldDate1);
     } else {
-      return '${DateFormat('dd.MM.yy').format(oldDate1)} - ${DateFormat('dd.MM.yy').format(oldDate2)}';
+      return '${DateFormat('dd-MM-yyyy').format(oldDate1)} - ${DateFormat('dd-MM-yyyy').format(oldDate2)}';
     }
   }
 

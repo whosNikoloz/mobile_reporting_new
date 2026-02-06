@@ -1,5 +1,6 @@
-import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:intl/intl.dart';
 import 'package:mobile_reporting/widgets/chart_details_modal.dart';
 import 'package:mobile_reporting/api/response_models/staff_sales_response_model.dart';
 import 'package:mobile_reporting/application_store.dart';
@@ -34,10 +35,10 @@ class _StaffSalesScreenState extends State<StaffSalesScreen> {
   DateTime endCurrentPeriod = DateTime.now();
   DateTime startOldPeriod = DateTime.now().subtract(const Duration(days: 1));
   DateTime endOldPeriod = DateTime.now().subtract(const Duration(days: 1));
-  
-  int _selectedTop = 10;
+
+  int _selectedTop = 0;
   final List<int> _topOptions = [5, 10, 20, 50];
-  
+
   _ReportType _selectedType = _ReportType.income;
 
   // Data
@@ -48,30 +49,20 @@ class _StaffSalesScreenState extends State<StaffSalesScreen> {
   String? _email;
   String _selectedLanguage = 'en';
 
-  // Colors for chart
-  final List<Color> _chartColors = [
-    const Color(0xFF3B5EE8), // Primary Blue
-    const Color(0xFFFF6B6B), // Red
-    const Color(0xFF4ECDC4), // Teal
-    const Color(0xFFFFBE0B), // Yellow
-    const Color(0xFF9B5DE5), // Purple
-    const Color(0xFF00BBF9), // Light Blue
-    const Color(0xFFF15BB5), // Pink
-    const Color(0xFF00F5D4), // Mint
-    const Color(0xFFFB5607), // Orange
-    const Color(0xFF8338EC), // Deep Purple
-    const Color(0xFF3A86FF), // Another Blue
-    Colors.grey,
-    Colors.brown,
-    Colors.indigo,
-    Colors.lime,
-  ];
+  final ScrollController _chartScrollController = ScrollController();
+  double _scrollProgress = 0.0;
 
   @override
   void initState() {
     super.initState();
     _loadFilters();
     _loadUserData();
+  }
+
+  @override
+  void dispose() {
+    _chartScrollController.dispose();
+    super.dispose();
   }
 
   Future<void> _loadFilters() async {
@@ -141,9 +132,7 @@ class _StaffSalesScreenState extends State<StaffSalesScreen> {
     }
   }
 
-  Color _getColorForIndex(int index) {
-    return _chartColors[index % _chartColors.length];
-  }
+  bool get _isChecksFilter => _selectedType == _ReportType.checks;
 
   String _getReportTypeLabel(_ReportType type) {
     switch (type) {
@@ -199,7 +188,8 @@ class _StaffSalesScreenState extends State<StaffSalesScreen> {
             backgroundColor: Colors.transparent,
             elevation: 0,
             leading: IconButton(
-              icon: const Icon(Icons.arrow_back, color: AppTheme.primaryTextColor),
+              icon: const Icon(Icons.arrow_back,
+                  color: AppTheme.primaryTextColor),
               onPressed: () => Navigator.pop(context),
             ),
             centerTitle: true,
@@ -213,7 +203,7 @@ class _StaffSalesScreenState extends State<StaffSalesScreen> {
               ),
             ),
             actions: [
-               Padding(
+              Padding(
                 padding: const EdgeInsets.only(right: 12),
                 child: IconButton(
                   icon: Container(
@@ -249,7 +239,8 @@ class _StaffSalesScreenState extends State<StaffSalesScreen> {
                         if (!mounted) return;
                         Navigator.pushAndRemoveUntil(
                           context,
-                          MaterialPageRoute(builder: (_) => const SplashScreen()),
+                          MaterialPageRoute(
+                              builder: (_) => const SplashScreen()),
                           (route) => false,
                         );
                       },
@@ -278,7 +269,7 @@ class _StaffSalesScreenState extends State<StaffSalesScreen> {
                   },
                   onlyDayPicker: false,
                 ),
-                
+
                 // Filters Row (Top N & Type)
                 Container(
                   width: double.infinity,
@@ -301,8 +292,7 @@ class _StaffSalesScreenState extends State<StaffSalesScreen> {
                               ),
                             ),
                             const SizedBox(height: 6),
-                            _buildDropdown(
-                                context,
+                            _buildDropdown(context,
                                 icon: Icons.tune,
                                 value: _getReportTypeLabel(_selectedType),
                                 onTap: _showTypeSelector),
@@ -311,28 +301,27 @@ class _StaffSalesScreenState extends State<StaffSalesScreen> {
                       ),
                       const SizedBox(width: 12),
                       // Top N Dropdown
-                      Expanded(
-                        flex: 2,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Text(
-                              "Top",
-                              style: TextStyle(
-                                fontSize: 12,
-                                fontWeight: FontWeight.w500,
-                                color: Colors.black54,
-                              ),
-                            ),
-                            const SizedBox(height: 6),
-                            _buildDropdown(
-                                context,
-                                icon: Icons.format_list_numbered,
-                                value: "$_selectedTop",
-                                onTap: _showTopSelector),
-                          ],
-                        ),
-                      ),
+                      // Expanded(
+                      //   flex: 2,
+                      //   child: Column(
+                      //     crossAxisAlignment: CrossAxisAlignment.start,
+                      //     children: [
+                      //       const Text(
+                      //         "Top",
+                      //         style: TextStyle(
+                      //           fontSize: 12,
+                      //           fontWeight: FontWeight.w500,
+                      //           color: Colors.black54,
+                      //         ),
+                      //       ),
+                      //       const SizedBox(height: 6),
+                      //       _buildDropdown(context,
+                      //           icon: Icons.format_list_numbered,
+                      //           value: "$_selectedTop",
+                      //           onTap: _showTopSelector),
+                      //     ],
+                      //   ),
+                      // ),
                     ],
                   ),
                 ),
@@ -344,7 +333,7 @@ class _StaffSalesScreenState extends State<StaffSalesScreen> {
                           padding: const EdgeInsets.all(16),
                           children: [
                             if (_reportData.isNotEmpty) ...[
-                              // Pie Chart Section
+                              // Horizontal Bar Chart Section
                               Container(
                                 padding: const EdgeInsets.all(16),
                                 decoration: BoxDecoration(
@@ -352,7 +341,8 @@ class _StaffSalesScreenState extends State<StaffSalesScreen> {
                                   borderRadius: BorderRadius.circular(16),
                                   boxShadow: [
                                     BoxShadow(
-                                      color: Colors.black.withValues(alpha: 0.05),
+                                      color:
+                                          Colors.black.withValues(alpha: 0.05),
                                       blurRadius: 10,
                                       offset: const Offset(0, 2),
                                     ),
@@ -361,70 +351,38 @@ class _StaffSalesScreenState extends State<StaffSalesScreen> {
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Text(
-                                      S.of(context).salesOverview,
-                                      style: const TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.w600,
-                                        color: Colors.black87,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 24),
-                                    SizedBox(
-                                      height: 250,
-                                      child: PieChart(
-                                        PieChartData(
-                                          sectionsSpace: 2,
-                                          centerSpaceRadius: 40,
-                                          sections: _buildPieChartSections(),
-                                          pieTouchData: PieTouchData(
-                                            enabled: true,
-                                            touchCallback: (FlTouchEvent event, pieTouchResponse) {
-                                              if (event is FlTapUpEvent &&
-                                                  pieTouchResponse != null &&
-                                                  pieTouchResponse.touchedSection != null) {
-                                                final index = pieTouchResponse
-                                                    .touchedSection!.touchedSectionIndex;
-                                                if (index >= 0 && index < _reportData.length) {
-                                                  _showDataPointDetails(index);
-                                                }
-                                              }
-                                            },
+                                    Row(
+                                      mainAxisAlignment: MainAxisAlignment.end,
+                                      children: [
+                                        GestureDetector(
+                                          onTap: _showFullscreenChart,
+                                          child: Container(
+                                            padding: const EdgeInsets.all(8),
+                                            decoration: BoxDecoration(
+                                              color: AppTheme.primaryBlue
+                                                  .withValues(alpha: 0.1),
+                                              borderRadius:
+                                                  BorderRadius.circular(8),
+                                            ),
+                                            child: const Icon(
+                                              Icons.fullscreen,
+                                              color: AppTheme.primaryBlue,
+                                              size: 20,
+                                            ),
                                           ),
                                         ),
-                                      ),
+                                      ],
                                     ),
-                                    const SizedBox(height: 24),
-                                    // Custom Legend
-                                    Wrap(
-                                      spacing: 16,
-                                      runSpacing: 8,
-                                      children: List.generate(_reportData.length, (index) {
-                                        return Row(
-                                          mainAxisSize: MainAxisSize.min,
-                                          children: [
-                                            Container(
-                                              width: 10,
-                                              height: 10,
-                                              decoration: BoxDecoration(
-                                                color: _getColorForIndex(index),
-                                                shape: BoxShape.circle,
-                                              ),
-                                            ),
-                                            const SizedBox(width: 4),
-                                            Text(
-                                              _reportData[index].name,
-                                              style: const TextStyle(fontSize: 12, color: Colors.black87),
-                                            ),
-                                          ],
-                                        );
-                                      }),
-                                    )
+                                    const SizedBox(height: 16),
+                                    SizedBox(
+                                      height: 280,
+                                      child: _buildHorizontalBarChart(),
+                                    ),
                                   ],
                                 ),
                               ),
                               const SizedBox(height: 16),
-                              
+
                               // List Section
                               Container(
                                 decoration: BoxDecoration(
@@ -432,7 +390,8 @@ class _StaffSalesScreenState extends State<StaffSalesScreen> {
                                   borderRadius: BorderRadius.circular(16),
                                   boxShadow: [
                                     BoxShadow(
-                                      color: Colors.black.withValues(alpha: 0.05),
+                                      color:
+                                          Colors.black.withValues(alpha: 0.05),
                                       blurRadius: 10,
                                       offset: const Offset(0, 2),
                                     ),
@@ -442,7 +401,8 @@ class _StaffSalesScreenState extends State<StaffSalesScreen> {
                                   children: [
                                     // Header
                                     Container(
-                                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 20, vertical: 16),
                                       decoration: BoxDecoration(
                                         border: Border(
                                           bottom: BorderSide(
@@ -452,10 +412,12 @@ class _StaffSalesScreenState extends State<StaffSalesScreen> {
                                         ),
                                       ),
                                       child: Row(
-                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
                                         children: [
                                           Text(
-                                            S.of(context).staffMember ?? "Staff Member",
+                                            S.of(context).staffMember ??
+                                                "Staff Member",
                                             style: const TextStyle(
                                               fontSize: 13,
                                               fontWeight: FontWeight.w600,
@@ -473,29 +435,33 @@ class _StaffSalesScreenState extends State<StaffSalesScreen> {
                                         ],
                                       ),
                                     ),
-                                    
+
                                     // Items
-                                    ...List.generate(_reportData.length, (index) => _buildListItem(index)),
+                                    ...List.generate(_reportData.length,
+                                        (index) => _buildListItem(index)),
                                   ],
                                 ),
                               ),
                             ] else ...[
-                                SizedBox(
-                                  height: 300,
-                                  child: Center(
-                                    child: Column(
-                                      mainAxisAlignment: MainAxisAlignment.center,
-                                      children: [
-                                        Icon(Icons.bar_chart, size: 48, color: Colors.grey.shade300),
-                                        const SizedBox(height: 16),
-                                        Text(
-                                          S.of(context).noDataAvailable,
-                                          style: TextStyle(color: Colors.grey.shade500),
-                                        ),
-                                      ],
-                                    ),
+                              SizedBox(
+                                height: 300,
+                                child: Center(
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Icon(Icons.bar_chart,
+                                          size: 48,
+                                          color: Colors.grey.shade300),
+                                      const SizedBox(height: 16),
+                                      Text(
+                                        S.of(context).noDataAvailable,
+                                        style: TextStyle(
+                                            color: Colors.grey.shade500),
+                                      ),
+                                    ],
                                   ),
-                                )
+                                ),
+                              )
                             ]
                           ],
                         ),
@@ -506,7 +472,9 @@ class _StaffSalesScreenState extends State<StaffSalesScreen> {
   }
 
   Widget _buildDropdown(BuildContext context,
-      {required IconData icon, required String value, required VoidCallback onTap}) {
+      {required IconData icon,
+      required String value,
+      required VoidCallback onTap}) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -545,38 +513,222 @@ class _StaffSalesScreenState extends State<StaffSalesScreen> {
     );
   }
 
-  List<PieChartSectionData> _buildPieChartSections() {
-    double total = _reportData.fold(0, (sum, item) => sum + _getCurrentValue(item));
-    if (total == 0) return [];
-
-    return List.generate(_reportData.length, (i) {
-      final isTouched = false; 
-      final fontSize = isTouched ? 16.0 : 12.0;
-      final radius = isTouched ? 60.0 : 50.0;
-      final item = _reportData[i];
-      final value = _getCurrentValue(item);
-      final percent = (value / total) * 100;
-
-      return PieChartSectionData(
-        color: _getColorForIndex(i),
-        value: value,
-        title: '${percent.toStringAsFixed(1)}%',
-        radius: radius,
-        titleStyle: TextStyle(
-          fontSize: fontSize,
-          fontWeight: FontWeight.bold,
-          color: const Color(0xffffffff),
+  Widget _buildHorizontalBarChart() {
+    if (_reportData.isEmpty) {
+      return Center(
+        child: Text(
+          S.of(context).noDataAvailable,
+          style: const TextStyle(color: Colors.grey),
         ),
       );
-    });
+    }
+
+    double maxValue = 0;
+    for (final item in _reportData) {
+      final current = _getCurrentValue(item);
+      final previous = _getPreviousValue(item);
+      if (current > maxValue) maxValue = current;
+      if (previous > maxValue) maxValue = previous;
+    }
+    final maxX = maxValue > 0 ? maxValue * 1.2 : 100.0;
+
+    final chartHeight = _reportData.length * 44.0;
+    final needsScrolling = chartHeight > 280;
+
+    return Column(
+      children: [
+        Expanded(
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: NotificationListener<ScrollNotification>(
+                  onNotification: (notification) {
+                    if (notification is ScrollUpdateNotification) {
+                      final maxExtent = notification.metrics.maxScrollExtent;
+                      if (maxExtent > 0) {
+                        setState(() {
+                          _scrollProgress =
+                              notification.metrics.pixels / maxExtent;
+                        });
+                      }
+                    }
+                    return false;
+                  },
+                  child: SingleChildScrollView(
+                    controller: _chartScrollController,
+                    child: SizedBox(
+                      height: chartHeight,
+                      child: _buildHorizontalBarsWithLabels(maxX),
+                    ),
+                  ),
+                ),
+              ),
+              if (needsScrolling)
+                Padding(
+                  padding: const EdgeInsets.only(left: 8),
+                  child: _buildVerticalScrollIndicator(),
+                ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 8),
+        _buildXAxisLabels(maxX),
+      ],
+    );
+  }
+
+  Widget _buildHorizontalBarsWithLabels(double maxX) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final availableWidth = constraints.maxWidth;
+        const labelWidth = 100.0;
+        final barAreaWidth = availableWidth - labelWidth - 8;
+
+        return Column(
+          children: _reportData.map((item) {
+            final currentValue = _getCurrentValue(item);
+            final previousValue = _getPreviousValue(item);
+
+            final currentBarWidth =
+                maxX > 0 ? (currentValue / maxX) * barAreaWidth : 0.0;
+            final previousBarWidth =
+                maxX > 0 ? (previousValue / maxX) * barAreaWidth : 0.0;
+
+            return GestureDetector(
+              onTap: () => _showDataPointDetails(
+                  _reportData.indexOf(item)),
+              child: Container(
+                height: 40,
+                margin: const EdgeInsets.only(bottom: 4),
+                color: Colors.transparent,
+                child: Row(
+                  children: [
+                    SizedBox(
+                      width: labelWidth,
+                      child: Text(
+                        item.name,
+                        style: const TextStyle(
+                          fontSize: 10,
+                          color: Colors.black54,
+                          fontWeight: FontWeight.w500,
+                        ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          AnimatedContainer(
+                            duration: const Duration(milliseconds: 300),
+                            height: 7,
+                            width: previousBarWidth.clamp(0.0, double.infinity),
+                            color: const Color(0xFFFFA726),
+                          ),
+                          AnimatedContainer(
+                            duration: const Duration(milliseconds: 300),
+                            height: 7,
+                            width: currentBarWidth.clamp(0.0, double.infinity),
+                            color: AppTheme.primaryBlue,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          }).toList(),
+        );
+      },
+    );
+  }
+
+  Widget _buildXAxisLabels(double maxX) {
+    final labels = <double>[];
+    for (int i = 0; i <= 4; i++) {
+      labels.add((maxX / 4) * i);
+    }
+
+    return Padding(
+      padding: const EdgeInsets.only(left: 108),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: labels.map((value) {
+          return Text(
+            _formatXAxisLabel(value),
+            style: const TextStyle(
+              fontSize: 9,
+              color: Colors.black45,
+            ),
+          );
+        }).toList(),
+      ),
+    );
+  }
+
+  String _formatXAxisLabel(double value) {
+    if (value == 0) return '0';
+
+    final absValue = value.abs();
+    if (_isChecksFilter) {
+      if (absValue >= 1000000) {
+        return '${(value / 1000000).toStringAsFixed(absValue % 1000000 == 0 ? 0 : 1)}M';
+      } else if (absValue >= 1000) {
+        return '${(value / 1000).toStringAsFixed(absValue % 1000 == 0 ? 0 : 1)}K';
+      }
+      return value.toStringAsFixed(0);
+    } else {
+      final symbol = CurrencyHelper.getCurrencySymbol();
+      if (absValue >= 1000000) {
+        return '$symbol${(value / 1000000).toStringAsFixed(absValue % 1000000 == 0 ? 0 : 1)}M';
+      } else if (absValue >= 1000) {
+        return '$symbol${(value / 1000).toStringAsFixed(absValue % 1000 == 0 ? 0 : 1)}K';
+      }
+      return '$symbol${value.toStringAsFixed(0)}';
+    }
+  }
+
+  Widget _buildVerticalScrollIndicator() {
+    const int dotCount = 5;
+    final activeDot =
+        (_scrollProgress * (dotCount - 1)).round().clamp(0, dotCount - 1);
+
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: List.generate(dotCount, (index) {
+        final isActive = index == activeDot;
+        return AnimatedContainer(
+          duration: const Duration(milliseconds: 150),
+          margin: const EdgeInsets.symmetric(vertical: 3),
+          width: 6,
+          height: isActive ? 16 : 6,
+          decoration: BoxDecoration(
+            color: isActive ? AppTheme.primaryBlue : Colors.grey.shade300,
+            borderRadius: BorderRadius.circular(3),
+          ),
+        );
+      }),
+    );
+  }
+
+  String _formatValue(double value) {
+    if (_isChecksFilter) {
+      return NumberFormat('#,##0', 'en_US').format(value.toInt());
+    } else {
+      return '${CurrencyHelper.getCurrencySymbol()}${NumberFormat('#,##0.00', 'en_US').format(value)}';
+    }
   }
 
   Widget _buildListItem(int index) {
     final item = _reportData[index];
-    final color = _getColorForIndex(index);
     final currentValue = _getCurrentValue(item);
     final previousValue = _getPreviousValue(item);
-    
+
     double percentChange = 0;
     if (previousValue > 0) {
       percentChange = ((currentValue - previousValue) / previousValue) * 100;
@@ -585,12 +737,13 @@ class _StaffSalesScreenState extends State<StaffSalesScreen> {
     String formattedValue = "";
     String formattedPrevious = "";
 
-    if (_selectedType == _ReportType.income || _selectedType == _ReportType.avgCheck) {
-         formattedValue = CurrencyHelper.format(currentValue);
-         formattedPrevious = CurrencyHelper.format(previousValue);
+    if (_selectedType == _ReportType.income ||
+        _selectedType == _ReportType.avgCheck) {
+      formattedValue = CurrencyHelper.format(currentValue);
+      formattedPrevious = CurrencyHelper.format(previousValue);
     } else {
-         formattedValue = currentValue.toStringAsFixed(0);
-         formattedPrevious = previousValue.toStringAsFixed(0);
+      formattedValue = currentValue.toStringAsFixed(0);
+      formattedPrevious = previousValue.toStringAsFixed(0);
     }
 
     return Container(
@@ -606,68 +759,57 @@ class _StaffSalesScreenState extends State<StaffSalesScreen> {
       ),
       child: Row(
         children: [
-            // Color indicator
-            Container(
-              width: 4,
-              height: 40,
-              decoration: BoxDecoration(
-                color: color,
-                borderRadius: BorderRadius.circular(2),
-              ),
-            ),
-            const SizedBox(width: 16),
-            
-            // Name and percentage change
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    item.name,
-                    style: const TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w500,
-                      color: Colors.black87,
-                    ),
+          // Name and percentage change
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  item.name,
+                  style: const TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w500,
+                    color: Colors.black87,
                   ),
-                   const SizedBox(height: 4),
-                   Row(
-                    children: [
-                         Text(
-                          percentChange >= 0
-                              ? '+${percentChange.toStringAsFixed(1)}%'
-                              : '${percentChange.toStringAsFixed(1)}%',
-                          style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w500,
-                            color: percentChange >= 0
-                                ? const Color(0xFF00BFA5) // Light Teal
-                                : const Color(0xFFFF5252), // Light Red
-                          ),
-                        ),
-                        const SizedBox(width: 6),
-                         Text(
-                          formattedPrevious,
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: Colors.grey.shade500,
-                          ),
-                        ),
-                    ],
-                   )
-                ],
-              ),
+                ),
+                const SizedBox(height: 4),
+                Row(
+                  children: [
+                    Text(
+                      percentChange >= 0
+                          ? '+${percentChange.toStringAsFixed(1)}%'
+                          : '${percentChange.toStringAsFixed(1)}%',
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                        color: percentChange >= 0
+                            ? const Color(0xFF00BFA5) // Light Teal
+                            : const Color(0xFFFF5252), // Light Red
+                      ),
+                    ),
+                    const SizedBox(width: 6),
+                    Text(
+                      formattedPrevious,
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Colors.grey.shade500,
+                      ),
+                    ),
+                  ],
+                )
+              ],
             ),
-            
-            // Value
-            Text(
-              formattedValue,
-              style: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-                color: Colors.black87,
-              ),
+          ),
+
+          // Value
+          Text(
+            formattedValue,
+            style: const TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+              color: Colors.black87,
             ),
+          ),
         ],
       ),
     );
@@ -690,16 +832,20 @@ class _StaffSalesScreenState extends State<StaffSalesScreen> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-                 Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                            const SizedBox(width: 40),
-                            const Text("Select Top N", style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),
-                             IconButton(onPressed: () => Navigator.pop(context), icon: const Icon(Icons.close)),
-                        ],
-                    ),
-                const SizedBox(height: 16),
-                ..._topOptions.map((top) => _buildTopOption(top)),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const SizedBox(width: 40),
+                  const Text("Select Top N",
+                      style:
+                          TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),
+                  IconButton(
+                      onPressed: () => Navigator.pop(context),
+                      icon: const Icon(Icons.close)),
+                ],
+              ),
+              const SizedBox(height: 16),
+              ..._topOptions.map((top) => _buildTopOption(top)),
             ],
           ),
         ),
@@ -708,37 +854,42 @@ class _StaffSalesScreenState extends State<StaffSalesScreen> {
   }
 
   Widget _buildTopOption(int top) {
-     final isSelected = _selectedTop == top;
-      return Container(
-        margin: const EdgeInsets.only(bottom: 8),
-        decoration: BoxDecoration(
-          color: isSelected ? AppTheme.primaryBlue.withValues(alpha: 0.1) : Colors.grey.shade50,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: isSelected ? AppTheme.primaryBlue : Colors.grey.shade200),
+    final isSelected = _selectedTop == top;
+    return Container(
+      margin: const EdgeInsets.only(bottom: 8),
+      decoration: BoxDecoration(
+        color: isSelected
+            ? AppTheme.primaryBlue.withValues(alpha: 0.1)
+            : Colors.grey.shade50,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+            color: isSelected ? AppTheme.primaryBlue : Colors.grey.shade200),
+      ),
+      child: InkWell(
+        onTap: () {
+          setState(() => _selectedTop = top);
+          Navigator.pop(context);
+          _loadData(); // Reload data with new top
+        },
+        borderRadius: BorderRadius.circular(12),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Row(
+            children: [
+              Text("Top $top",
+                  style: TextStyle(
+                      color: isSelected ? AppTheme.primaryBlue : Colors.black87,
+                      fontWeight:
+                          isSelected ? FontWeight.w600 : FontWeight.w500,
+                      fontSize: 16)),
+              const Spacer(),
+              if (isSelected)
+                const Icon(Icons.check_circle, color: AppTheme.primaryBlue)
+            ],
+          ),
         ),
-        child: InkWell(
-            onTap: () {
-                setState(() => _selectedTop = top);
-                Navigator.pop(context);
-                _loadData(); // Reload data with new top
-            },
-            borderRadius: BorderRadius.circular(12),
-            child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Row(
-                    children: [
-                        Text("Top $top", style: TextStyle(
-                            color: isSelected ? AppTheme.primaryBlue : Colors.black87,
-                            fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
-                            fontSize: 16
-                        )),
-                        const Spacer(),
-                        if (isSelected) const Icon(Icons.check_circle, color: AppTheme.primaryBlue)
-                    ],
-                ),
-            ),
-        ),
-      );
+      ),
+    );
   }
 
   void _showTypeSelector() {
@@ -758,16 +909,20 @@ class _StaffSalesScreenState extends State<StaffSalesScreen> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-                 Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                            const SizedBox(width: 40),
-                            Text(S.of(context).displayValue, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),
-                             IconButton(onPressed: () => Navigator.pop(context), icon: const Icon(Icons.close)),
-                        ],
-                    ),
-                const SizedBox(height: 16),
-                ..._ReportType.values.map((type) => _buildTypeOption(type)),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const SizedBox(width: 40),
+                  Text(S.of(context).displayValue,
+                      style: const TextStyle(
+                          fontSize: 18, fontWeight: FontWeight.w600)),
+                  IconButton(
+                      onPressed: () => Navigator.pop(context),
+                      icon: const Icon(Icons.close)),
+                ],
+              ),
+              const SizedBox(height: 16),
+              ..._ReportType.values.map((type) => _buildTypeOption(type)),
             ],
           ),
         ),
@@ -776,37 +931,42 @@ class _StaffSalesScreenState extends State<StaffSalesScreen> {
   }
 
   Widget _buildTypeOption(_ReportType type) {
-     final isSelected = _selectedType == type;
-      return Container(
-        margin: const EdgeInsets.only(bottom: 8),
-        decoration: BoxDecoration(
-          color: isSelected ? AppTheme.primaryBlue.withValues(alpha: 0.1) : Colors.grey.shade50,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: isSelected ? AppTheme.primaryBlue : Colors.grey.shade200),
+    final isSelected = _selectedType == type;
+    return Container(
+      margin: const EdgeInsets.only(bottom: 8),
+      decoration: BoxDecoration(
+        color: isSelected
+            ? AppTheme.primaryBlue.withValues(alpha: 0.1)
+            : Colors.grey.shade50,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+            color: isSelected ? AppTheme.primaryBlue : Colors.grey.shade200),
+      ),
+      child: InkWell(
+        onTap: () {
+          setState(() => _selectedType = type);
+          Navigator.pop(context);
+          // No need to reload data, just setState
+        },
+        borderRadius: BorderRadius.circular(12),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Row(
+            children: [
+              Text(_getReportTypeLabel(type),
+                  style: TextStyle(
+                      color: isSelected ? AppTheme.primaryBlue : Colors.black87,
+                      fontWeight:
+                          isSelected ? FontWeight.w600 : FontWeight.w500,
+                      fontSize: 16)),
+              const Spacer(),
+              if (isSelected)
+                const Icon(Icons.check_circle, color: AppTheme.primaryBlue)
+            ],
+          ),
         ),
-        child: InkWell(
-            onTap: () {
-                setState(() => _selectedType = type);
-                Navigator.pop(context);
-                // No need to reload data, just setState
-            },
-            borderRadius: BorderRadius.circular(12),
-            child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Row(
-                    children: [
-                        Text(_getReportTypeLabel(type), style: TextStyle(
-                            color: isSelected ? AppTheme.primaryBlue : Colors.black87,
-                            fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
-                            fontSize: 16
-                        )),
-                        const Spacer(),
-                        if (isSelected) const Icon(Icons.check_circle, color: AppTheme.primaryBlue)
-                    ],
-                ),
-            ),
-        ),
-      );
+      ),
+    );
   }
 
   void _showDataPointDetails(int index) {
@@ -821,7 +981,8 @@ class _StaffSalesScreenState extends State<StaffSalesScreen> {
     String formattedValue = "";
     String formattedPrevious = "";
 
-    if (_selectedType == _ReportType.income || _selectedType == _ReportType.avgCheck) {
+    if (_selectedType == _ReportType.income ||
+        _selectedType == _ReportType.avgCheck) {
       formattedValue = CurrencyHelper.format(currentValue);
       formattedPrevious = CurrencyHelper.format(previousValue);
     } else {
@@ -832,13 +993,379 @@ class _StaffSalesScreenState extends State<StaffSalesScreen> {
     ChartDetailsModal.show(
       context: context,
       title: item.name,
-      currentValueLabel: S.of(context).currentValue ?? "Current Value",
+      currentValueLabel: S.of(context).period,
       currentValueText: formattedValue,
-      previousValueLabel: S.of(context).previousValue ?? "Previous Value",
+      previousValueLabel: S.of(context).comparisonLabel,
       previousValueText: formattedPrevious,
       changeLabel: S.of(context).change ?? "Change",
       percentChange: percentChange,
       closeLabel: S.of(context).close ?? "Close",
+      currentValueColor: AppTheme.primaryBlue,
+      previousValueColor: const Color(0xFFFFA726),
+    );
+  }
+
+  void _showFullscreenChart() {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => _FullscreenStaffSalesChart(
+          reportData: _reportData,
+          selectedType: _selectedType,
+          currentPeriodLabel:
+              '${DateFormat('dd.MM.yy').format(startCurrentPeriod)} - ${DateFormat('dd.MM.yy').format(endCurrentPeriod)}',
+          previousPeriodLabel:
+              '${DateFormat('dd.MM.yy').format(startOldPeriod)} - ${DateFormat('dd.MM.yy').format(endOldPeriod)}',
+        ),
+      ),
+    );
+  }
+}
+
+class _FullscreenStaffSalesChart extends StatefulWidget {
+  final List<StaffSalesResponseModel> reportData;
+  final _ReportType selectedType;
+  final String currentPeriodLabel;
+  final String previousPeriodLabel;
+
+  const _FullscreenStaffSalesChart({
+    required this.reportData,
+    required this.selectedType,
+    required this.currentPeriodLabel,
+    required this.previousPeriodLabel,
+  });
+
+  @override
+  State<_FullscreenStaffSalesChart> createState() =>
+      _FullscreenStaffSalesChartState();
+}
+
+class _FullscreenStaffSalesChartState
+    extends State<_FullscreenStaffSalesChart> {
+  final ScrollController _scrollController = ScrollController();
+  double _scrollProgress = 0.0;
+
+  @override
+  void initState() {
+    super.initState();
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.landscapeLeft,
+      DeviceOrientation.landscapeRight,
+    ]);
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+      DeviceOrientation.portraitDown,
+    ]);
+    super.dispose();
+  }
+
+  bool get _isChecksFilter => widget.selectedType == _ReportType.checks;
+
+  double _getCurrentValue(StaffSalesResponseModel item) {
+    switch (widget.selectedType) {
+      case _ReportType.income:
+        return item.currentSales;
+      case _ReportType.checks:
+        return item.currentChecks.toDouble();
+      case _ReportType.avgCheck:
+        return item.currentAvgCheck;
+    }
+  }
+
+  double _getPreviousValue(StaffSalesResponseModel item) {
+    switch (widget.selectedType) {
+      case _ReportType.income:
+        return item.previousSales;
+      case _ReportType.checks:
+        return item.previousChecks.toDouble();
+      case _ReportType.avgCheck:
+        return item.previousAvgCheck;
+    }
+  }
+
+  String _formatXAxisLabel(double value) {
+    if (value == 0) return '0';
+
+    final absValue = value.abs();
+    if (_isChecksFilter) {
+      if (absValue >= 1000000) {
+        return '${(value / 1000000).toStringAsFixed(absValue % 1000000 == 0 ? 0 : 1)}M';
+      } else if (absValue >= 1000) {
+        return '${(value / 1000).toStringAsFixed(absValue % 1000 == 0 ? 0 : 1)}K';
+      }
+      return value.toStringAsFixed(0);
+    } else {
+      final symbol = CurrencyHelper.getCurrencySymbol();
+      if (absValue >= 1000000) {
+        return '$symbol${(value / 1000000).toStringAsFixed(absValue % 1000000 == 0 ? 0 : 1)}M';
+      } else if (absValue >= 1000) {
+        return '$symbol${(value / 1000).toStringAsFixed(absValue % 1000 == 0 ? 0 : 1)}K';
+      }
+      return '$symbol${value.toStringAsFixed(0)}';
+    }
+  }
+
+  Widget _buildXAxisLabels(double maxX) {
+    final labels = <double>[];
+    for (int i = 0; i <= 4; i++) {
+      labels.add((maxX / 4) * i);
+    }
+
+    return Padding(
+      padding: const EdgeInsets.only(left: 128),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: labels.map((value) {
+          return Text(
+            _formatXAxisLabel(value),
+            style: const TextStyle(
+              fontSize: 10,
+              color: Colors.black45,
+            ),
+          );
+        }).toList(),
+      ),
+    );
+  }
+
+  Widget _buildVerticalScrollIndicator() {
+    const int dotCount = 5;
+    final activeDot =
+        (_scrollProgress * (dotCount - 1)).round().clamp(0, dotCount - 1);
+
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: List.generate(dotCount, (index) {
+        final isActive = index == activeDot;
+        return AnimatedContainer(
+          duration: const Duration(milliseconds: 150),
+          margin: const EdgeInsets.symmetric(vertical: 3),
+          width: 6,
+          height: isActive ? 16 : 6,
+          decoration: BoxDecoration(
+            color: isActive ? AppTheme.primaryBlue : Colors.grey.shade300,
+            borderRadius: BorderRadius.circular(3),
+          ),
+        );
+      }),
+    );
+  }
+
+  void _showStaffDetails(StaffSalesResponseModel item) {
+    final currentValue = _getCurrentValue(item);
+    final previousValue = _getPreviousValue(item);
+    double percentChange = 0;
+    if (previousValue > 0) {
+      percentChange = ((currentValue - previousValue) / previousValue) * 100;
+    }
+
+    String formattedValue = "";
+    String formattedPrevious = "";
+
+    if (_isChecksFilter) {
+      formattedValue = NumberFormat('#,##0', 'en_US').format(currentValue.toInt());
+      formattedPrevious = NumberFormat('#,##0', 'en_US').format(previousValue.toInt());
+    } else {
+      formattedValue = CurrencyHelper.format(currentValue);
+      formattedPrevious = CurrencyHelper.format(previousValue);
+    }
+
+    ChartDetailsModal.show(
+      context: context,
+      title: item.name,
+      currentValueLabel: S.of(context).period,
+      currentValueText: formattedValue,
+      previousValueLabel: S.of(context).comparisonLabel,
+      previousValueText: formattedPrevious,
+      changeLabel: S.of(context).change ?? "Change",
+      percentChange: percentChange,
+      closeLabel: S.of(context).close ?? "Close",
+      currentValueColor: AppTheme.primaryBlue,
+      previousValueColor: const Color(0xFFFFA726),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final data = widget.reportData;
+
+    double maxValue = 0;
+    for (final item in data) {
+      final current = _getCurrentValue(item);
+      final previous = _getPreviousValue(item);
+      if (current > maxValue) maxValue = current;
+      if (previous > maxValue) maxValue = previous;
+    }
+    final maxX = maxValue > 0 ? maxValue * 1.2 : 100.0;
+
+    final chartHeight = data.length * 36.0;
+    final needsScrolling = chartHeight > 200;
+
+    return Scaffold(
+      backgroundColor: Colors.grey[50],
+      appBar: AppBar(
+        automaticallyImplyLeading: false,
+        backgroundColor: Colors.white,
+        elevation: 0,
+        title: Text(
+          S.of(context).salesByStaff ?? 'Sales by Staff',
+          style: const TextStyle(
+            color: Colors.black87,
+            fontSize: 18,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        centerTitle: true,
+        actions: [
+          IconButton(
+            icon:
+                const Icon(Icons.fullscreen_exit, color: AppTheme.primaryBlue),
+            onPressed: () => Navigator.of(context).pop(),
+          ),
+        ],
+      ),
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(12),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.05),
+                  blurRadius: 8,
+                  offset: const Offset(0, 2),
+                ),
+              ],
+            ),
+            child: Column(
+              children: [
+                Expanded(
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child: NotificationListener<ScrollNotification>(
+                          onNotification: (notification) {
+                            if (notification is ScrollUpdateNotification) {
+                              final maxExtent =
+                                  notification.metrics.maxScrollExtent;
+                              if (maxExtent > 0) {
+                                setState(() {
+                                  _scrollProgress =
+                                      notification.metrics.pixels / maxExtent;
+                                });
+                              }
+                            }
+                            return false;
+                          },
+                          child: SingleChildScrollView(
+                            controller: _scrollController,
+                            child: Column(
+                              children: data.map((item) {
+                                final currentValue = _getCurrentValue(item);
+                                final previousValue = _getPreviousValue(item);
+
+                                return LayoutBuilder(
+                                  builder: (context, constraints) {
+                                    final availableWidth = constraints.maxWidth;
+                                    const labelWidth = 120.0;
+                                    final barAreaWidth =
+                                        availableWidth - labelWidth - 8;
+
+                                    final currentBarWidth = maxX > 0
+                                        ? (currentValue / maxX) * barAreaWidth
+                                        : 0.0;
+                                    final previousBarWidth = maxX > 0
+                                        ? (previousValue / maxX) * barAreaWidth
+                                        : 0.0;
+
+                                    return GestureDetector(
+                                      onTap: () => _showStaffDetails(item),
+                                      child: Container(
+                                        height: 32,
+                                        margin:
+                                            const EdgeInsets.only(bottom: 4),
+                                        color: Colors.transparent,
+                                        child: Row(
+                                          children: [
+                                            SizedBox(
+                                              width: labelWidth,
+                                              child: Text(
+                                                item.name,
+                                                style: const TextStyle(
+                                                  fontSize: 11,
+                                                  color: Colors.black54,
+                                                  fontWeight: FontWeight.w500,
+                                                ),
+                                                maxLines: 2,
+                                                overflow: TextOverflow.ellipsis,
+                                              ),
+                                            ),
+                                            const SizedBox(width: 8),
+                                            Expanded(
+                                              child: Column(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.center,
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  AnimatedContainer(
+                                                    duration: const Duration(
+                                                        milliseconds: 300),
+                                                    height: 7,
+                                                    width:
+                                                        previousBarWidth.clamp(
+                                                            0.0,
+                                                            double.infinity),
+                                                    color:
+                                                        const Color(0xFFFFA726),
+                                                  ),
+                                                  AnimatedContainer(
+                                                    duration: const Duration(
+                                                        milliseconds: 300),
+                                                    height: 7,
+                                                    width:
+                                                        currentBarWidth.clamp(
+                                                            0.0,
+                                                            double.infinity),
+                                                    color: AppTheme.primaryBlue,
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                );
+                              }).toList(),
+                            ),
+                          ),
+                        ),
+                      ),
+                      if (needsScrolling)
+                        Padding(
+                          padding: const EdgeInsets.only(left: 8),
+                          child: _buildVerticalScrollIndicator(),
+                        ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 12),
+                _buildXAxisLabels(maxX),
+              ],
+            ),
+          ),
+        ),
+      ),
     );
   }
 }

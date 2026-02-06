@@ -116,5 +116,14 @@
     "store": "მაღაზია",
     "currentValue": "მიმდინარე მნიშვნელობა",
     "previousValue": "წინა მნიშვნელობა",
-    "change": "ცვლილება"
+    "change": "ცვლილება",
+    "topSalesByProducts": "ტოპ გაყიდვები პროდუქტებით",
+    "salesByCategories": "გაყიდვები კატეგორიებით",
+    "quantity": "რაოდენობა",
+    "product": "პროდუქტი",
+    "category": "კატეგორია",
+    "salesByStaff": "გაყიდვები პერსონალით",
+    "staffMember": "თანამშრომელი",
+    "salesByPaymentMethods": "გაყიდვები გადახდის მეთოდებით",
+    "paymentMethod": "გადახდის მეთოდი"
 }

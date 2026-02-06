@@ -36,8 +36,8 @@ class _TopProductsScreenState extends State<TopProductsScreen> {
   DateTime endCurrentPeriod = DateTime.now();
   DateTime startOldPeriod = DateTime.now().subtract(const Duration(days: 1));
   DateTime endOldPeriod = DateTime.now().subtract(const Duration(days: 1));
-  
-  int _selectedTop = 10;
+
+  int _selectedTop = 0;
   final List<int> _topOptions = [5, 10, 20, 50];
 
   _ReportFilterType _selectedFilterType = _ReportFilterType.sales;
@@ -143,20 +143,21 @@ class _TopProductsScreenState extends State<TopProductsScreen> {
     }
   }
 
-  double _getMetricValue(TopProductSalesResponseModel item, {bool isCurrent = true}) {
+  double _getMetricValue(TopProductSalesResponseModel item,
+      {bool isCurrent = true}) {
     if (_selectedFilterType == _ReportFilterType.sales) {
       return isCurrent ? item.currentSales : item.previousSales;
     } else {
       return (isCurrent ? item.currentQnt : item.previousQnt).toDouble();
     }
   }
-  
+
   String _getFormattedValue(double value) {
-     if (_selectedFilterType == _ReportFilterType.sales) {
-        return CurrencyHelper.format(value);
-     } else {
-       return value.toStringAsFixed(0);
-     }
+    if (_selectedFilterType == _ReportFilterType.sales) {
+      return CurrencyHelper.format(value);
+    } else {
+      return value.toStringAsFixed(0);
+    }
   }
 
   Color _getColorForIndex(int index) {
@@ -184,12 +185,13 @@ class _TopProductsScreenState extends State<TopProductsScreen> {
             backgroundColor: Colors.transparent,
             elevation: 0,
             leading: IconButton(
-              icon: const Icon(Icons.arrow_back, color: AppTheme.primaryTextColor),
+              icon: const Icon(Icons.arrow_back,
+                  color: AppTheme.primaryTextColor),
               onPressed: () => Navigator.pop(context),
             ),
             centerTitle: true,
             title: Text(
-              S.of(context).salesByProducts ?? 'Sales by Products', // Fallback if not in ARB yet
+              S.of(context).topSalesByProducts, // Fallback if not in ARB yet
               style: const TextStyle(
                 color: AppTheme.primaryTextColor,
                 fontSize: 20,
@@ -198,7 +200,7 @@ class _TopProductsScreenState extends State<TopProductsScreen> {
               ),
             ),
             actions: [
-               Padding(
+              Padding(
                 padding: const EdgeInsets.only(right: 12),
                 child: IconButton(
                   icon: Container(
@@ -234,7 +236,8 @@ class _TopProductsScreenState extends State<TopProductsScreen> {
                         if (!mounted) return;
                         Navigator.pushAndRemoveUntil(
                           context,
-                          MaterialPageRoute(builder: (_) => const SplashScreen()),
+                          MaterialPageRoute(
+                              builder: (_) => const SplashScreen()),
                           (route) => false,
                         );
                       },
@@ -251,7 +254,8 @@ class _TopProductsScreenState extends State<TopProductsScreen> {
           : Column(
               children: [
                 PickerWidget(
-                  screenType: ScreenType.reportssScreen, // Using generic reports screen type
+                  screenType: ScreenType
+                      .reportssScreen, // Using generic reports screen type
                   showCompareDateFilter: true,
                   showStoreFilter: true,
                   getDate: (dt1, dt2, dt3, dt4, min, max, bill) async {
@@ -263,7 +267,7 @@ class _TopProductsScreenState extends State<TopProductsScreen> {
                   },
                   onlyDayPicker: false,
                 ),
-                
+
                 // Filters Row (Display Value + Top N)
                 Container(
                   width: double.infinity,
@@ -285,39 +289,39 @@ class _TopProductsScreenState extends State<TopProductsScreen> {
                               ),
                             ),
                             const SizedBox(height: 6),
-                            _buildDropdown(
-                                context,
+                            _buildDropdown(context,
                                 icon: Icons.tune,
-                                value: _selectedFilterType == _ReportFilterType.sales 
-                                    ? S.of(context).income 
-                                    : (S.of(context).quantity ?? "Quantity"), // Fallback if quantity missing
+                                value: _selectedFilterType ==
+                                        _ReportFilterType.sales
+                                    ? S.of(context).income
+                                    : (S.of(context).quantity ??
+                                        "Quantity"), // Fallback if quantity missing
                                 onTap: _showDisplayValueSelector),
                           ],
                         ),
                       ),
                       const SizedBox(width: 12),
                       // Top N Dropdown
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              "Top", // TODO: Localize if needed, "Top" is universal mostly
-                              style: const TextStyle(
-                                fontSize: 12,
-                                fontWeight: FontWeight.w500,
-                                color: Colors.black54,
-                              ),
-                            ),
-                            const SizedBox(height: 6),
-                            _buildDropdown(
-                                context,
-                                icon: Icons.format_list_numbered,
-                                value: "$_selectedTop",
-                                onTap: _showTopSelector),
-                          ],
-                        ),
-                      ),
+                      // Expanded(
+                      //   child: Column(
+                      //     crossAxisAlignment: CrossAxisAlignment.start,
+                      //     children: [
+                      //       Text(
+                      //         "Top", // TODO: Localize if needed, "Top" is universal mostly
+                      //         style: const TextStyle(
+                      //           fontSize: 12,
+                      //           fontWeight: FontWeight.w500,
+                      //           color: Colors.black54,
+                      //         ),
+                      //       ),
+                      //       const SizedBox(height: 6),
+                      //       _buildDropdown(context,
+                      //           icon: Icons.format_list_numbered,
+                      //           value: "$_selectedTop",
+                      //           onTap: _showTopSelector),
+                      //     ],
+                      //   ),
+                      // ),
                     ],
                   ),
                 ),
@@ -337,7 +341,8 @@ class _TopProductsScreenState extends State<TopProductsScreen> {
                                   borderRadius: BorderRadius.circular(16),
                                   boxShadow: [
                                     BoxShadow(
-                                      color: Colors.black.withValues(alpha: 0.05),
+                                      color:
+                                          Colors.black.withValues(alpha: 0.05),
                                       blurRadius: 10,
                                       offset: const Offset(0, 2),
                                     ),
@@ -346,15 +351,15 @@ class _TopProductsScreenState extends State<TopProductsScreen> {
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Text(
-                                      S.of(context).salesOverview,
-                                      style: const TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.w600,
-                                        color: Colors.black87,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 24),
+                                    // Text(
+                                    //   S.of(context).salesOverview,
+                                    //   style: const TextStyle(
+                                    //     fontSize: 16,
+                                    //     fontWeight: FontWeight.w600,
+                                    //     color: Colors.black87,
+                                    //   ),
+                                    // ),
+                                    // const SizedBox(height: 24),
                                     SizedBox(
                                       height: 250,
                                       child: PieChart(
@@ -364,13 +369,19 @@ class _TopProductsScreenState extends State<TopProductsScreen> {
                                           sections: _buildPieChartSections(),
                                           pieTouchData: PieTouchData(
                                             enabled: true,
-                                            touchCallback: (FlTouchEvent event, pieTouchResponse) {
+                                            touchCallback: (FlTouchEvent event,
+                                                pieTouchResponse) {
                                               if (event is FlTapUpEvent &&
                                                   pieTouchResponse != null &&
-                                                  pieTouchResponse.touchedSection != null) {
+                                                  pieTouchResponse
+                                                          .touchedSection !=
+                                                      null) {
                                                 final index = pieTouchResponse
-                                                    .touchedSection!.touchedSectionIndex;
-                                                if (index >= 0 && index < _reportData.length) {
+                                                    .touchedSection!
+                                                    .touchedSectionIndex;
+                                                if (index >= 0 &&
+                                                    index <
+                                                        _reportData.length) {
                                                   _showDataPointDetails(index);
                                                 }
                                               }
@@ -384,7 +395,8 @@ class _TopProductsScreenState extends State<TopProductsScreen> {
                                     Wrap(
                                       spacing: 16,
                                       runSpacing: 8,
-                                      children: List.generate(_reportData.length, (index) {
+                                      children: List.generate(
+                                          _reportData.length, (index) {
                                         return Row(
                                           mainAxisSize: MainAxisSize.min,
                                           children: [
@@ -399,7 +411,9 @@ class _TopProductsScreenState extends State<TopProductsScreen> {
                                             const SizedBox(width: 4),
                                             Text(
                                               _reportData[index].productName,
-                                              style: const TextStyle(fontSize: 12, color: Colors.black87),
+                                              style: const TextStyle(
+                                                  fontSize: 12,
+                                                  color: Colors.black87),
                                             ),
                                           ],
                                         );
@@ -409,7 +423,7 @@ class _TopProductsScreenState extends State<TopProductsScreen> {
                                 ),
                               ),
                               const SizedBox(height: 16),
-                              
+
                               // List Section
                               Container(
                                 decoration: BoxDecoration(
@@ -417,7 +431,8 @@ class _TopProductsScreenState extends State<TopProductsScreen> {
                                   borderRadius: BorderRadius.circular(16),
                                   boxShadow: [
                                     BoxShadow(
-                                      color: Colors.black.withValues(alpha: 0.05),
+                                      color:
+                                          Colors.black.withValues(alpha: 0.05),
                                       blurRadius: 10,
                                       offset: const Offset(0, 2),
                                     ),
@@ -427,7 +442,8 @@ class _TopProductsScreenState extends State<TopProductsScreen> {
                                   children: [
                                     // Header
                                     Container(
-                                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 20, vertical: 16),
                                       decoration: BoxDecoration(
                                         border: Border(
                                           bottom: BorderSide(
@@ -437,7 +453,8 @@ class _TopProductsScreenState extends State<TopProductsScreen> {
                                         ),
                                       ),
                                       child: Row(
-                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
                                         children: [
                                           Text(
                                             S.of(context).product ?? "Product",
@@ -447,10 +464,12 @@ class _TopProductsScreenState extends State<TopProductsScreen> {
                                               color: Colors.black54,
                                             ),
                                           ),
-                                           Text(
-                                            _selectedFilterType == _ReportFilterType.sales 
-                                                ? S.of(context).income 
-                                                : (S.of(context).quantity ?? "Quantity"),
+                                          Text(
+                                            _selectedFilterType ==
+                                                    _ReportFilterType.sales
+                                                ? S.of(context).income
+                                                : (S.of(context).quantity ??
+                                                    "Quantity"),
                                             style: const TextStyle(
                                               fontSize: 13,
                                               fontWeight: FontWeight.w600,
@@ -460,29 +479,33 @@ class _TopProductsScreenState extends State<TopProductsScreen> {
                                         ],
                                       ),
                                     ),
-                                    
+
                                     // Items
-                                    ...List.generate(_reportData.length, (index) => _buildListItem(index)),
+                                    ...List.generate(_reportData.length,
+                                        (index) => _buildListItem(index)),
                                   ],
                                 ),
                               ),
                             ] else ...[
-                                SizedBox(
-                                  height: 300,
-                                  child: Center(
-                                    child: Column(
-                                      mainAxisAlignment: MainAxisAlignment.center,
-                                      children: [
-                                        Icon(Icons.bar_chart, size: 48, color: Colors.grey.shade300),
-                                        const SizedBox(height: 16),
-                                        Text(
-                                          S.of(context).noDataAvailable,
-                                          style: TextStyle(color: Colors.grey.shade500),
-                                        ),
-                                      ],
-                                    ),
+                              SizedBox(
+                                height: 300,
+                                child: Center(
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Icon(Icons.bar_chart,
+                                          size: 48,
+                                          color: Colors.grey.shade300),
+                                      const SizedBox(height: 16),
+                                      Text(
+                                        S.of(context).noDataAvailable,
+                                        style: TextStyle(
+                                            color: Colors.grey.shade500),
+                                      ),
+                                    ],
                                   ),
-                                )
+                                ),
+                              )
                             ]
                           ],
                         ),
@@ -493,7 +516,9 @@ class _TopProductsScreenState extends State<TopProductsScreen> {
   }
 
   Widget _buildDropdown(BuildContext context,
-      {required IconData icon, required String value, required VoidCallback onTap}) {
+      {required IconData icon,
+      required String value,
+      required VoidCallback onTap}) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -533,7 +558,8 @@ class _TopProductsScreenState extends State<TopProductsScreen> {
   }
 
   List<PieChartSectionData> _buildPieChartSections() {
-    double total = _reportData.fold(0, (sum, item) => sum + _getMetricValue(item, isCurrent: true));
+    double total = _reportData.fold(
+        0, (sum, item) => sum + _getMetricValue(item, isCurrent: true));
     if (total == 0) return [];
 
     return List.generate(_reportData.length, (i) {
@@ -563,7 +589,7 @@ class _TopProductsScreenState extends State<TopProductsScreen> {
     final color = _getColorForIndex(index);
     final currentValue = _getMetricValue(item, isCurrent: true);
     final previousValue = _getMetricValue(item, isCurrent: false);
-    
+
     double percentChange = 0;
     if (previousValue > 0) {
       percentChange = ((currentValue - previousValue) / previousValue) * 100;
@@ -582,70 +608,70 @@ class _TopProductsScreenState extends State<TopProductsScreen> {
       ),
       child: Row(
         children: [
-            // Color indicator
-            Container(
-              width: 4,
-              height: 40,
-              decoration: BoxDecoration(
-                color: color,
-                borderRadius: BorderRadius.circular(2),
-              ),
+          // Color indicator
+          Container(
+            width: 4,
+            height: 40,
+            decoration: BoxDecoration(
+              color: color,
+              borderRadius: BorderRadius.circular(2),
             ),
-            const SizedBox(width: 16),
-            
-            // Name and percentage change
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    item.productName,
-                    style: const TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w500,
-                      color: Colors.black87,
-                    ),
+          ),
+          const SizedBox(width: 16),
+
+          // Name and percentage change
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  item.productName,
+                  style: const TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w500,
+                    color: Colors.black87,
                   ),
-                   const SizedBox(height: 4),
-                   Row(
-                    children: [
-                         Text(
-                          percentChange >= 0
-                              ? '+${percentChange.toStringAsFixed(1)}%'
-                              : '${percentChange.toStringAsFixed(1)}%',
-                          style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w500,
-                            color: percentChange >= 0
-                                ? const Color(0xFF00BFA5) // Light Teal
-                                : const Color(0xFFFF5252), // Light Red
-                          ),
-                        ),
-                        const SizedBox(width: 6),
-                         Text(
-                          _selectedFilterType == _ReportFilterType.sales 
-                            ? CurrencyHelper.format(previousValue)
-                            : previousValue.toStringAsFixed(0),
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: Colors.grey.shade500,
-                          ),
-                        ),
-                    ],
-                   )
-                ],
-              ),
+                ),
+                const SizedBox(height: 4),
+                Row(
+                  children: [
+                    Text(
+                      percentChange >= 0
+                          ? '+${percentChange.toStringAsFixed(1)}%'
+                          : '${percentChange.toStringAsFixed(1)}%',
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                        color: percentChange >= 0
+                            ? const Color(0xFF00BFA5) // Light Teal
+                            : const Color(0xFFFF5252), // Light Red
+                      ),
+                    ),
+                    const SizedBox(width: 6),
+                    Text(
+                      _selectedFilterType == _ReportFilterType.sales
+                          ? CurrencyHelper.format(previousValue)
+                          : previousValue.toStringAsFixed(0),
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Colors.grey.shade500,
+                      ),
+                    ),
+                  ],
+                )
+              ],
             ),
-            
-            // Value
-            Text(
-              _getFormattedValue(currentValue),
-              style: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-                color: Colors.black87,
-              ),
+          ),
+
+          // Value
+          Text(
+            _getFormattedValue(currentValue),
+            style: const TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+              color: Colors.black87,
             ),
+          ),
         ],
       ),
     );
@@ -665,57 +691,70 @@ class _TopProductsScreenState extends State<TopProductsScreen> {
         ),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
         child: SafeArea(
-            child: Column(
-                mainAxisSize: MainAxisSize.min,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                    Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                            const SizedBox(width: 40),
-                            Text(S.of(context).displayValue, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),
-                             IconButton(onPressed: () => Navigator.pop(context), icon: const Icon(Icons.close)),
-                        ],
-                    ),
-                    const SizedBox(height: 16),
-                    _buildFilterOption(_ReportFilterType.sales, S.of(context).income, Icons.attach_money),
-                    _buildFilterOption(_ReportFilterType.quantity, S.of(context).quantity ?? "Quantity", Icons.numbers),
+                  const SizedBox(width: 40),
+                  Text(S.of(context).displayValue,
+                      style: const TextStyle(
+                          fontSize: 18, fontWeight: FontWeight.w600)),
+                  IconButton(
+                      onPressed: () => Navigator.pop(context),
+                      icon: const Icon(Icons.close)),
                 ],
-            ),
+              ),
+              const SizedBox(height: 16),
+              _buildFilterOption(_ReportFilterType.sales, S.of(context).income,
+                  Icons.attach_money),
+              _buildFilterOption(_ReportFilterType.quantity,
+                  S.of(context).quantity ?? "Quantity", Icons.numbers),
+            ],
+          ),
         ),
       ),
     );
   }
-  
-  Widget _buildFilterOption(_ReportFilterType type, String label, IconData icon) {
-      final isSelected = _selectedFilterType == type;
-      return Container(
-        margin: const EdgeInsets.only(bottom: 8),
-        decoration: BoxDecoration(
-          color: isSelected ? AppTheme.primaryBlue.withValues(alpha: 0.1) : Colors.grey.shade50,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: isSelected ? AppTheme.primaryBlue : Colors.grey.shade200),
+
+  Widget _buildFilterOption(
+      _ReportFilterType type, String label, IconData icon) {
+    final isSelected = _selectedFilterType == type;
+    return Container(
+      margin: const EdgeInsets.only(bottom: 8),
+      decoration: BoxDecoration(
+        color: isSelected
+            ? AppTheme.primaryBlue.withValues(alpha: 0.1)
+            : Colors.grey.shade50,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+            color: isSelected ? AppTheme.primaryBlue : Colors.grey.shade200),
+      ),
+      child: InkWell(
+        onTap: () {
+          setState(() => _selectedFilterType = type);
+          Navigator.pop(context);
+        },
+        borderRadius: BorderRadius.circular(12),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Row(
+            children: [
+              Icon(icon,
+                  color:
+                      isSelected ? AppTheme.primaryBlue : Colors.grey.shade600),
+              const SizedBox(width: 12),
+              Text(label,
+                  style: TextStyle(
+                    color: isSelected ? AppTheme.primaryBlue : Colors.black87,
+                    fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+                  )),
+            ],
+          ),
         ),
-        child: InkWell(
-            onTap: () {
-                setState(() => _selectedFilterType = type);
-                Navigator.pop(context);
-            },
-            borderRadius: BorderRadius.circular(12),
-            child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Row(
-                    children: [
-                        Icon(icon, color: isSelected ? AppTheme.primaryBlue : Colors.grey.shade600),
-                        const SizedBox(width: 12),
-                        Text(label, style: TextStyle(
-                            color: isSelected ? AppTheme.primaryBlue : Colors.black87,
-                            fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
-                        )),
-                    ],
-                ),
-            ),
-        ),
-      );
+      ),
+    );
   }
 
   void _showTopSelector() {
@@ -735,16 +774,20 @@ class _TopProductsScreenState extends State<TopProductsScreen> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-                 Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                            const SizedBox(width: 40),
-                            const Text("Select Top N", style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),
-                             IconButton(onPressed: () => Navigator.pop(context), icon: const Icon(Icons.close)),
-                        ],
-                    ),
-                const SizedBox(height: 16),
-                ..._topOptions.map((top) => _buildTopOption(top)),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const SizedBox(width: 40),
+                  const Text("Select Top N",
+                      style:
+                          TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),
+                  IconButton(
+                      onPressed: () => Navigator.pop(context),
+                      icon: const Icon(Icons.close)),
+                ],
+              ),
+              const SizedBox(height: 16),
+              ..._topOptions.map((top) => _buildTopOption(top)),
             ],
           ),
         ),
@@ -753,37 +796,42 @@ class _TopProductsScreenState extends State<TopProductsScreen> {
   }
 
   Widget _buildTopOption(int top) {
-     final isSelected = _selectedTop == top;
-      return Container(
-        margin: const EdgeInsets.only(bottom: 8),
-        decoration: BoxDecoration(
-          color: isSelected ? AppTheme.primaryBlue.withValues(alpha: 0.1) : Colors.grey.shade50,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: isSelected ? AppTheme.primaryBlue : Colors.grey.shade200),
+    final isSelected = _selectedTop == top;
+    return Container(
+      margin: const EdgeInsets.only(bottom: 8),
+      decoration: BoxDecoration(
+        color: isSelected
+            ? AppTheme.primaryBlue.withValues(alpha: 0.1)
+            : Colors.grey.shade50,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+            color: isSelected ? AppTheme.primaryBlue : Colors.grey.shade200),
+      ),
+      child: InkWell(
+        onTap: () {
+          setState(() => _selectedTop = top);
+          Navigator.pop(context);
+          _loadData(); // Reload data with new top
+        },
+        borderRadius: BorderRadius.circular(12),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Row(
+            children: [
+              Text("Top $top",
+                  style: TextStyle(
+                      color: isSelected ? AppTheme.primaryBlue : Colors.black87,
+                      fontWeight:
+                          isSelected ? FontWeight.w600 : FontWeight.w500,
+                      fontSize: 16)),
+              const Spacer(),
+              if (isSelected)
+                const Icon(Icons.check_circle, color: AppTheme.primaryBlue)
+            ],
+          ),
         ),
-        child: InkWell(
-            onTap: () {
-                setState(() => _selectedTop = top);
-                Navigator.pop(context);
-                _loadData(); // Reload data with new top
-            },
-            borderRadius: BorderRadius.circular(12),
-            child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Row(
-                    children: [
-                        Text("Top $top", style: TextStyle(
-                            color: isSelected ? AppTheme.primaryBlue : Colors.black87,
-                            fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
-                            fontSize: 16
-                        )),
-                        const Spacer(),
-                        if (isSelected) const Icon(Icons.check_circle, color: AppTheme.primaryBlue)
-                    ],
-                ),
-            ),
-        ),
-      );
+      ),
+    );
   }
 
   void _showDataPointDetails(int index) {
@@ -801,7 +849,7 @@ class _TopProductsScreenState extends State<TopProductsScreen> {
       currentValueLabel: S.of(context).currentValue ?? "Current Value",
       currentValueText: _getFormattedValue(currentValue),
       previousValueLabel: S.of(context).previousValue ?? "Previous Value",
-      previousValueText: _selectedFilterType == _ReportFilterType.sales 
+      previousValueText: _selectedFilterType == _ReportFilterType.sales
           ? CurrencyHelper.format(previousValue)
           : previousValue.toStringAsFixed(0),
       changeLabel: S.of(context).change ?? "Change",

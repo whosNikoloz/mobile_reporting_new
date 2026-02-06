@@ -839,21 +839,21 @@ class S {
     return Intl.message('Store', name: 'store', desc: '', args: []);
   }
 
-  /// `Sales by Products`
-  String get salesByProducts {
+  /// `Top Sales by Products`
+  String get topSalesByProducts {
     return Intl.message(
-      'Sales by Products',
-      name: 'salesByProducts',
+      'Top Sales by Products',
+      name: 'topSalesByProducts',
       desc: '',
       args: [],
     );
   }
 
   /// `Sales by Category`
-  String get salesByCategory {
+  String get salesByCategories {
     return Intl.message(
-      'Sales by Category',
-      name: 'salesByCategory',
+      'Sales by Categories',
+      name: 'salesByCategories',
       desc: '',
       args: [],
     );
@@ -895,10 +895,10 @@ class S {
   }
 
   /// `Sales by Payment Method`
-  String get salesByPaymentMethod {
+  String get salesByPaymentMethods {
     return Intl.message(
-      'Sales by Payment Method',
-      name: 'salesByPaymentMethod',
+      'Sales by Payment Methods',
+      name: 'salesByPaymentMethods',
       desc: '',
       args: [],
     );

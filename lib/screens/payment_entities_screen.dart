@@ -34,10 +34,10 @@ class _PaymentEntitiesScreenState extends State<PaymentEntitiesScreen> {
   DateTime endCurrentPeriod = DateTime.now();
   DateTime startOldPeriod = DateTime.now().subtract(const Duration(days: 1));
   DateTime endOldPeriod = DateTime.now().subtract(const Duration(days: 1));
-  
-  int _selectedTop = 10;
+
+  int _selectedTop = 0;
   final List<int> _topOptions = [5, 10, 20, 50];
-  
+
   _ReportType _selectedType = _ReportType.income;
 
   // Data
@@ -192,12 +192,13 @@ class _PaymentEntitiesScreenState extends State<PaymentEntitiesScreen> {
             backgroundColor: Colors.transparent,
             elevation: 0,
             leading: IconButton(
-              icon: const Icon(Icons.arrow_back, color: AppTheme.primaryTextColor),
+              icon: const Icon(Icons.arrow_back,
+                  color: AppTheme.primaryTextColor),
               onPressed: () => Navigator.pop(context),
             ),
             centerTitle: true,
             title: Text(
-              S.of(context).salesByPaymentMethod ?? 'Sales by Payment Method',
+              S.of(context).salesByPaymentMethods,
               style: const TextStyle(
                 color: AppTheme.primaryTextColor,
                 fontSize: 20,
@@ -206,7 +207,7 @@ class _PaymentEntitiesScreenState extends State<PaymentEntitiesScreen> {
               ),
             ),
             actions: [
-               Padding(
+              Padding(
                 padding: const EdgeInsets.only(right: 12),
                 child: IconButton(
                   icon: Container(
@@ -242,7 +243,8 @@ class _PaymentEntitiesScreenState extends State<PaymentEntitiesScreen> {
                         if (!mounted) return;
                         Navigator.pushAndRemoveUntil(
                           context,
-                          MaterialPageRoute(builder: (_) => const SplashScreen()),
+                          MaterialPageRoute(
+                              builder: (_) => const SplashScreen()),
                           (route) => false,
                         );
                       },
@@ -271,64 +273,62 @@ class _PaymentEntitiesScreenState extends State<PaymentEntitiesScreen> {
                   },
                   onlyDayPicker: false,
                 ),
-                
+
                 // Filters Row (Top N & Type)
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
-                  color: Colors.grey.shade100,
-                  child: Row(
-                    children: [
-                      // Type Dropdown
-                      Expanded(
-                        flex: 3,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              S.of(context).displayValue,
-                              style: const TextStyle(
-                                fontSize: 12,
-                                fontWeight: FontWeight.w500,
-                                color: Colors.black54,
-                              ),
-                            ),
-                            const SizedBox(height: 6),
-                            _buildDropdown(
-                                context,
-                                icon: Icons.tune,
-                                value: _getReportTypeLabel(_selectedType),
-                                onTap: _showTypeSelector),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      // Top N Dropdown
-                      Expanded(
-                        flex: 2,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Text(
-                              "Top",
-                              style: TextStyle(
-                                fontSize: 12,
-                                fontWeight: FontWeight.w500,
-                                color: Colors.black54,
-                              ),
-                            ),
-                            const SizedBox(height: 6),
-                            _buildDropdown(
-                                context,
-                                icon: Icons.format_list_numbered,
-                                value: "$_selectedTop",
-                                onTap: _showTopSelector),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
+                // Container(
+                //   width: double.infinity,
+                //   padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+                //   color: Colors.grey.shade100,
+                //   child: Row(
+                //     children: [
+                //       // Type Dropdown
+                //       Expanded(
+                //         flex: 3,
+                //         child: Column(
+                //           crossAxisAlignment: CrossAxisAlignment.start,
+                //           children: [
+                //             Text(
+                //               S.of(context).displayValue,
+                //               style: const TextStyle(
+                //                 fontSize: 12,
+                //                 fontWeight: FontWeight.w500,
+                //                 color: Colors.black54,
+                //               ),
+                //             ),
+                //             const SizedBox(height: 6),
+                //             _buildDropdown(context,
+                //                 icon: Icons.tune,
+                //                 value: _getReportTypeLabel(_selectedType),
+                //                 onTap: _showTypeSelector),
+                //           ],
+                //         ),
+                //       ),
+                //       const SizedBox(width: 12),
+                //       // Top N Dropdown
+                //       Expanded(
+                //         flex: 2,
+                //         child: Column(
+                //           crossAxisAlignment: CrossAxisAlignment.start,
+                //           children: [
+                //             const Text(
+                //               "Top",
+                //               style: TextStyle(
+                //                 fontSize: 12,
+                //                 fontWeight: FontWeight.w500,
+                //                 color: Colors.black54,
+                //               ),
+                //             ),
+                //             const SizedBox(height: 6),
+                //             _buildDropdown(context,
+                //                 icon: Icons.format_list_numbered,
+                //                 value: "$_selectedTop",
+                //                 onTap: _showTopSelector),
+                //           ],
+                //         ),
+                //       ),
+                //     ],
+                //   ),
+                // ),
 
                 Expanded(
                   child: isLoading
@@ -345,7 +345,8 @@ class _PaymentEntitiesScreenState extends State<PaymentEntitiesScreen> {
                                   borderRadius: BorderRadius.circular(16),
                                   boxShadow: [
                                     BoxShadow(
-                                      color: Colors.black.withValues(alpha: 0.05),
+                                      color:
+                                          Colors.black.withValues(alpha: 0.05),
                                       blurRadius: 10,
                                       offset: const Offset(0, 2),
                                     ),
@@ -354,15 +355,15 @@ class _PaymentEntitiesScreenState extends State<PaymentEntitiesScreen> {
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Text(
-                                      S.of(context).salesOverview,
-                                      style: const TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.w600,
-                                        color: Colors.black87,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 24),
+                                    // Text(
+                                    //   S.of(context).salesOverview,
+                                    //   style: const TextStyle(
+                                    //     fontSize: 16,
+                                    //     fontWeight: FontWeight.w600,
+                                    //     color: Colors.black87,
+                                    //   ),
+                                    // ),
+                                    // const SizedBox(height: 24),
                                     SizedBox(
                                       height: 250,
                                       child: PieChart(
@@ -372,13 +373,19 @@ class _PaymentEntitiesScreenState extends State<PaymentEntitiesScreen> {
                                           sections: _buildPieChartSections(),
                                           pieTouchData: PieTouchData(
                                             enabled: true,
-                                            touchCallback: (FlTouchEvent event, pieTouchResponse) {
+                                            touchCallback: (FlTouchEvent event,
+                                                pieTouchResponse) {
                                               if (event is FlTapUpEvent &&
                                                   pieTouchResponse != null &&
-                                                  pieTouchResponse.touchedSection != null) {
+                                                  pieTouchResponse
+                                                          .touchedSection !=
+                                                      null) {
                                                 final index = pieTouchResponse
-                                                    .touchedSection!.touchedSectionIndex;
-                                                if (index >= 0 && index < _reportData.length) {
+                                                    .touchedSection!
+                                                    .touchedSectionIndex;
+                                                if (index >= 0 &&
+                                                    index <
+                                                        _reportData.length) {
                                                   _showDataPointDetails(index);
                                                 }
                                               }
@@ -392,7 +399,8 @@ class _PaymentEntitiesScreenState extends State<PaymentEntitiesScreen> {
                                     Wrap(
                                       spacing: 16,
                                       runSpacing: 8,
-                                      children: List.generate(_reportData.length, (index) {
+                                      children: List.generate(
+                                          _reportData.length, (index) {
                                         return Row(
                                           mainAxisSize: MainAxisSize.min,
                                           children: [
@@ -407,7 +415,9 @@ class _PaymentEntitiesScreenState extends State<PaymentEntitiesScreen> {
                                             const SizedBox(width: 4),
                                             Text(
                                               _reportData[index].entityName,
-                                              style: const TextStyle(fontSize: 12, color: Colors.black87),
+                                              style: const TextStyle(
+                                                  fontSize: 12,
+                                                  color: Colors.black87),
                                             ),
                                           ],
                                         );
@@ -417,7 +427,7 @@ class _PaymentEntitiesScreenState extends State<PaymentEntitiesScreen> {
                                 ),
                               ),
                               const SizedBox(height: 16),
-                              
+
                               // List Section
                               Container(
                                 decoration: BoxDecoration(
@@ -425,7 +435,8 @@ class _PaymentEntitiesScreenState extends State<PaymentEntitiesScreen> {
                                   borderRadius: BorderRadius.circular(16),
                                   boxShadow: [
                                     BoxShadow(
-                                      color: Colors.black.withValues(alpha: 0.05),
+                                      color:
+                                          Colors.black.withValues(alpha: 0.05),
                                       blurRadius: 10,
                                       offset: const Offset(0, 2),
                                     ),
@@ -435,7 +446,8 @@ class _PaymentEntitiesScreenState extends State<PaymentEntitiesScreen> {
                                   children: [
                                     // Header
                                     Container(
-                                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 20, vertical: 16),
                                       decoration: BoxDecoration(
                                         border: Border(
                                           bottom: BorderSide(
@@ -445,10 +457,12 @@ class _PaymentEntitiesScreenState extends State<PaymentEntitiesScreen> {
                                         ),
                                       ),
                                       child: Row(
-                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
                                         children: [
                                           Text(
-                                            S.of(context).paymentMethod ?? "Payment Method",
+                                            S.of(context).paymentMethod ??
+                                                "Payment Method",
                                             style: const TextStyle(
                                               fontSize: 13,
                                               fontWeight: FontWeight.w600,
@@ -466,29 +480,33 @@ class _PaymentEntitiesScreenState extends State<PaymentEntitiesScreen> {
                                         ],
                                       ),
                                     ),
-                                    
+
                                     // Items
-                                    ...List.generate(_reportData.length, (index) => _buildListItem(index)),
+                                    ...List.generate(_reportData.length,
+                                        (index) => _buildListItem(index)),
                                   ],
                                 ),
                               ),
                             ] else ...[
-                                SizedBox(
-                                  height: 300,
-                                  child: Center(
-                                    child: Column(
-                                      mainAxisAlignment: MainAxisAlignment.center,
-                                      children: [
-                                        Icon(Icons.bar_chart, size: 48, color: Colors.grey.shade300),
-                                        const SizedBox(height: 16),
-                                        Text(
-                                          S.of(context).noDataAvailable,
-                                          style: TextStyle(color: Colors.grey.shade500),
-                                        ),
-                                      ],
-                                    ),
+                              SizedBox(
+                                height: 300,
+                                child: Center(
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Icon(Icons.bar_chart,
+                                          size: 48,
+                                          color: Colors.grey.shade300),
+                                      const SizedBox(height: 16),
+                                      Text(
+                                        S.of(context).noDataAvailable,
+                                        style: TextStyle(
+                                            color: Colors.grey.shade500),
+                                      ),
+                                    ],
                                   ),
-                                )
+                                ),
+                              )
                             ]
                           ],
                         ),
@@ -499,7 +517,9 @@ class _PaymentEntitiesScreenState extends State<PaymentEntitiesScreen> {
   }
 
   Widget _buildDropdown(BuildContext context,
-      {required IconData icon, required String value, required VoidCallback onTap}) {
+      {required IconData icon,
+      required String value,
+      required VoidCallback onTap}) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -539,11 +559,12 @@ class _PaymentEntitiesScreenState extends State<PaymentEntitiesScreen> {
   }
 
   List<PieChartSectionData> _buildPieChartSections() {
-    double total = _reportData.fold(0, (sum, item) => sum + _getCurrentValue(item));
+    double total =
+        _reportData.fold(0, (sum, item) => sum + _getCurrentValue(item));
     if (total == 0) return [];
 
     return List.generate(_reportData.length, (i) {
-      final isTouched = false; 
+      final isTouched = false;
       final fontSize = isTouched ? 16.0 : 12.0;
       final radius = isTouched ? 60.0 : 50.0;
       final item = _reportData[i];
@@ -569,7 +590,7 @@ class _PaymentEntitiesScreenState extends State<PaymentEntitiesScreen> {
     final color = _getColorForIndex(index);
     final currentValue = _getCurrentValue(item);
     final previousValue = _getPreviousValue(item);
-    
+
     double percentChange = 0;
     if (previousValue > 0) {
       percentChange = ((currentValue - previousValue) / previousValue) * 100;
@@ -579,11 +600,11 @@ class _PaymentEntitiesScreenState extends State<PaymentEntitiesScreen> {
     String formattedPrevious = "";
 
     if (_selectedType == _ReportType.income) {
-         formattedValue = CurrencyHelper.format(currentValue);
-         formattedPrevious = CurrencyHelper.format(previousValue);
+      formattedValue = CurrencyHelper.format(currentValue);
+      formattedPrevious = CurrencyHelper.format(previousValue);
     } else {
-         formattedValue = currentValue.toStringAsFixed(0);
-         formattedPrevious = previousValue.toStringAsFixed(0);
+      formattedValue = currentValue.toStringAsFixed(0);
+      formattedPrevious = previousValue.toStringAsFixed(0);
     }
 
     return Container(
@@ -599,68 +620,68 @@ class _PaymentEntitiesScreenState extends State<PaymentEntitiesScreen> {
       ),
       child: Row(
         children: [
-            // Color indicator
-            Container(
-              width: 4,
-              height: 40,
-              decoration: BoxDecoration(
-                color: color,
-                borderRadius: BorderRadius.circular(2),
-              ),
+          // Color indicator
+          Container(
+            width: 4,
+            height: 40,
+            decoration: BoxDecoration(
+              color: color,
+              borderRadius: BorderRadius.circular(2),
             ),
-            const SizedBox(width: 16),
-            
-            // Name and percentage change
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    item.entityName,
-                    style: const TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w500,
-                      color: Colors.black87,
-                    ),
+          ),
+          const SizedBox(width: 16),
+
+          // Name and percentage change
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  item.entityName,
+                  style: const TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w500,
+                    color: Colors.black87,
                   ),
-                   const SizedBox(height: 4),
-                   Row(
-                    children: [
-                         Text(
-                          percentChange >= 0
-                              ? '+${percentChange.toStringAsFixed(1)}%'
-                              : '${percentChange.toStringAsFixed(1)}%',
-                          style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w500,
-                            color: percentChange >= 0
-                                ? const Color(0xFF00BFA5) // Light Teal
-                                : const Color(0xFFFF5252), // Light Red
-                          ),
-                        ),
-                        const SizedBox(width: 6),
-                         Text(
-                          formattedPrevious,
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: Colors.grey.shade500,
-                          ),
-                        ),
-                    ],
-                   )
-                ],
-              ),
+                ),
+                const SizedBox(height: 4),
+                Row(
+                  children: [
+                    Text(
+                      percentChange >= 0
+                          ? '+${percentChange.toStringAsFixed(1)}%'
+                          : '${percentChange.toStringAsFixed(1)}%',
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                        color: percentChange >= 0
+                            ? const Color(0xFF00BFA5) // Light Teal
+                            : const Color(0xFFFF5252), // Light Red
+                      ),
+                    ),
+                    const SizedBox(width: 6),
+                    Text(
+                      formattedPrevious,
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Colors.grey.shade500,
+                      ),
+                    ),
+                  ],
+                )
+              ],
             ),
-            
-            // Value
-            Text(
-              formattedValue,
-              style: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-                color: Colors.black87,
-              ),
+          ),
+
+          // Value
+          Text(
+            formattedValue,
+            style: const TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+              color: Colors.black87,
             ),
+          ),
         ],
       ),
     );
@@ -683,16 +704,20 @@ class _PaymentEntitiesScreenState extends State<PaymentEntitiesScreen> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-                 Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                            const SizedBox(width: 40),
-                            const Text("Select Top N", style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),
-                             IconButton(onPressed: () => Navigator.pop(context), icon: const Icon(Icons.close)),
-                        ],
-                    ),
-                const SizedBox(height: 16),
-                ..._topOptions.map((top) => _buildTopOption(top)),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const SizedBox(width: 40),
+                  const Text("Select Top N",
+                      style:
+                          TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),
+                  IconButton(
+                      onPressed: () => Navigator.pop(context),
+                      icon: const Icon(Icons.close)),
+                ],
+              ),
+              const SizedBox(height: 16),
+              ..._topOptions.map((top) => _buildTopOption(top)),
             ],
           ),
         ),
@@ -701,37 +726,42 @@ class _PaymentEntitiesScreenState extends State<PaymentEntitiesScreen> {
   }
 
   Widget _buildTopOption(int top) {
-     final isSelected = _selectedTop == top;
-      return Container(
-        margin: const EdgeInsets.only(bottom: 8),
-        decoration: BoxDecoration(
-          color: isSelected ? AppTheme.primaryBlue.withValues(alpha: 0.1) : Colors.grey.shade50,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: isSelected ? AppTheme.primaryBlue : Colors.grey.shade200),
+    final isSelected = _selectedTop == top;
+    return Container(
+      margin: const EdgeInsets.only(bottom: 8),
+      decoration: BoxDecoration(
+        color: isSelected
+            ? AppTheme.primaryBlue.withValues(alpha: 0.1)
+            : Colors.grey.shade50,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+            color: isSelected ? AppTheme.primaryBlue : Colors.grey.shade200),
+      ),
+      child: InkWell(
+        onTap: () {
+          setState(() => _selectedTop = top);
+          Navigator.pop(context);
+          _loadData(); // Reload data with new top
+        },
+        borderRadius: BorderRadius.circular(12),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Row(
+            children: [
+              Text("Top $top",
+                  style: TextStyle(
+                      color: isSelected ? AppTheme.primaryBlue : Colors.black87,
+                      fontWeight:
+                          isSelected ? FontWeight.w600 : FontWeight.w500,
+                      fontSize: 16)),
+              const Spacer(),
+              if (isSelected)
+                const Icon(Icons.check_circle, color: AppTheme.primaryBlue)
+            ],
+          ),
         ),
-        child: InkWell(
-            onTap: () {
-                setState(() => _selectedTop = top);
-                Navigator.pop(context);
-                _loadData(); // Reload data with new top
-            },
-            borderRadius: BorderRadius.circular(12),
-            child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Row(
-                    children: [
-                        Text("Top $top", style: TextStyle(
-                            color: isSelected ? AppTheme.primaryBlue : Colors.black87,
-                            fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
-                            fontSize: 16
-                        )),
-                        const Spacer(),
-                        if (isSelected) const Icon(Icons.check_circle, color: AppTheme.primaryBlue)
-                    ],
-                ),
-            ),
-        ),
-      );
+      ),
+    );
   }
 
   void _showTypeSelector() {
@@ -751,16 +781,20 @@ class _PaymentEntitiesScreenState extends State<PaymentEntitiesScreen> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-                 Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                            const SizedBox(width: 40),
-                            Text(S.of(context).displayValue, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),
-                             IconButton(onPressed: () => Navigator.pop(context), icon: const Icon(Icons.close)),
-                        ],
-                    ),
-                const SizedBox(height: 16),
-                ..._ReportType.values.map((type) => _buildTypeOption(type)),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const SizedBox(width: 40),
+                  Text(S.of(context).displayValue,
+                      style: const TextStyle(
+                          fontSize: 18, fontWeight: FontWeight.w600)),
+                  IconButton(
+                      onPressed: () => Navigator.pop(context),
+                      icon: const Icon(Icons.close)),
+                ],
+              ),
+              const SizedBox(height: 16),
+              ..._ReportType.values.map((type) => _buildTypeOption(type)),
             ],
           ),
         ),
@@ -769,37 +803,42 @@ class _PaymentEntitiesScreenState extends State<PaymentEntitiesScreen> {
   }
 
   Widget _buildTypeOption(_ReportType type) {
-     final isSelected = _selectedType == type;
-      return Container(
-        margin: const EdgeInsets.only(bottom: 8),
-        decoration: BoxDecoration(
-          color: isSelected ? AppTheme.primaryBlue.withValues(alpha: 0.1) : Colors.grey.shade50,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: isSelected ? AppTheme.primaryBlue : Colors.grey.shade200),
+    final isSelected = _selectedType == type;
+    return Container(
+      margin: const EdgeInsets.only(bottom: 8),
+      decoration: BoxDecoration(
+        color: isSelected
+            ? AppTheme.primaryBlue.withValues(alpha: 0.1)
+            : Colors.grey.shade50,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+            color: isSelected ? AppTheme.primaryBlue : Colors.grey.shade200),
+      ),
+      child: InkWell(
+        onTap: () {
+          setState(() => _selectedType = type);
+          Navigator.pop(context);
+          // No need to reload data, just setState
+        },
+        borderRadius: BorderRadius.circular(12),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Row(
+            children: [
+              Text(_getReportTypeLabel(type),
+                  style: TextStyle(
+                      color: isSelected ? AppTheme.primaryBlue : Colors.black87,
+                      fontWeight:
+                          isSelected ? FontWeight.w600 : FontWeight.w500,
+                      fontSize: 16)),
+              const Spacer(),
+              if (isSelected)
+                const Icon(Icons.check_circle, color: AppTheme.primaryBlue)
+            ],
+          ),
         ),
-        child: InkWell(
-            onTap: () {
-                setState(() => _selectedType = type);
-                Navigator.pop(context);
-                // No need to reload data, just setState
-            },
-            borderRadius: BorderRadius.circular(12),
-            child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Row(
-                    children: [
-                        Text(_getReportTypeLabel(type), style: TextStyle(
-                            color: isSelected ? AppTheme.primaryBlue : Colors.black87,
-                            fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
-                            fontSize: 16
-                        )),
-                        const Spacer(),
-                        if (isSelected) const Icon(Icons.check_circle, color: AppTheme.primaryBlue)
-                    ],
-                ),
-            ),
-        ),
-      );
+      ),
+    );
   }
 
   void _showDataPointDetails(int index) {

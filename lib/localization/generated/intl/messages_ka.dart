@@ -178,6 +178,23 @@ class MessageLookup extends MessageLookupByLibrary {
     "weekdaySalesOverview": MessageLookupByLibrary.simpleMessage(
       "კვირის დღეების გაყიდვების მიმოხილვა",
     ),
+    "topSalesByProducts": MessageLookupByLibrary.simpleMessage(
+      "ტოპ გაყიდვები პროდუქტებით",
+    ),
+    "salesByCategories": MessageLookupByLibrary.simpleMessage(
+      "გაყიდვები კატეგორიებით",
+    ),
+    "quantity": MessageLookupByLibrary.simpleMessage("რაოდენობა"),
+    "product": MessageLookupByLibrary.simpleMessage("პროდუქტი"),
+    "category": MessageLookupByLibrary.simpleMessage("კატეგორია"),
+    "salesByStaff": MessageLookupByLibrary.simpleMessage(
+      "გაყიდვები პერსონალით",
+    ),
+    "staffMember": MessageLookupByLibrary.simpleMessage("თანამშრომელი"),
+    "salesByPaymentMethods": MessageLookupByLibrary.simpleMessage(
+      "გაყიდვები გადახდის მეთოდებით",
+    ),
+    "paymentMethod": MessageLookupByLibrary.simpleMessage("გადახდის მეთოდი"),
     "year": MessageLookupByLibrary.simpleMessage("წელი"),
   };
 }

@@ -40,13 +40,13 @@ class _ReportsScreenState extends State<ReportsScreen> {
 
   final Map<String, List<String>> _reports = {
     'Sales': [
+      'Sales by Stores',
       'Sales by Days',
       'Sales by Hour',
       'Sales by Weekdays',
-      'Sales by Stores',
-      'Sales by Products',
-      'Sales by Category',
-      'Sales by Payment Method',
+      'Top Sales by Products',
+      'Sales by Categories',
+      'Sales by Payment Methods',
     ],
     'Finances': [
       'Revenue Report',
@@ -95,14 +95,14 @@ class _ReportsScreenState extends State<ReportsScreen> {
         return l10n.salesByWeekday;
       case 'Sales by Stores':
         return l10n.salesByStores;
-      case 'Sales by Products':
-        return l10n.salesByProducts;
-      case 'Sales by Category':
-        return l10n.salesByCategory;
+      case 'Top Sales by Products':
+        return l10n.topSalesByProducts;
+      case 'Sales by Categories':
+        return l10n.salesByCategories;
       case 'Sales by Staff':
         return l10n.salesByStaff;
-      case 'Sales by Payment Method':
-        return l10n.salesByPaymentMethod;
+      case 'Sales by Payment Methods':
+        return l10n.salesByPaymentMethods;
       case 'Revenue Report':
         return l10n.revenueReport;
       case 'Expense Report':
@@ -375,14 +375,14 @@ class _ReportsScreenState extends State<ReportsScreen> {
                 builder: (context) => const StoreSalesScreen(),
               ),
             );
-          } else if (title == 'Sales by Products') {
+          } else if (title == 'Top Sales by Products') {
             Navigator.push(
               context,
               MaterialPageRoute(
                 builder: (context) => const TopProductsScreen(),
               ),
             );
-          } else if (title == 'Sales by Category') {
+          } else if (title == 'Sales by Categories') {
             Navigator.push(
               context,
               MaterialPageRoute(
@@ -390,13 +390,13 @@ class _ReportsScreenState extends State<ReportsScreen> {
               ),
             );
           } else if (title == 'Sales by Staff') {
-             Navigator.push(
+            Navigator.push(
               context,
               MaterialPageRoute(
                 builder: (context) => const StaffSalesScreen(),
               ),
             );
-          } else if (title == 'Sales by Payment Method') {
+          } else if (title == 'Sales by Payment Methods') {
             Navigator.push(
               context,
               MaterialPageRoute(
