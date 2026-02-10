@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:mobile_reporting/widgets/chart_details_modal.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
@@ -189,10 +190,18 @@ class _StoreSalesScreenState extends State<StoreSalesScreen> {
                       borderRadius: BorderRadius.circular(21),
                       color: AppTheme.primaryBlue.withValues(alpha: 0.1),
                     ),
-                    child: const Icon(
-                      Icons.person_outline,
-                      color: AppTheme.primaryBlue,
-                      size: 24,
+                    child: Center(
+                      child: SizedBox(
+                        width: 28,
+                        height: 28,
+                        child: SvgPicture.asset(
+                          'assets/icons/user.svg',
+                          colorFilter: ColorFilter.mode(
+                            AppTheme.primaryBlue,
+                            BlendMode.srcIn,
+                          ),
+                        ),
+                      ),
                     ),
                   ),
                   onPressed: () {
@@ -752,8 +761,10 @@ class _StoreSalesScreenState extends State<StoreSalesScreen> {
     String formattedPrevious = "";
 
     if (_selectedFilterType == _ReportFilterType.checks) {
-      formattedValue = NumberFormat('#,##0', 'en_US').format(currentValue.toInt());
-      formattedPrevious = NumberFormat('#,##0', 'en_US').format(previousValue.toInt());
+      formattedValue =
+          NumberFormat('#,##0', 'en_US').format(currentValue.toInt());
+      formattedPrevious =
+          NumberFormat('#,##0', 'en_US').format(previousValue.toInt());
     } else {
       formattedValue = CurrencyHelper.format(currentValue);
       formattedPrevious = CurrencyHelper.format(previousValue);

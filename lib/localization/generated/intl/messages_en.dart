@@ -23,6 +23,7 @@ class MessageLookup extends MessageLookupByLibrary {
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
         "allBranches": MessageLookupByLibrary.simpleMessage("All Stores"),
+        "amount": MessageLookupByLibrary.simpleMessage("Amount"),
         "aprShort": MessageLookupByLibrary.simpleMessage("Apr"),
         "attendanceReport": MessageLookupByLibrary.simpleMessage(
           "Attendance Report",
@@ -58,6 +59,8 @@ class MessageLookup extends MessageLookupByLibrary {
         "day": MessageLookupByLibrary.simpleMessage("Day"),
         "decShort": MessageLookupByLibrary.simpleMessage("Dec"),
         "discount": MessageLookupByLibrary.simpleMessage("Discount"),
+        "discountPercent":
+            MessageLookupByLibrary.simpleMessage("Discount %"),
         "displayValue": MessageLookupByLibrary.simpleMessage("Display Value"),
         "english": MessageLookupByLibrary.simpleMessage("English"),
         "expenseReport": MessageLookupByLibrary.simpleMessage("Expense Report"),
@@ -93,6 +96,8 @@ class MessageLookup extends MessageLookupByLibrary {
         "lastYearMonth":
             MessageLookupByLibrary.simpleMessage("Last Year Month"),
         "lastYearOption": MessageLookupByLibrary.simpleMessage("Last Year"),
+        "loadingOrders":
+            MessageLookupByLibrary.simpleMessage("Loading orders"),
         "logIn": MessageLookupByLibrary.simpleMessage("Log In"),
         "logout": MessageLookupByLibrary.simpleMessage("Log Out"),
         "loyalty": MessageLookupByLibrary.simpleMessage("Loyalty"),
@@ -106,10 +111,15 @@ class MessageLookup extends MessageLookupByLibrary {
         "noDataAvailable": MessageLookupByLibrary.simpleMessage(
           "No data available",
         ),
+        "noOrdersFound":
+            MessageLookupByLibrary.simpleMessage("No orders found"),
         "novShort": MessageLookupByLibrary.simpleMessage("Nov"),
         "octShort": MessageLookupByLibrary.simpleMessage("Oct"),
+        "orderNumber":
+            MessageLookupByLibrary.simpleMessage("Order Number"),
         "orders": MessageLookupByLibrary.simpleMessage("Orders"),
         "password": MessageLookupByLibrary.simpleMessage("Password"),
+        "payType": MessageLookupByLibrary.simpleMessage("Pay Type"),
         "paymentMethod": MessageLookupByLibrary.simpleMessage("Payment Method"),
         "payments": MessageLookupByLibrary.simpleMessage("Payments"),
         "period": MessageLookupByLibrary.simpleMessage("Period"),
@@ -137,7 +147,8 @@ class MessageLookup extends MessageLookupByLibrary {
         "salesByPaymentMethods": MessageLookupByLibrary.simpleMessage(
           "Sales by Payment Methods",
         ),
-        "salesByStaff": MessageLookupByLibrary.simpleMessage("Sales by Staff"),
+        "salesByStaffs":
+            MessageLookupByLibrary.simpleMessage("Sales by Staffs"),
         "salesByStores":
             MessageLookupByLibrary.simpleMessage("Sales by Stores"),
         "salesByWeekday":
@@ -180,6 +191,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "totalAmount": MessageLookupByLibrary.simpleMessage("Total Amount"),
         "totalBills": MessageLookupByLibrary.simpleMessage("Total Bills"),
         "tue": MessageLookupByLibrary.simpleMessage("Tue"),
+        "user": MessageLookupByLibrary.simpleMessage("User"),
         "username": MessageLookupByLibrary.simpleMessage("Username"),
         "wed": MessageLookupByLibrary.simpleMessage("Wed"),
         "week": MessageLookupByLibrary.simpleMessage("Week"),

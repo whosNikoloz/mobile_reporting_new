@@ -13,6 +13,9 @@ import 'package:mobile_reporting/api/request_models/staff_sales_request_model.da
 import 'package:mobile_reporting/api/response_models/staff_sales_response_model.dart';
 import 'package:mobile_reporting/api/request_models/payment_entities_request_model.dart';
 import 'package:mobile_reporting/api/response_models/payment_entities_response_model.dart';
+import 'package:mobile_reporting/api/request_models/orders_request_model.dart';
+import 'package:mobile_reporting/api/response_models/order_response_model.dart';
+import 'package:mobile_reporting/api/response_models/paged_response_model.dart';
 import 'package:mobile_reporting/helpers/helpers_module.dart';
 import 'package:mobile_reporting/helpers/http_helper.dart';
 import 'package:mobile_reporting/helpers/preferences_helper.dart';
@@ -404,6 +407,51 @@ class ReportsService {
       return null;
     } catch (err) {
       print('❌ Error in getPaymentEntitiesReport: $err');
+      return null;
+    }
+  }
+
+  /// Get orders with pagination
+  Future<PagedResponse<OrderResponseModel>?> getOrders({
+    required int storeId,
+    required DateTime startDate,
+    required DateTime endDate,
+    int page = 1,
+    int pageSize = 20,
+    String? searchQuery,
+  }) async {
+    try {
+      final requestBody = OrdersRequestModel(
+        storeId: storeId,
+        startDate: startDate,
+        endDate: endDate,
+        page: page,
+        pageSize: pageSize,
+        searchQuery: searchQuery,
+      );
+
+      final serverUrl = await _getServerUrl();
+      final ck = await getIt<PreferencesHelper>().getDatabase();
+      if (ck == null) return null;
+
+      final response = await _httpHelper.fetchPost(
+        ck,
+        serverUrl,
+        'get_orders',
+        body: requestBody.toJson(),
+      );
+
+      if (response != null) {
+        final Map<String, dynamic> data = json.decode(response);
+        return PagedResponse<OrderResponseModel>.fromJson(
+          data,
+          (m) => OrderResponseModel.fromJson(m),
+        );
+      }
+
+      return null;
+    } catch (err) {
+      print('❌ Error in getOrders: $err');
       return null;
     }
   }

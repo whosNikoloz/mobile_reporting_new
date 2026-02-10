@@ -119,11 +119,18 @@
     "quantity": "Quantity",
     "product": "Product",
     "category": "Category",
-    "salesByStaff": "Sales by Staff",
+    "salesByStaffs": "Sales by Staffs",
     "staffMember": "Staff Member",
     "salesByPaymentMethods": "Sales by Payment Methods",
     "paymentMethod": "Payment Method",
     "currentValue": "Current Value",
     "previousValue": "Previous Value",
-    "change": "Change"
+    "change": "Change",
+    "orderNumber": "Order Number",
+    "user": "User",
+    "amount": "Amount",
+    "discountPercent": "Discount %",
+    "payType": "Pay Type",
+    "noOrdersFound": "No orders found",
+    "loadingOrders": "Loading orders"
 }

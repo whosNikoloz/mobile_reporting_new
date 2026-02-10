@@ -4,7 +4,7 @@ import 'package:mobile_reporting/helpers/helpers_module.dart';
 import 'package:mobile_reporting/helpers/preferences_helper.dart';
 import 'package:mobile_reporting/main.dart';
 import 'package:mobile_reporting/screens/dashboard_screen.dart';
-import 'package:mobile_reporting/screens/finances_screen.dart';
+import 'package:mobile_reporting/screens/orders_screen.dart';
 import 'package:mobile_reporting/screens/reports_screen.dart';
 import 'package:mobile_reporting/screens/splash_screen.dart';
 import 'package:mobile_reporting/theme/app_theme.dart';
@@ -87,9 +87,7 @@ class _MainNavigationState extends State<MainNavigation> {
       case 1:
         return const ReportsScreen();
       case 2:
-        return _userType == 'RETAIL'
-            ? const FinancesScreen()
-            : const FinancesScreen();
+        return const OrdersScreen();
       default:
         return const DashboardScreen();
     }
@@ -103,7 +101,7 @@ class _MainNavigationState extends State<MainNavigation> {
       case 1:
         return l10n.reports;
       case 2:
-        return _userType == 'RETAIL' ? l10n.finances : l10n.checks;
+        return l10n.orders;
       default:
         return l10n.dashboard;
     }
@@ -188,10 +186,18 @@ class _MainNavigationState extends State<MainNavigation> {
                       borderRadius: BorderRadius.circular(21), // Half of 42
                       color: AppTheme.primaryBlue.withOpacity(0.1),
                     ),
-                    child: const Icon(
-                      Icons.person_outline,
-                      color: AppTheme.primaryBlue,
-                      size: 24, // Increased from 20
+                    child: Center(
+                      child: SizedBox(
+                        width: 28,
+                        height: 28,
+                        child: SvgPicture.asset(
+                          'assets/icons/user.svg',
+                          colorFilter: ColorFilter.mode(
+                            AppTheme.primaryBlue,
+                            BlendMode.srcIn,
+                          ),
+                        ),
+                      ),
                     ),
                   ),
                   onPressed: _showProfileDialog,

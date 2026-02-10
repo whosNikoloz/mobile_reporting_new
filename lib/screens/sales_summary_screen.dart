@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:mobile_reporting/widgets/chart_details_modal.dart';
 import 'package:flutter/services.dart';
 import 'package:fl_chart/fl_chart.dart';
@@ -700,10 +701,18 @@ class _SalesSummaryScreenState extends State<SalesSummaryScreen> {
                       borderRadius: BorderRadius.circular(21),
                       color: AppTheme.primaryBlue.withValues(alpha: 0.1),
                     ),
-                    child: const Icon(
-                      Icons.person_outline,
-                      color: AppTheme.primaryBlue,
-                      size: 24,
+                    child: Center(
+                      child: SizedBox(
+                        width: 28,
+                        height: 28,
+                        child: SvgPicture.asset(
+                          'assets/icons/user.svg',
+                          colorFilter: ColorFilter.mode(
+                            AppTheme.primaryBlue,
+                            BlendMode.srcIn,
+                          ),
+                        ),
+                      ),
                     ),
                   ),
                   onPressed: () {
@@ -1252,7 +1261,9 @@ class _SalesSummaryScreenState extends State<SalesSummaryScreen> {
     final actualContentWidth = dataCount * minGroupWidth;
     final chartWidth = actualContentWidth.clamp(300.0, double.infinity);
 
-    final dataMax = _visibleSalesData.isEmpty ? 0.0 : _visibleSalesData.reduce((a, b) => a > b ? a : b);
+    final dataMax = _visibleSalesData.isEmpty
+        ? 0.0
+        : _visibleSalesData.reduce((a, b) => a > b ? a : b);
     final comparisonMax = _visibleComparisonData.isEmpty
         ? 0.0
         : _visibleComparisonData.reduce((a, b) => a > b ? a : b);
@@ -1432,7 +1443,9 @@ class _SalesSummaryScreenState extends State<SalesSummaryScreen> {
   }
 
   Widget _buildSalesChartWithoutYAxis() {
-    final dataMax = _visibleSalesData.isEmpty ? 0.0 : _visibleSalesData.reduce((a, b) => a > b ? a : b);
+    final dataMax = _visibleSalesData.isEmpty
+        ? 0.0
+        : _visibleSalesData.reduce((a, b) => a > b ? a : b);
     final comparisonMax = _visibleComparisonData.isEmpty
         ? 0.0
         : _visibleComparisonData.reduce((a, b) => a > b ? a : b);

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:intl/intl.dart';
 import 'package:mobile_reporting/widgets/chart_details_modal.dart';
 import 'package:mobile_reporting/api/response_models/staff_sales_response_model.dart';
@@ -194,7 +195,7 @@ class _StaffSalesScreenState extends State<StaffSalesScreen> {
             ),
             centerTitle: true,
             title: Text(
-              S.of(context).salesByStaff ?? 'Sales by Staff',
+              S.of(context).salesByStaffs ?? 'Sales by Staffs',
               style: const TextStyle(
                 color: AppTheme.primaryTextColor,
                 fontSize: 20,
@@ -213,10 +214,18 @@ class _StaffSalesScreenState extends State<StaffSalesScreen> {
                       borderRadius: BorderRadius.circular(21),
                       color: AppTheme.primaryBlue.withValues(alpha: 0.1),
                     ),
-                    child: const Icon(
-                      Icons.person_outline,
-                      color: AppTheme.primaryBlue,
-                      size: 24,
+                    child: Center(
+                      child: SizedBox(
+                        width: 28,
+                        height: 28,
+                        child: SvgPicture.asset(
+                          'assets/icons/user.svg',
+                          colorFilter: ColorFilter.mode(
+                            AppTheme.primaryBlue,
+                            BlendMode.srcIn,
+                          ),
+                        ),
+                      ),
                     ),
                   ),
                   onPressed: () {
@@ -596,8 +605,7 @@ class _StaffSalesScreenState extends State<StaffSalesScreen> {
                 maxX > 0 ? (previousValue / maxX) * barAreaWidth : 0.0;
 
             return GestureDetector(
-              onTap: () => _showDataPointDetails(
-                  _reportData.indexOf(item)),
+              onTap: () => _showDataPointDetails(_reportData.indexOf(item)),
               child: Container(
                 height: 40,
                 margin: const EdgeInsets.only(bottom: 4),
@@ -1167,8 +1175,10 @@ class _FullscreenStaffSalesChartState
     String formattedPrevious = "";
 
     if (_isChecksFilter) {
-      formattedValue = NumberFormat('#,##0', 'en_US').format(currentValue.toInt());
-      formattedPrevious = NumberFormat('#,##0', 'en_US').format(previousValue.toInt());
+      formattedValue =
+          NumberFormat('#,##0', 'en_US').format(currentValue.toInt());
+      formattedPrevious =
+          NumberFormat('#,##0', 'en_US').format(previousValue.toInt());
     } else {
       formattedValue = CurrencyHelper.format(currentValue);
       formattedPrevious = CurrencyHelper.format(previousValue);
@@ -1212,7 +1222,7 @@ class _FullscreenStaffSalesChartState
         backgroundColor: Colors.white,
         elevation: 0,
         title: Text(
-          S.of(context).salesByStaff ?? 'Sales by Staff',
+          S.of(context).salesByStaffs ?? 'Sales by Staffs',
           style: const TextStyle(
             color: Colors.black87,
             fontSize: 18,

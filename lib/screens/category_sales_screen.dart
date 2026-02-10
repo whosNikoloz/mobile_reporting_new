@@ -1,5 +1,6 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:mobile_reporting/widgets/chart_details_modal.dart';
 import 'package:mobile_reporting/api/response_models/category_sales_response_model.dart';
 import 'package:mobile_reporting/application_store.dart';
@@ -187,10 +188,18 @@ class _CategorySalesScreenState extends State<CategorySalesScreen> {
                       borderRadius: BorderRadius.circular(21),
                       color: AppTheme.primaryBlue.withValues(alpha: 0.1),
                     ),
-                    child: const Icon(
-                      Icons.person_outline,
-                      color: AppTheme.primaryBlue,
-                      size: 24,
+                    child: Center(
+                      child: SizedBox(
+                        width: 28,
+                        height: 28,
+                        child: SvgPicture.asset(
+                          'assets/icons/user.svg',
+                          colorFilter: ColorFilter.mode(
+                            AppTheme.primaryBlue,
+                            BlendMode.srcIn,
+                          ),
+                        ),
+                      ),
                     ),
                   ),
                   onPressed: () {

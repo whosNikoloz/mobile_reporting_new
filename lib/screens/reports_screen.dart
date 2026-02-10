@@ -47,6 +47,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
       'Top Sales by Products',
       'Sales by Categories',
       'Sales by Payment Methods',
+      'Sales by Staffs',
     ],
     'Finances': [
       'Revenue Report',
@@ -54,7 +55,6 @@ class _ReportsScreenState extends State<ReportsScreen> {
       'Profit & Loss',
     ],
     'Staff': [
-      'Sales by Staff',
       'Staff Performance',
       'Attendance Report',
       'Commission Report',
@@ -99,8 +99,8 @@ class _ReportsScreenState extends State<ReportsScreen> {
         return l10n.topSalesByProducts;
       case 'Sales by Categories':
         return l10n.salesByCategories;
-      case 'Sales by Staff':
-        return l10n.salesByStaff;
+      case 'Sales by Staffs':
+        return l10n.salesByStaffs;
       case 'Sales by Payment Methods':
         return l10n.salesByPaymentMethods;
       case 'Revenue Report':
@@ -389,7 +389,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
                 builder: (context) => const CategorySalesScreen(),
               ),
             );
-          } else if (title == 'Sales by Staff') {
+          } else if (title == 'Sales by Staffs') {
             Navigator.push(
               context,
               MaterialPageRoute(

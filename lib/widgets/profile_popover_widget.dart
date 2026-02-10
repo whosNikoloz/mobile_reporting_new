@@ -1,6 +1,7 @@
 import "package:flutter/material.dart";
 import "package:flutter_svg/flutter_svg.dart";
 import "package:mobile_reporting/localization/generated/l10n.dart";
+import "package:mobile_reporting/theme/app_theme.dart";
 
 class LanguageOption {
   final String code;
@@ -166,10 +167,18 @@ class _ProfilePopoverState extends State<_ProfilePopover> {
                             color: const Color(0xFFEAF1FF),
                             borderRadius: BorderRadius.circular(999),
                           ),
-                          child: const Icon(
-                            Icons.person_outline,
-                            color: Color(0xFF2F6BFF),
-                            size: 24,
+                          child: Center(
+                            child: SizedBox(
+                              width: 28,
+                              height: 28,
+                              child: SvgPicture.asset(
+                                'assets/icons/user.svg',
+                                colorFilter: ColorFilter.mode(
+                                  AppTheme.primaryBlue,
+                                  BlendMode.srcIn,
+                                ),
+                              ),
+                            ),
                           ),
                         ),
                         const SizedBox(width: 12),

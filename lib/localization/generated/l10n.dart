@@ -875,10 +875,10 @@ class S {
   }
 
   /// `Sales by Staff`
-  String get salesByStaff {
+  String get salesByStaffs {
     return Intl.message(
-      'Sales by Staff',
-      name: 'salesByStaff',
+      'Sales by Staffs',
+      name: 'salesByStaffs',
       desc: '',
       args: [],
     );
@@ -937,6 +937,61 @@ class S {
   /// `Change`
   String get change {
     return Intl.message('Change', name: 'change', desc: '', args: []);
+  }
+
+  /// `Order Number`
+  String get orderNumber {
+    return Intl.message(
+      'Order Number',
+      name: 'orderNumber',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `User`
+  String get user {
+    return Intl.message('User', name: 'user', desc: '', args: []);
+  }
+
+  /// `Amount`
+  String get amount {
+    return Intl.message('Amount', name: 'amount', desc: '', args: []);
+  }
+
+  /// `Discount %`
+  String get discountPercent {
+    return Intl.message(
+      'Discount %',
+      name: 'discountPercent',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Pay Type`
+  String get payType {
+    return Intl.message('Pay Type', name: 'payType', desc: '', args: []);
+  }
+
+  /// `No orders found`
+  String get noOrdersFound {
+    return Intl.message(
+      'No orders found',
+      name: 'noOrdersFound',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Loading orders`
+  String get loadingOrders {
+    return Intl.message(
+      'Loading orders',
+      name: 'loadingOrders',
+      desc: '',
+      args: [],
+    );
   }
 }
 
