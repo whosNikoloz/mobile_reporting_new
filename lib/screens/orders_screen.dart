@@ -164,8 +164,9 @@ class _OrdersScreenState extends State<OrdersScreen> {
               children: [
                 PickerWidget(
                   screenType: ScreenType.ordersScreen,
-                  showCompareDateFilter: true,
+                  showCompareDateFilter: false,
                   showStoreFilter: true,
+                  onlyDayPicker: true,
                   getDate: (DateTime dt1,
                       DateTime dt2,
                       DateTime dt3,
@@ -179,7 +180,6 @@ class _OrdersScreenState extends State<OrdersScreen> {
                       _resetAndLoad();
                     });
                   },
-                  onlyDayPicker: false,
                 ),
                 Padding(
                   padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
@@ -283,8 +283,15 @@ class _OrdersScreenState extends State<OrdersScreen> {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
-        color: const Color(0xFFF4F5F7),
+        color: Colors.grey.shade50,
         borderRadius: BorderRadius.circular(14),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.04),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
       child: Row(
         children: [

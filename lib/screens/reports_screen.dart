@@ -26,7 +26,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
   final Map<String, GlobalKey> _sectionKeys = {
     'Sales': GlobalKey(),
     'Finances': GlobalKey(),
-    'Staff': GlobalKey(),
+    //'Staff': GlobalKey(),
     'Stock': GlobalKey(),
   };
 
@@ -34,7 +34,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
   final Map<String, String> _categoryIcons = {
     'Sales': 'assets/icons/reports/sales.svg',
     'Finances': 'assets/icons/reports/finances.svg',
-    'Staff': 'assets/icons/reports/staff.svg',
+    //'Staff': 'assets/icons/reports/staff.svg',
     'Stock': 'assets/icons/reports/stock.svg',
   };
 
@@ -54,14 +54,14 @@ class _ReportsScreenState extends State<ReportsScreen> {
       'Expense Report',
       'Profit & Loss',
     ],
-    'Staff': [
-      'Staff Performance',
-      'Attendance Report',
-      'Commission Report',
-      'Shift Report',
-      'Hours Worked',
-      'Productivity Report',
-    ],
+    // 'Staff': [
+    //   'Staff Performance',
+    //   'Attendance Report',
+    //   'Commission Report',
+    //   'Shift Report',
+    //   'Hours Worked',
+    //   'Productivity Report',
+    // ],
     'Stock': [
       'Inventory Report',
       'Stock Movement',
@@ -75,8 +75,8 @@ class _ReportsScreenState extends State<ReportsScreen> {
         return l10n.sales;
       case 'Finances':
         return l10n.finances;
-      case 'Staff':
-        return l10n.staff;
+      // case 'Staff':
+      //   return l10n.staff;
       case 'Stock':
         return l10n.stock;
       default:
@@ -234,8 +234,8 @@ class _ReportsScreenState extends State<ReportsScreen> {
                   _buildTab('Sales'),
                   const SizedBox(width: 10),
                   _buildTab('Finances'),
-                  const SizedBox(width: 10),
-                  _buildTab('Staff'),
+                  //const SizedBox(width: 10),
+                  //_buildTab('Staff'),
                   const SizedBox(width: 10),
                   _buildTab('Stock'),
                 ],

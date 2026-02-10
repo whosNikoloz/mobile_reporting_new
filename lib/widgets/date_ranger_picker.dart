@@ -25,6 +25,7 @@ class DateRangePicker extends StatefulWidget {
   final PeriodType? initialPeriodType;
   final DateTime? initialCompareStartDate;
   final DateTime? initialCompareEndDate;
+  final bool onlyDayPicker;
 
   const DateRangePicker({
     Key? key,
@@ -33,6 +34,7 @@ class DateRangePicker extends StatefulWidget {
     this.initialPeriodType,
     this.initialCompareStartDate,
     this.initialCompareEndDate,
+    this.onlyDayPicker = false,
   }) : super(key: key);
 
   @override
@@ -66,6 +68,9 @@ class _DateRangePickerState extends State<DateRangePicker> {
   void initState() {
     super.initState();
     _selectedPeriodType = widget.initialPeriodType ?? PeriodType.day;
+    if (widget.onlyDayPicker) {
+      _selectedPeriodType = PeriodType.day;
+    }
     _selectedDate = widget.initialStartDate ?? DateTime.now();
     _currentMonth = widget.initialStartDate ?? DateTime.now();
     _currentYear = (widget.initialStartDate ?? DateTime.now()).year;
@@ -372,6 +377,17 @@ class _DateRangePickerState extends State<DateRangePicker> {
   }
 
   Widget _buildPeriodTypeSelector() {
+    if (widget.onlyDayPicker) {
+      return Row(
+        children: [
+          Expanded(
+            child:
+                _buildPeriodTypeButton(S.of(context).day, PeriodType.day),
+          ),
+        ],
+      );
+    }
+
     return Column(
       children: [
         Row(

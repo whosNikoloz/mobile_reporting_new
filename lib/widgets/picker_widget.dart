@@ -171,6 +171,7 @@ class PickerWidgetState extends State<PickerWidget> {
             dateType: dt,
             isLoading: isLoading,
             showComparison: widget.showCompareDateFilter,
+            onlyDayPicker: widget.onlyDayPicker,
             onDateSelected: _handleDateSelection,
           ),
           if (showStore) const SizedBox(height: 12),
@@ -269,6 +270,7 @@ class _DateSelector extends StatelessWidget {
   final DateType dateType;
   final bool isLoading;
   final bool showComparison;
+  final bool onlyDayPicker;
   final Future<void> Function(DateTime, DateTime, DateType,
       {DateTime? compareStart, DateTime? compareEnd}) onDateSelected;
 
@@ -280,6 +282,7 @@ class _DateSelector extends StatelessWidget {
     required this.dateType,
     required this.isLoading,
     required this.showComparison,
+    required this.onlyDayPicker,
     required this.onDateSelected,
   });
 
@@ -469,14 +472,16 @@ class _DateSelector extends StatelessWidget {
 
   Future<void> _showDatePicker(BuildContext context) async {
     PeriodType initialPeriodType = PeriodType.day;
-    if (dateType == DateType.week) {
-      initialPeriodType = PeriodType.week;
-    } else if (dateType == DateType.month) {
-      initialPeriodType = PeriodType.month;
-    } else if (dateType == DateType.year) {
-      initialPeriodType = PeriodType.year;
-    } else if (dateType == DateType.period) {
-      initialPeriodType = PeriodType.period;
+    if (!onlyDayPicker) {
+      if (dateType == DateType.week) {
+        initialPeriodType = PeriodType.week;
+      } else if (dateType == DateType.month) {
+        initialPeriodType = PeriodType.month;
+      } else if (dateType == DateType.year) {
+        initialPeriodType = PeriodType.year;
+      } else if (dateType == DateType.period) {
+        initialPeriodType = PeriodType.period;
+      }
     }
 
     final result = await showDialog<DateRangePickerResult>(
@@ -487,28 +492,31 @@ class _DateSelector extends StatelessWidget {
         initialPeriodType: initialPeriodType,
         initialCompareStartDate: oldDate1,
         initialCompareEndDate: oldDate2,
+        onlyDayPicker: onlyDayPicker,
       ),
     );
 
     if (result == null) return;
 
     DateType newDateType = DateType.day;
-    switch (result.periodType) {
-      case PeriodType.day:
-        newDateType = DateType.day;
-        break;
-      case PeriodType.week:
-        newDateType = DateType.week;
-        break;
-      case PeriodType.month:
-        newDateType = DateType.month;
-        break;
-      case PeriodType.year:
-        newDateType = DateType.year;
-        break;
-      case PeriodType.period:
-        newDateType = DateType.period;
-        break;
+    if (!onlyDayPicker) {
+      switch (result.periodType) {
+        case PeriodType.day:
+          newDateType = DateType.day;
+          break;
+        case PeriodType.week:
+          newDateType = DateType.week;
+          break;
+        case PeriodType.month:
+          newDateType = DateType.month;
+          break;
+        case PeriodType.year:
+          newDateType = DateType.year;
+          break;
+        case PeriodType.period:
+          newDateType = DateType.period;
+          break;
+      }
     }
 
     await onDateSelected(
