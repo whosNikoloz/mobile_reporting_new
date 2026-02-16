@@ -22,7 +22,12 @@ class MessageLookup extends MessageLookupByLibrary {
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
+    "accountsPayable": MessageLookupByLibrary.simpleMessage("Kreditor borclar"),
+    "accountsReceivable": MessageLookupByLibrary.simpleMessage(
+      "Debitor borclar",
+    ),
     "allBranches": MessageLookupByLibrary.simpleMessage("Bütün mağazalar"),
+    "amount": MessageLookupByLibrary.simpleMessage("Məbləğ"),
     "aprShort": MessageLookupByLibrary.simpleMessage("Apr"),
     "attendanceReport": MessageLookupByLibrary.simpleMessage(
       "Davamiyyət hesabatı",
@@ -30,13 +35,19 @@ class MessageLookup extends MessageLookupByLibrary {
     "augShort": MessageLookupByLibrary.simpleMessage("Avq"),
     "averageCheck": MessageLookupByLibrary.simpleMessage("Orta çek"),
     "avgCheck": MessageLookupByLibrary.simpleMessage("Ort. çek"),
+    "avgCheckDescription": MessageLookupByLibrary.simpleMessage(
+      "AvgCheck - orta çek dəyəridir",
+    ),
     "bills": MessageLookupByLibrary.simpleMessage("Çeklər"),
     "branches": MessageLookupByLibrary.simpleMessage("Lokasiyalar"),
     "cancel": MessageLookupByLibrary.simpleMessage("İmtina"),
     "card": MessageLookupByLibrary.simpleMessage("Kart"),
     "cash": MessageLookupByLibrary.simpleMessage("Nağd"),
+    "cashFlow": MessageLookupByLibrary.simpleMessage("Pul axını"),
     "change": MessageLookupByLibrary.simpleMessage("Dəyişiklik"),
-    "checks": MessageLookupByLibrary.simpleMessage("Çeklər"),
+    "checksDescription": MessageLookupByLibrary.simpleMessage(
+      "Checks - çeklərin sayıdır",
+    ),
     "checksFilter": MessageLookupByLibrary.simpleMessage("Çek sayı"),
     "chooseDay": MessageLookupByLibrary.simpleMessage("Günü seçin"),
     "chooseMonth": MessageLookupByLibrary.simpleMessage("Ayı seçin"),
@@ -44,16 +55,20 @@ class MessageLookup extends MessageLookupByLibrary {
     "chooseYear": MessageLookupByLibrary.simpleMessage("İli seçin"),
     "close": MessageLookupByLibrary.simpleMessage("Bağla"),
     "commissionReport": MessageLookupByLibrary.simpleMessage(
-      "Komisyon hesabatı",
+      "Komissiya hesabatı",
     ),
     "comparisonLabel": MessageLookupByLibrary.simpleMessage("Müqayisə"),
     "confirm": MessageLookupByLibrary.simpleMessage("Təsdiqlə"),
     "consignation": MessageLookupByLibrary.simpleMessage("Konsiqnasiya"),
     "currentValue": MessageLookupByLibrary.simpleMessage("Cari dəyər"),
+    "customerReturns": MessageLookupByLibrary.simpleMessage(
+      "Müştəri qaytarmaları",
+    ),
+    "customerSales": MessageLookupByLibrary.simpleMessage("Müştəri satışları"),
     "dailySalesOverview": MessageLookupByLibrary.simpleMessage(
       "Günlük satış icmalı",
     ),
-    "dashboard": MessageLookupByLibrary.simpleMessage("Panel"),
+    "dashboard": MessageLookupByLibrary.simpleMessage("İdarə paneli"),
     "day": MessageLookupByLibrary.simpleMessage("Gün"),
     "decShort": MessageLookupByLibrary.simpleMessage("Dek"),
     "discount": MessageLookupByLibrary.simpleMessage("Endirim"),
@@ -63,9 +78,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "febShort": MessageLookupByLibrary.simpleMessage("Fev"),
     "finances": MessageLookupByLibrary.simpleMessage("Maliyyə"),
     "fri": MessageLookupByLibrary.simpleMessage("C."),
-    "general": MessageLookupByLibrary.simpleMessage("Ümumi"),
     "georgian": MessageLookupByLibrary.simpleMessage("ქართული"),
-    "hour": MessageLookupByLibrary.simpleMessage("Saat"),
     "hourlySalesOverview": MessageLookupByLibrary.simpleMessage(
       "Saatlıq satış icmalı",
     ),
@@ -74,9 +87,13 @@ class MessageLookup extends MessageLookupByLibrary {
     "incorrectCredentials": MessageLookupByLibrary.simpleMessage(
       "İstifadəçi adı və ya şifrə səhvdir!",
     ),
+    "inventoryBalance": MessageLookupByLibrary.simpleMessage("Anbar qalığı"),
     "inventoryReport": MessageLookupByLibrary.simpleMessage(
-      "İnventarlaşdırma hesabatı",
+      "İnventar hesabatı",
     ),
+    "inventoryValue": MessageLookupByLibrary.simpleMessage("Anbar dəyəri"),
+    "item": MessageLookupByLibrary.simpleMessage("Məhsul"),
+    "items": MessageLookupByLibrary.simpleMessage("Məhsullar"),
     "janShort": MessageLookupByLibrary.simpleMessage("Yan"),
     "julShort": MessageLookupByLibrary.simpleMessage("İyul"),
     "junShort": MessageLookupByLibrary.simpleMessage("İyun"),
@@ -98,8 +115,10 @@ class MessageLookup extends MessageLookupByLibrary {
       "Keçən ilin eyni ayı",
     ),
     "lastYearOption": MessageLookupByLibrary.simpleMessage("Bir il geri"),
-    "logIn": MessageLookupByLibrary.simpleMessage("Giriş"),
+    "location": MessageLookupByLibrary.simpleMessage("Məkan"),
+    "logIn": MessageLookupByLibrary.simpleMessage("Daxil ol"),
     "logout": MessageLookupByLibrary.simpleMessage("Çıxış"),
+    "lowStockReport": MessageLookupByLibrary.simpleMessage("Az qalıq hesabatı"),
     "loyalty": MessageLookupByLibrary.simpleMessage("Loyallıq"),
     "marShort": MessageLookupByLibrary.simpleMessage("Mar"),
     "mayShort": MessageLookupByLibrary.simpleMessage("May"),
@@ -109,33 +128,71 @@ class MessageLookup extends MessageLookupByLibrary {
       "Aylıq satış icmalı",
     ),
     "noDataAvailable": MessageLookupByLibrary.simpleMessage("Məlumat yoxdur"),
+    "noOrdersFound": MessageLookupByLibrary.simpleMessage("Sifariş tapılmadı"),
     "novShort": MessageLookupByLibrary.simpleMessage("Noy"),
     "octShort": MessageLookupByLibrary.simpleMessage("Okt"),
+    "order": MessageLookupByLibrary.simpleMessage("Sifariş"),
+    "orderDetailsLoadFailed": MessageLookupByLibrary.simpleMessage(
+      "Sifariş məlumatları yüklənə bilmədi",
+    ),
     "orders": MessageLookupByLibrary.simpleMessage("Sifarişlər"),
     "password": MessageLookupByLibrary.simpleMessage("Şifrə"),
     "payments": MessageLookupByLibrary.simpleMessage("Ödənişlər"),
+    "paymentsList": MessageLookupByLibrary.simpleMessage(
+      "Ödənişlərin siyahısı",
+    ),
+    "paymentsToCustomers": MessageLookupByLibrary.simpleMessage(
+      "Müştərilərə ödənişlər",
+    ),
+    "paymentsToVendors": MessageLookupByLibrary.simpleMessage(
+      "Təchizatçılara ödənişlər",
+    ),
+    "paytype": MessageLookupByLibrary.simpleMessage("Ödəniş növü"),
     "period": MessageLookupByLibrary.simpleMessage("Dövr"),
     "previousValue": MessageLookupByLibrary.simpleMessage("Əvvəlki dəyər"),
     "productivityReport": MessageLookupByLibrary.simpleMessage(
       "Məhsuldarlıq hesabatı",
     ),
-    "profileInfo": MessageLookupByLibrary.simpleMessage("Profil məlumatları"),
     "profit": MessageLookupByLibrary.simpleMessage("Mənfəət"),
-    "profitAndLoss": MessageLookupByLibrary.simpleMessage("Mənfəət və zərər"),
+    "profitAndLoss": MessageLookupByLibrary.simpleMessage("Mənfəət və Zərər"),
+    "profitByCategories": MessageLookupByLibrary.simpleMessage(
+      "Kateqoriyalar üzrə mənfəət",
+    ),
+    "profitByProducts": MessageLookupByLibrary.simpleMessage(
+      "Məhsullar üzrə mənfəət",
+    ),
     "profitPercent": MessageLookupByLibrary.simpleMessage("Mənfəət %"),
+    "purchasesByItemDetailed": MessageLookupByLibrary.simpleMessage(
+      "Məhsullar üzrə alış - Ətraflı",
+    ),
+    "purchasesByItemSummary": MessageLookupByLibrary.simpleMessage(
+      "Məhsullar üzrə alış - İcmal",
+    ),
+    "purchasesDocuments": MessageLookupByLibrary.simpleMessage(
+      "Alış sənədləri",
+    ),
+    "qty": MessageLookupByLibrary.simpleMessage("Miqdar"),
+    "receivedPaymentsList": MessageLookupByLibrary.simpleMessage(
+      "Qəbul edilmiş ödənişlərin siyahısı",
+    ),
     "refund": MessageLookupByLibrary.simpleMessage("Geri qaytarma"),
     "reports": MessageLookupByLibrary.simpleMessage("Hesabatlar"),
     "revenueReport": MessageLookupByLibrary.simpleMessage("Gəlir hesabatı"),
     "sales": MessageLookupByLibrary.simpleMessage("Satışlar"),
-    "salesByDay": MessageLookupByLibrary.simpleMessage("Günlərə görə satışlar"),
-    "salesByHours": MessageLookupByLibrary.simpleMessage(
-      "Saatlara görə satışlar",
+    "salesByDay": MessageLookupByLibrary.simpleMessage("Günlər üzrə satış"),
+    "salesByHours": MessageLookupByLibrary.simpleMessage("Saatlar üzrə satış"),
+    "salesByItemSummary": MessageLookupByLibrary.simpleMessage(
+      "Məhsullar üzrə satış - İcmal",
     ),
+    "salesByStaffs": MessageLookupByLibrary.simpleMessage("İşçilər üzrə satış"),
     "salesByStores": MessageLookupByLibrary.simpleMessage(
       "Mağazalara görə satışlar",
     ),
     "salesByWeekday": MessageLookupByLibrary.simpleMessage(
-      "Həftə günlərinə görə satışlar",
+      "Həftənin günləri üzrə satış",
+    ),
+    "salesDescription": MessageLookupByLibrary.simpleMessage(
+      "Sales - satış məbləğidir",
     ),
     "salesOverview": MessageLookupByLibrary.simpleMessage("Satış icmalı"),
     "sameDurationBack": MessageLookupByLibrary.simpleMessage(
@@ -145,34 +202,38 @@ class MessageLookup extends MessageLookupByLibrary {
     "search": MessageLookupByLibrary.simpleMessage("Axtarış"),
     "selectLocation": MessageLookupByLibrary.simpleMessage("Yer seçin"),
     "selectPeriod": MessageLookupByLibrary.simpleMessage("Dövrü seçin"),
-    "selectStore": MessageLookupByLibrary.simpleMessage("Mağaza seçin"),
     "selectedPeriod": MessageLookupByLibrary.simpleMessage("Seçilmiş dövr"),
     "selfcost": MessageLookupByLibrary.simpleMessage("Özü dəyəri"),
     "sepShort": MessageLookupByLibrary.simpleMessage("Sen"),
     "shiftReport": MessageLookupByLibrary.simpleMessage("Növbə hesabatı"),
-    "staff": MessageLookupByLibrary.simpleMessage("Personal"),
     "staffPerformance": MessageLookupByLibrary.simpleMessage(
-      "Personalın performansı",
+      "İşçilərin performansı",
     ),
-    "statistics": MessageLookupByLibrary.simpleMessage("Statistika"),
     "stock": MessageLookupByLibrary.simpleMessage("Anbar"),
-    "stockMovement": MessageLookupByLibrary.simpleMessage("Ehtiyat hərəkəti"),
+    "stockMovement": MessageLookupByLibrary.simpleMessage("Anbar hərəkəti"),
     "store": MessageLookupByLibrary.simpleMessage("Mağaza"),
     "storeSalesOverview": MessageLookupByLibrary.simpleMessage(
       "Mağaza satışları icmalı",
     ),
     "sun": MessageLookupByLibrary.simpleMessage("B."),
     "thu": MessageLookupByLibrary.simpleMessage("C.a."),
+    "time": MessageLookupByLibrary.simpleMessage("Vaxt"),
     "todayVsYesterday": MessageLookupByLibrary.simpleMessage("Bu gün vs Dünən"),
-    "totalAmount": MessageLookupByLibrary.simpleMessage("Ümumi məbləğ"),
-    "totalBills": MessageLookupByLibrary.simpleMessage("Ümumi çeklər"),
+    "total": MessageLookupByLibrary.simpleMessage("Cəmi"),
     "tue": MessageLookupByLibrary.simpleMessage("Ç.a."),
+    "user": MessageLookupByLibrary.simpleMessage("İstifadəçi"),
     "username": MessageLookupByLibrary.simpleMessage("İstifadəçi adı"),
+    "vendorPurchases": MessageLookupByLibrary.simpleMessage(
+      "Təchizatçı alışları",
+    ),
+    "vendorReturns": MessageLookupByLibrary.simpleMessage(
+      "Təchizatçı qaytarmaları",
+    ),
     "wed": MessageLookupByLibrary.simpleMessage("Ç."),
     "week": MessageLookupByLibrary.simpleMessage("Həftə"),
-    "weekday": MessageLookupByLibrary.simpleMessage("Həftə günü"),
+    "weekday": MessageLookupByLibrary.simpleMessage("Həftənin günü"),
     "weekdaySalesOverview": MessageLookupByLibrary.simpleMessage(
-      "Həftə günləri satış icmalı",
+      "Həftəlik satış icmalı",
     ),
     "year": MessageLookupByLibrary.simpleMessage("İl"),
   };

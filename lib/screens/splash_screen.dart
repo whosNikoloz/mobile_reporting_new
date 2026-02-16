@@ -7,6 +7,7 @@ import 'package:mobile_reporting/helpers/helpers_module.dart';
 import 'package:mobile_reporting/helpers/http_helper.dart';
 import 'package:mobile_reporting/helpers/preferences_helper.dart';
 import 'package:mobile_reporting/models/store_model.dart';
+import 'package:mobile_reporting/screens/pin_entry_screen.dart';
 import 'package:mobile_reporting/screens/sign_in_screen.dart';
 import 'package:mobile_reporting/theme/app_theme.dart';
 import 'package:mobile_reporting/widgets/main_navigation.dart';
@@ -48,7 +49,9 @@ class _SplashScreenState extends State<SplashScreen> {
         application.accountLang = await getIt<PreferencesHelper>().getAccountLang();
         if (!mounted) return;
         Navigator.pushReplacement(
-            context, MaterialPageRoute(builder: (_) => const MainNavigation()));
+          context,
+          MaterialPageRoute(builder: (_) => const PinEntryScreen()),
+        );
       }
     });
   }

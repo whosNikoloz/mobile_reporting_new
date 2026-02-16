@@ -1,6 +1,7 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:mobile_reporting/screens/pin_entry_screen.dart';
 import 'package:mobile_reporting/widgets/chart_details_modal.dart';
 import 'package:mobile_reporting/api/response_models/category_sales_response_model.dart';
 import 'package:mobile_reporting/application_store.dart';
@@ -209,7 +210,22 @@ class _CategorySalesScreenState extends State<CategorySalesScreen> {
                       email: _email ?? "Email@gmail.com",
                       currentLangCode: _selectedLanguage,
                       onLanguageChanged: _changeLanguage,
+
+                      // Logout = only PIN user, go to PIN screen
                       onLogout: () async {
+                        await getIt<PreferencesHelper>().clearPinUserId();
+                        await getIt<PreferencesHelper>().clearPinUserName();
+                        if (!mounted) return;
+                        Navigator.pushAndRemoveUntil(
+                          context,
+                          MaterialPageRoute(
+                              builder: (_) => const PinEntryScreen()),
+                          (route) => false,
+                        );
+                      },
+
+                      // Change company = clear everything and go to Splash/login
+                      onChangeCompany: () async {
                         await getIt<PreferencesHelper>().clearCompanyName();
                         await getIt<PreferencesHelper>().clearLang();
                         await getIt<PreferencesHelper>().clearType();
@@ -219,6 +235,8 @@ class _CategorySalesScreenState extends State<CategorySalesScreen> {
                         await getIt<PreferencesHelper>().clearAccountLang();
                         await getIt<PreferencesHelper>().clearDatabase();
                         await getIt<PreferencesHelper>().clearUrl();
+                        await getIt<PreferencesHelper>().clearPinUserId();
+                        await getIt<PreferencesHelper>().clearPinUserName();
                         if (!mounted) return;
                         Navigator.pushAndRemoveUntil(
                           context,

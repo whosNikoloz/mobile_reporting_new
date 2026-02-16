@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:mobile_reporting/screens/pin_entry_screen.dart';
 import 'package:mobile_reporting/widgets/chart_details_modal.dart';
 import 'package:flutter/services.dart';
 import 'package:fl_chart/fl_chart.dart';
@@ -76,12 +77,13 @@ class _SalesSummaryScreenState extends State<SalesSummaryScreen> {
       ];
 
   String get _selectedFilterDescription {
+    final l10n = S.of(context);
     if (_isChecksFilter) {
-      return 'Checks არის ჩეკების რაოდენობა';
+      return l10n.checksDescription;
     } else if (_isAvgCheckFilter) {
-      return 'AvgCheck არის ჩეკის საშუალო ღირებულება';
+      return l10n.avgCheckDescription;
     } else {
-      return 'Sales არის თანხა';
+      return l10n.salesDescription;
     }
   }
 
@@ -462,7 +464,7 @@ class _SalesSummaryScreenState extends State<SalesSummaryScreen> {
       return l10n.hourlySalesOverview
           .split(' ')[0]; // Taking "Hour" roughly or just define day
     } else if (widget.reportTitle.contains('Weekday')) {
-      return l10n.weekday; // I should add weekday to ARB if not there
+      return l10n.weekday;
     } else if (widget.reportTitle.contains('Month')) {
       return l10n.month;
     }
@@ -722,7 +724,22 @@ class _SalesSummaryScreenState extends State<SalesSummaryScreen> {
                       email: _email ?? "Email@gmail.com",
                       currentLangCode: _selectedLanguage,
                       onLanguageChanged: _changeLanguage,
+
+                      // Logout = only PIN user, go to PIN screen
                       onLogout: () async {
+                        await getIt<PreferencesHelper>().clearPinUserId();
+                        await getIt<PreferencesHelper>().clearPinUserName();
+                        if (!mounted) return;
+                        Navigator.pushAndRemoveUntil(
+                          context,
+                          MaterialPageRoute(
+                              builder: (_) => const PinEntryScreen()),
+                          (route) => false,
+                        );
+                      },
+
+                      // Change company = clear everything and go to Splash/login
+                      onChangeCompany: () async {
                         await getIt<PreferencesHelper>().clearCompanyName();
                         await getIt<PreferencesHelper>().clearLang();
                         await getIt<PreferencesHelper>().clearType();
@@ -732,6 +749,8 @@ class _SalesSummaryScreenState extends State<SalesSummaryScreen> {
                         await getIt<PreferencesHelper>().clearAccountLang();
                         await getIt<PreferencesHelper>().clearDatabase();
                         await getIt<PreferencesHelper>().clearUrl();
+                        await getIt<PreferencesHelper>().clearPinUserId();
+                        await getIt<PreferencesHelper>().clearPinUserName();
                         if (!mounted) return;
                         Navigator.pushAndRemoveUntil(
                           context,

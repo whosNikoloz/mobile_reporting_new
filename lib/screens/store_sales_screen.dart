@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:mobile_reporting/screens/pin_entry_screen.dart';
 import 'package:mobile_reporting/widgets/chart_details_modal.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
@@ -211,7 +212,22 @@ class _StoreSalesScreenState extends State<StoreSalesScreen> {
                       email: _email ?? "Email@gmail.com",
                       currentLangCode: _selectedLanguage,
                       onLanguageChanged: _changeLanguage,
+
+                      // Logout = only PIN user, go to PIN screen
                       onLogout: () async {
+                        await getIt<PreferencesHelper>().clearPinUserId();
+                        await getIt<PreferencesHelper>().clearPinUserName();
+                        if (!mounted) return;
+                        Navigator.pushAndRemoveUntil(
+                          context,
+                          MaterialPageRoute(
+                              builder: (_) => const PinEntryScreen()),
+                          (route) => false,
+                        );
+                      },
+
+                      // Change company = clear everything and go to Splash/login
+                      onChangeCompany: () async {
                         await getIt<PreferencesHelper>().clearCompanyName();
                         await getIt<PreferencesHelper>().clearLang();
                         await getIt<PreferencesHelper>().clearType();
@@ -221,6 +237,8 @@ class _StoreSalesScreenState extends State<StoreSalesScreen> {
                         await getIt<PreferencesHelper>().clearAccountLang();
                         await getIt<PreferencesHelper>().clearDatabase();
                         await getIt<PreferencesHelper>().clearUrl();
+                        await getIt<PreferencesHelper>().clearPinUserId();
+                        await getIt<PreferencesHelper>().clearPinUserName();
                         if (!mounted) return;
                         Navigator.pushAndRemoveUntil(
                           context,

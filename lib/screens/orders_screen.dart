@@ -6,6 +6,7 @@ import 'package:mobile_reporting/application_store.dart';
 import 'package:mobile_reporting/enums/screen_type.dart';
 import 'package:mobile_reporting/helpers/currency_helper.dart';
 import 'package:mobile_reporting/localization/generated/l10n.dart';
+import 'package:mobile_reporting/screens/order_details_screen.dart';
 import 'package:mobile_reporting/services/reports_service.dart';
 import 'package:mobile_reporting/theme/app_theme.dart';
 import 'package:mobile_reporting/widgets/picker_widget.dart';
@@ -280,157 +281,173 @@ class _OrdersScreenState extends State<OrdersScreen> {
   }
 
   Widget _buildOrderCard(OrderResponseModel order) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      decoration: BoxDecoration(
-        color: Colors.grey.shade50,
-        borderRadius: BorderRadius.circular(14),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.04),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 4,
-            height: 90,
-            decoration: const BoxDecoration(
-              color: AppTheme.primaryBlue,
-              borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(14),
-                bottomLeft: Radius.circular(14),
-              ),
+    final l10n = S.of(context);
+    return InkWell(
+      borderRadius: BorderRadius.circular(14),
+      onTap: () {
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (_) => OrderDetailsScreen(
+              orderId: order.orderId,
+              orderNumber: order.orderNumber,
             ),
           ),
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Row(
-                          children: [
-                            SvgPicture.asset(
-                              'assets/icons/hashtag.svg',
-                              width: 20,
-                              height: 20,
-                              colorFilter: const ColorFilter.mode(
-                                AppTheme.primaryBlue,
-                                BlendMode.srcIn,
+        );
+      },
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 12),
+        decoration: BoxDecoration(
+          color: Colors.grey.shade50,
+          borderRadius: BorderRadius.circular(14),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.04),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 4,
+              height: 90,
+              decoration: const BoxDecoration(
+                color: AppTheme.primaryBlue,
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(14),
+                  bottomLeft: Radius.circular(14),
+                ),
+              ),
+            ),
+            Expanded(
+              child: Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Row(
+                            children: [
+                              SvgPicture.asset(
+                                'assets/icons/hashtag.svg',
+                                width: 20,
+                                height: 20,
+                                colorFilter: const ColorFilter.mode(
+                                  AppTheme.primaryBlue,
+                                  BlendMode.srcIn,
+                                ),
                               ),
-                            ),
-                            const SizedBox(width: 8),
-                            Text(
-                              order.orderNumber,
-                              style: const TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.w600,
-                                color: AppTheme.primaryTextColor,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      Expanded(
-                        child: Row(
-                          children: [
-                            SvgPicture.asset(
-                              'assets/icons/user.svg',
-                              width: 20,
-                              height: 20,
-                              colorFilter: const ColorFilter.mode(
-                                AppTheme.primaryBlue,
-                                BlendMode.srcIn,
-                              ),
-                            ),
-                            const SizedBox(width: 8),
-                            Expanded(
-                              child: Text(
-                                order.user,
+                              const SizedBox(width: 8),
+                              Text(
+                                order.orderNumber,
                                 style: const TextStyle(
                                   fontSize: 18,
+                                  fontWeight: FontWeight.w600,
                                   color: AppTheme.primaryTextColor,
                                 ),
-                                overflow: TextOverflow.ellipsis,
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Row(
-                          children: [
-                            SvgPicture.asset(
-                              'assets/icons/cash.svg',
-                              width: 20,
-                              height: 20,
-                              colorFilter: const ColorFilter.mode(
-                                AppTheme.primaryBlue,
-                                BlendMode.srcIn,
+                        Expanded(
+                          child: Row(
+                            children: [
+                              SvgPicture.asset(
+                                'assets/icons/user.svg',
+                                width: 20,
+                                height: 20,
+                                colorFilter: const ColorFilter.mode(
+                                  AppTheme.primaryBlue,
+                                  BlendMode.srcIn,
+                                ),
                               ),
-                            ),
-                            const SizedBox(width: 8),
-                            Text(
-                              CurrencyHelper.format(order.amount),
-                              style: const TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.w600,
-                                color: AppTheme.primaryTextColor,
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: Text(
+                                  order.user,
+                                  style: const TextStyle(
+                                    fontSize: 18,
+                                    color: AppTheme.primaryTextColor,
+                                  ),
+                                  overflow: TextOverflow.ellipsis,
+                                ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
-                      ),
-                      Expanded(
-                        child: Row(
-                          children: [
-                            SvgPicture.asset(
-                              'assets/icons/discount.svg',
-                              width: 20,
-                              height: 20,
-                              colorFilter: const ColorFilter.mode(
-                                AppTheme.primaryBlue,
-                                BlendMode.srcIn,
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Row(
+                            children: [
+                              SvgPicture.asset(
+                                'assets/icons/time.svg',
+                                width: 20,
+                                height: 20,
+                                colorFilter: const ColorFilter.mode(
+                                  AppTheme.primaryBlue,
+                                  BlendMode.srcIn,
+                                ),
                               ),
-                            ),
-                            const SizedBox(width: 8),
-                            Text(
-                              '${order.discountPercent.toStringAsFixed(0)}%',
-                              style: const TextStyle(
-                                fontSize: 18,
-                                color: AppTheme.primaryTextColor,
+                              const SizedBox(width: 8),
+                              Text(
+                                "${order.orderTime}",
+                                style: const TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.w600,
+                                  color: AppTheme.primaryTextColor,
+                                ),
                               ),
-                            ),
-                            const Spacer(),
-                            Text(
-                              order.payType,
-                              style: const TextStyle(
-                                fontSize: 16,
-                                color: AppTheme.secondaryTextColor,
-                              ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
-                      ),
-                    ],
-                  ),
-                ],
+                        Expanded(
+                          child: Row(
+                            children: [
+                              SvgPicture.asset(
+                                'assets/icons/cash.svg',
+                                width: 20,
+                                height: 20,
+                                colorFilter: const ColorFilter.mode(
+                                  AppTheme.primaryBlue,
+                                  BlendMode.srcIn,
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              Text(
+                                CurrencyHelper.format(order.amount),
+                                style: const TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.w600,
+                                  color: AppTheme.primaryTextColor,
+                                ),
+                              ),
+                              const Spacer(),
+                              Text(
+                                order.payType == 0 ? l10n.cash : l10n.card,
+                                style: const TextStyle(
+                                  fontSize: 16,
+                                  color: AppTheme.secondaryTextColor,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

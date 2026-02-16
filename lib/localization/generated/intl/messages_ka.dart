@@ -22,7 +22,14 @@ class MessageLookup extends MessageLookupByLibrary {
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
+    "accountsPayable": MessageLookupByLibrary.simpleMessage(
+      "კრედიტორული დავალიანება",
+    ),
+    "accountsReceivable": MessageLookupByLibrary.simpleMessage(
+      "დებიტორული დავალიანება",
+    ),
     "allBranches": MessageLookupByLibrary.simpleMessage("ყველა მაღაზია"),
+    "amount": MessageLookupByLibrary.simpleMessage("თანხა"),
     "aprShort": MessageLookupByLibrary.simpleMessage("აპრ"),
     "attendanceReport": MessageLookupByLibrary.simpleMessage(
       "დასწრების რეპორტი",
@@ -32,13 +39,20 @@ class MessageLookup extends MessageLookupByLibrary {
       "ჩეკის საშუალო ღირებულება",
     ),
     "avgCheck": MessageLookupByLibrary.simpleMessage("საშ. ჩეკი"),
+    "avgCheckDescription": MessageLookupByLibrary.simpleMessage(
+      "AvgCheck არის ჩეკის საშუალო ღირებულება",
+    ),
     "bills": MessageLookupByLibrary.simpleMessage("ჩეკები"),
     "branches": MessageLookupByLibrary.simpleMessage("ლოკაციები"),
     "cancel": MessageLookupByLibrary.simpleMessage("გაუქმება"),
     "card": MessageLookupByLibrary.simpleMessage("ბარათი"),
     "cash": MessageLookupByLibrary.simpleMessage("ნაღდი"),
+    "cashFlow": MessageLookupByLibrary.simpleMessage("ფულადი ნაკადები"),
+    "category": MessageLookupByLibrary.simpleMessage("კატეგორია"),
     "change": MessageLookupByLibrary.simpleMessage("ცვლილება"),
-    "checks": MessageLookupByLibrary.simpleMessage("ჩეკები"),
+    "checksDescription": MessageLookupByLibrary.simpleMessage(
+      "Checks არის ჩეკების რაოდენობა",
+    ),
     "checksFilter": MessageLookupByLibrary.simpleMessage("ჩეკების რაოდენობა"),
     "chooseDay": MessageLookupByLibrary.simpleMessage("დღის არჩევა"),
     "chooseMonth": MessageLookupByLibrary.simpleMessage("თვის არჩევა"),
@@ -46,7 +60,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "chooseYear": MessageLookupByLibrary.simpleMessage("წლის არჩევა"),
     "close": MessageLookupByLibrary.simpleMessage("დახურვა"),
     "commissionReport": MessageLookupByLibrary.simpleMessage(
-      "საკომისიო რეპორტი",
+      "საკომისიოების რეპორტი",
     ),
     "comparisonLabel": MessageLookupByLibrary.simpleMessage("შედარება"),
     "confirm": MessageLookupByLibrary.simpleMessage("დადასტურება"),
@@ -54,10 +68,16 @@ class MessageLookup extends MessageLookupByLibrary {
     "currentValue": MessageLookupByLibrary.simpleMessage(
       "მიმდინარე მნიშვნელობა",
     ),
-    "dailySalesOverview": MessageLookupByLibrary.simpleMessage(
-      "დღიური გაყიდვების მიმოხილვა",
+    "customerReturns": MessageLookupByLibrary.simpleMessage(
+      "დაბრუნებები კლიენტებისგან",
     ),
-    "dashboard": MessageLookupByLibrary.simpleMessage("დეშბორდი"),
+    "customerSales": MessageLookupByLibrary.simpleMessage(
+      "გაყიდვები კლიენტებზე",
+    ),
+    "dailySalesOverview": MessageLookupByLibrary.simpleMessage(
+      "ყოველდღიური გაყიდვების მიმოხილვა",
+    ),
+    "dashboard": MessageLookupByLibrary.simpleMessage("მთავარი"),
     "day": MessageLookupByLibrary.simpleMessage("დღე"),
     "decShort": MessageLookupByLibrary.simpleMessage("დეკ"),
     "discount": MessageLookupByLibrary.simpleMessage("ფასდაკლება"),
@@ -67,20 +87,26 @@ class MessageLookup extends MessageLookupByLibrary {
     "febShort": MessageLookupByLibrary.simpleMessage("თებ"),
     "finances": MessageLookupByLibrary.simpleMessage("ფინანსები"),
     "fri": MessageLookupByLibrary.simpleMessage("პარ"),
-    "general": MessageLookupByLibrary.simpleMessage("ზოგადი"),
     "georgian": MessageLookupByLibrary.simpleMessage("ქართული"),
-    "hour": MessageLookupByLibrary.simpleMessage("საათი"),
     "hourlySalesOverview": MessageLookupByLibrary.simpleMessage(
-      "საათობრივი გაყიდვების მიმოხილვა",
+      "გაყიდვების მიმოხილვა საათების მიხედვით",
     ),
     "hoursWorked": MessageLookupByLibrary.simpleMessage("ნამუშევარი საათები"),
     "income": MessageLookupByLibrary.simpleMessage("თანხა"),
     "incorrectCredentials": MessageLookupByLibrary.simpleMessage(
       "მომხმარებელი ან პაროლი არასწორია!",
     ),
+    "inventoryBalance": MessageLookupByLibrary.simpleMessage(
+      "ნაშთები საწყობში",
+    ),
     "inventoryReport": MessageLookupByLibrary.simpleMessage(
       "ინვენტარიზაციის რეპორტი",
     ),
+    "inventoryValue": MessageLookupByLibrary.simpleMessage(
+      "მარაგების ღირებულება",
+    ),
+    "item": MessageLookupByLibrary.simpleMessage("ნივთი"),
+    "items": MessageLookupByLibrary.simpleMessage("ნივთები"),
     "janShort": MessageLookupByLibrary.simpleMessage("იან"),
     "julShort": MessageLookupByLibrary.simpleMessage("ივლ"),
     "junShort": MessageLookupByLibrary.simpleMessage("ივნ"),
@@ -96,48 +122,105 @@ class MessageLookup extends MessageLookupByLibrary {
     "lastYearDay": MessageLookupByLibrary.simpleMessage("წინა წლის დღესთან"),
     "lastYearMonth": MessageLookupByLibrary.simpleMessage("წინა წლის თვესთან"),
     "lastYearOption": MessageLookupByLibrary.simpleMessage("წლით უკან"),
+    "location": MessageLookupByLibrary.simpleMessage("ლოკაცია"),
     "logIn": MessageLookupByLibrary.simpleMessage("შესვლა"),
     "logout": MessageLookupByLibrary.simpleMessage("გასვლა"),
+    "lowStockReport": MessageLookupByLibrary.simpleMessage(
+      "მცირე ნაშთების რეპორტი",
+    ),
     "loyalty": MessageLookupByLibrary.simpleMessage("ლოიალობა"),
     "marShort": MessageLookupByLibrary.simpleMessage("მარ"),
     "mayShort": MessageLookupByLibrary.simpleMessage("მაი"),
     "mon": MessageLookupByLibrary.simpleMessage("ორშ"),
     "month": MessageLookupByLibrary.simpleMessage("თვე"),
     "monthlySalesOverview": MessageLookupByLibrary.simpleMessage(
-      "თვიური გაყიდვების მიმოხილვა",
+      "ყოველთვიური გაყიდვების მიმოხილვა",
     ),
     "noDataAvailable": MessageLookupByLibrary.simpleMessage(
       "მონაცემები არ არის",
     ),
+    "noOrdersFound": MessageLookupByLibrary.simpleMessage(
+      "შეკვეთები არ მოიძებნა",
+    ),
     "novShort": MessageLookupByLibrary.simpleMessage("ნოე"),
     "octShort": MessageLookupByLibrary.simpleMessage("ოქტ"),
+    "order": MessageLookupByLibrary.simpleMessage("შეკვეთა"),
+    "orderDetailsLoadFailed": MessageLookupByLibrary.simpleMessage(
+      "შეკვეთის დეტალების ჩატვირთვა ვერ მოხერხდა",
+    ),
     "orders": MessageLookupByLibrary.simpleMessage("შეკვეთები"),
     "password": MessageLookupByLibrary.simpleMessage("პაროლი"),
+    "paymentMethod": MessageLookupByLibrary.simpleMessage("გადახდის მეთოდი"),
     "payments": MessageLookupByLibrary.simpleMessage("გადახდები"),
+    "paymentsList": MessageLookupByLibrary.simpleMessage("გადახდების სია"),
+    "paymentsToCustomers": MessageLookupByLibrary.simpleMessage(
+      "გადახდები კლიენტებზე",
+    ),
+    "paymentsToVendors": MessageLookupByLibrary.simpleMessage(
+      "გადახდები მომწოდებლებთან",
+    ),
+    "paytype": MessageLookupByLibrary.simpleMessage("გადახდის ტიპი"),
     "period": MessageLookupByLibrary.simpleMessage("პერიოდი"),
     "previousValue": MessageLookupByLibrary.simpleMessage("წინა მნიშვნელობა"),
+    "product": MessageLookupByLibrary.simpleMessage("პროდუქტი"),
     "productivityReport": MessageLookupByLibrary.simpleMessage(
       "პროდუქტიულობის რეპორტი",
     ),
-    "profileInfo": MessageLookupByLibrary.simpleMessage(
-      "თქვენი პროფილის ინფორმაცია",
-    ),
     "profit": MessageLookupByLibrary.simpleMessage("მოგება"),
     "profitAndLoss": MessageLookupByLibrary.simpleMessage("მოგება და ზარალი"),
+    "profitByCategories": MessageLookupByLibrary.simpleMessage(
+      "მოგება კატეგორიების მიხედვით",
+    ),
+    "profitByProducts": MessageLookupByLibrary.simpleMessage(
+      "მოგება პროდუქტების მიხედვით",
+    ),
     "profitPercent": MessageLookupByLibrary.simpleMessage("მოგება %"),
+    "purchasesByItemDetailed": MessageLookupByLibrary.simpleMessage(
+      "შესყიდვები ნივთების მიხედვით - დეტალური",
+    ),
+    "purchasesByItemSummary": MessageLookupByLibrary.simpleMessage(
+      "შესყიდვები ნივთების მიხედვით - შეჯამება",
+    ),
+    "purchasesDocuments": MessageLookupByLibrary.simpleMessage(
+      "შესყიდვის დოკუმენტები",
+    ),
+    "qty": MessageLookupByLibrary.simpleMessage("რაოდენობა"),
+    "quantity": MessageLookupByLibrary.simpleMessage("რაოდენობა"),
+    "receivedPaymentsList": MessageLookupByLibrary.simpleMessage(
+      "მიღებული გადახდების სია",
+    ),
     "refund": MessageLookupByLibrary.simpleMessage("დაბრუნება"),
     "reports": MessageLookupByLibrary.simpleMessage("რეპორტები"),
     "revenueReport": MessageLookupByLibrary.simpleMessage(
       "შემოსავლების რეპორტი",
     ),
     "sales": MessageLookupByLibrary.simpleMessage("გაყიდვები"),
-    "salesByDay": MessageLookupByLibrary.simpleMessage("გაყიდვები დღეებით"),
-    "salesByHours": MessageLookupByLibrary.simpleMessage("გაყიდვები საათებით"),
+    "salesByCategories": MessageLookupByLibrary.simpleMessage(
+      "გაყიდვები კატეგორიებით",
+    ),
+    "salesByDay": MessageLookupByLibrary.simpleMessage(
+      "გაყიდვები დღეების მიხედვით",
+    ),
+    "salesByHours": MessageLookupByLibrary.simpleMessage(
+      "გაყიდვები საათების მიხედვით",
+    ),
+    "salesByItemSummary": MessageLookupByLibrary.simpleMessage(
+      "გაყიდვები ნივთების მიხედვით - შეჯამება",
+    ),
+    "salesByPaymentMethods": MessageLookupByLibrary.simpleMessage(
+      "გაყიდვები გადახდის მეთოდებით",
+    ),
+    "salesByStaffs": MessageLookupByLibrary.simpleMessage(
+      "გაყიდვები პერსონალით",
+    ),
     "salesByStores": MessageLookupByLibrary.simpleMessage(
       "გაყიდვები მაღაზიებით",
     ),
     "salesByWeekday": MessageLookupByLibrary.simpleMessage(
-      "გაყიდვები კვირის დღეებით",
+      "გაყიდვები კვირის დღეების მიხედვით",
+    ),
+    "salesDescription": MessageLookupByLibrary.simpleMessage(
+      "Sales არის თანხა",
     ),
     "salesOverview": MessageLookupByLibrary.simpleMessage(
       "გაყიდვების მიმოხილვა",
@@ -149,17 +232,15 @@ class MessageLookup extends MessageLookupByLibrary {
     "search": MessageLookupByLibrary.simpleMessage("ძიება"),
     "selectLocation": MessageLookupByLibrary.simpleMessage("აირჩიეთ ლოკაცია"),
     "selectPeriod": MessageLookupByLibrary.simpleMessage("აირჩიეთ პერიოდი"),
-    "selectStore": MessageLookupByLibrary.simpleMessage("აირჩიეთ მაღაზია"),
     "selectedPeriod": MessageLookupByLibrary.simpleMessage("არჩეული პერიოდი"),
     "selfcost": MessageLookupByLibrary.simpleMessage("თ/ღ"),
     "sepShort": MessageLookupByLibrary.simpleMessage("სექ"),
     "shiftReport": MessageLookupByLibrary.simpleMessage("ცვლის რეპორტი"),
-    "staff": MessageLookupByLibrary.simpleMessage("პერსონალი"),
+    "staffMember": MessageLookupByLibrary.simpleMessage("თანამშრომელი"),
     "staffPerformance": MessageLookupByLibrary.simpleMessage(
-      "პერსონალის ეფექტურობა",
+      "თანამშრომლების ეფექტურება",
     ),
-    "statistics": MessageLookupByLibrary.simpleMessage("სტატისტიკა"),
-    "stock": MessageLookupByLibrary.simpleMessage("მარაგი"),
+    "stock": MessageLookupByLibrary.simpleMessage("მარაგები"),
     "stockMovement": MessageLookupByLibrary.simpleMessage("მარაგების მოძრაობა"),
     "store": MessageLookupByLibrary.simpleMessage("მაღაზია"),
     "storeSalesOverview": MessageLookupByLibrary.simpleMessage(
@@ -167,34 +248,27 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "sun": MessageLookupByLibrary.simpleMessage("კვი"),
     "thu": MessageLookupByLibrary.simpleMessage("ხუთ"),
+    "time": MessageLookupByLibrary.simpleMessage("დრო"),
     "todayVsYesterday": MessageLookupByLibrary.simpleMessage("დღეს vs გუშინ"),
-    "totalAmount": MessageLookupByLibrary.simpleMessage("სულ თანხა"),
-    "totalBills": MessageLookupByLibrary.simpleMessage("სულ ჩეკები"),
+    "topSalesByProducts": MessageLookupByLibrary.simpleMessage(
+      "ტოპ გაყიდვები პროდუქტებით",
+    ),
+    "total": MessageLookupByLibrary.simpleMessage("სულ"),
     "tue": MessageLookupByLibrary.simpleMessage("სამ"),
+    "user": MessageLookupByLibrary.simpleMessage("მომხმარებელი"),
     "username": MessageLookupByLibrary.simpleMessage("მომხმარებელი"),
+    "vendorPurchases": MessageLookupByLibrary.simpleMessage(
+      "შესყიდვები მომწოდებლებისგან",
+    ),
+    "vendorReturns": MessageLookupByLibrary.simpleMessage(
+      "დაბრუნებები მომწოდებლებთან",
+    ),
     "wed": MessageLookupByLibrary.simpleMessage("ოთხ"),
     "week": MessageLookupByLibrary.simpleMessage("კვირა"),
     "weekday": MessageLookupByLibrary.simpleMessage("კვირის დღე"),
     "weekdaySalesOverview": MessageLookupByLibrary.simpleMessage(
-      "კვირის დღეების გაყიდვების მიმოხილვა",
+      "გაყიდვების მიმოხილვა კვირის დღეების მიხედვით",
     ),
-    "topSalesByProducts": MessageLookupByLibrary.simpleMessage(
-      "ტოპ გაყიდვები პროდუქტებით",
-    ),
-    "salesByCategories": MessageLookupByLibrary.simpleMessage(
-      "გაყიდვები კატეგორიებით",
-    ),
-    "quantity": MessageLookupByLibrary.simpleMessage("რაოდენობა"),
-    "product": MessageLookupByLibrary.simpleMessage("პროდუქტი"),
-    "category": MessageLookupByLibrary.simpleMessage("კატეგორია"),
-    "salesByStaff": MessageLookupByLibrary.simpleMessage(
-      "გაყიდვები პერსონალით",
-    ),
-    "staffMember": MessageLookupByLibrary.simpleMessage("თანამშრომელი"),
-    "salesByPaymentMethods": MessageLookupByLibrary.simpleMessage(
-      "გაყიდვები გადახდის მეთოდებით",
-    ),
-    "paymentMethod": MessageLookupByLibrary.simpleMessage("გადახდის მეთოდი"),
     "year": MessageLookupByLibrary.simpleMessage("წელი"),
   };
 }

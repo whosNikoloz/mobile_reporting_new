@@ -1,6 +1,7 @@
 import "package:flutter/material.dart";
 import "package:flutter_svg/flutter_svg.dart";
 import "package:mobile_reporting/localization/generated/l10n.dart";
+import "package:mobile_reporting/screens/pin_entry_screen.dart";
 import "package:mobile_reporting/theme/app_theme.dart";
 
 class LanguageOption {
@@ -28,6 +29,7 @@ void showProfilePopover({
   required String email,
   required String currentLangCode,
   required VoidCallback onLogout,
+  required VoidCallback onChangeCompany,
   required void Function(String langCode) onLanguageChanged,
 }) {
   showGeneralDialog(
@@ -63,6 +65,10 @@ void showProfilePopover({
                     Navigator.of(context).pop();
                     onLanguageChanged(langCode);
                   },
+                  onChangeCompany: () {
+                    Navigator.of(context).pop();
+                    onChangeCompany();
+                  },
                   onLogout: () {
                     Navigator.of(context).pop();
                     onLogout();
@@ -93,6 +99,7 @@ class _ProfilePopover extends StatefulWidget {
     required this.email,
     required this.currentLangCode,
     required this.onLogout,
+    required this.onChangeCompany,
     required this.onLanguageChanged,
   });
 
@@ -100,6 +107,7 @@ class _ProfilePopover extends StatefulWidget {
   final String email;
   final String currentLangCode;
   final VoidCallback onLogout;
+  final VoidCallback onChangeCompany;
   final void Function(String langCode) onLanguageChanged;
 
   @override
@@ -278,6 +286,35 @@ class _ProfilePopoverState extends State<_ProfilePopover> {
                         ? CrossFadeState.showSecond
                         : CrossFadeState.showFirst,
                     duration: const Duration(milliseconds: 200),
+                  ),
+
+                  const Divider(
+                      height: 1, thickness: 1, color: Color(0xFFF1F5F9)),
+
+                  // Change Company Link
+                  InkWell(
+                    onTap: () {
+                      widget.onChangeCompany();
+                    },
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 12),
+                      child: Row(
+                        children: [
+                          const Icon(Icons.business_outlined,
+                              size: 20, color: Color(0xFF6B7280)),
+                          const SizedBox(width: 12),
+                          const Text(
+                            'Change Company',
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                              color: Color(0xFF111827),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
 
                   const Divider(

@@ -50,21 +50,30 @@ class _ReportsScreenState extends State<ReportsScreen> {
       'Sales by Staffs',
     ],
     'Finances': [
-      'Revenue Report',
-      'Expense Report',
-      'Profit & Loss',
+      'Cash Flow',
+      'Customer Sales',
+      'Customer Returns',
+      'PAyments to Customers',
+      'Payments List',
+      'Vendor Purchases',
+      'Vendor Returns',
+      'Payments to Vendors',
+      'Accounts Receivable',
+      'Accounts Payable',
+      'Profit by Products',
+      'Profit by Categories',
+      'Received Payments List',
+      'Cash Flow'
     ],
-    // 'Staff': [
-    //   'Staff Performance',
-    //   'Attendance Report',
-    //   'Commission Report',
-    //   'Shift Report',
-    //   'Hours Worked',
-    //   'Productivity Report',
-    // ],
     'Stock': [
-      'Inventory Report',
+      'Inventory Balance',
+      'Purchases Documents',
+      'Purchases by Item - Summary',
+      'Purchases by Item - Detailed',
+      'Sales by Item - Summary',
       'Stock Movement',
+      'Low stock Report',
+      'Inventory Value',
     ],
   };
 
@@ -125,6 +134,46 @@ class _ReportsScreenState extends State<ReportsScreen> {
         return l10n.inventoryReport;
       case 'Stock Movement':
         return l10n.stockMovement;
+      case 'Cash Flow':
+        return l10n.cashFlow;
+      case 'Customer Sales':
+        return l10n.customerSales;
+      case 'Customer Returns':
+        return l10n.customerReturns;
+      case 'PAyments to Customers':
+        return l10n.paymentsToCustomers;
+      case 'Payments List':
+        return l10n.paymentsList;
+      case 'Vendor Purchases':
+        return l10n.vendorPurchases;
+      case 'Vendor Returns':
+        return l10n.vendorReturns;
+      case 'Payments to Vendors':
+        return l10n.paymentsToVendors;
+      case 'Accounts Receivable':
+        return l10n.accountsReceivable;
+      case 'Accounts Payable':
+        return l10n.accountsPayable;
+      case 'Profit by Products':
+        return l10n.profitByProducts;
+      case 'Profit by Categories':
+        return l10n.profitByCategories;
+      case 'Received Payments List':
+        return l10n.receivedPaymentsList;
+      case 'Inventory Balance':
+        return l10n.inventoryBalance;
+      case 'Purchases Documents':
+        return l10n.purchasesDocuments;
+      case 'Purchases by Item - Summary':
+        return l10n.purchasesByItemSummary;
+      case 'Purchases by Item - Detailed':
+        return l10n.purchasesByItemDetailed;
+      case 'Sales by Item - Summary':
+        return l10n.salesByItemSummary;
+      case 'Low stock Report':
+        return l10n.lowStockReport;
+      case 'Inventory Value':
+        return l10n.inventoryValue;
       default:
         return report;
     }
@@ -224,7 +273,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
         children: [
           // Tabs
           Container(
-            color: Colors.white,
+            color: Colors.transparent,
             padding: const EdgeInsets.symmetric(vertical: 12),
             child: SingleChildScrollView(
               scrollDirection: Axis.horizontal,
@@ -234,7 +283,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
                   _buildTab('Sales'),
                   const SizedBox(width: 10),
                   _buildTab('Finances'),
-                  //const SizedBox(width: 10),
+                  //const SizedBox(width: 40),
                   //_buildTab('Staff'),
                   const SizedBox(width: 10),
                   _buildTab('Stock'),
@@ -246,46 +295,51 @@ class _ReportsScreenState extends State<ReportsScreen> {
 
           // Content
           Expanded(
-            child: ListView(
+            child: SingleChildScrollView(
               controller: _scrollController,
               padding: const EdgeInsets.all(16),
-              children: [
-                ..._reports.keys.map((category) {
-                  final reports = _reports[category]!;
-                  return Column(
-                    key: _sectionKeys[category],
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          SvgPicture.asset(
-                            _categoryIcons[category]!,
-                            width: 20,
-                            height: 20,
-                            colorFilter: const ColorFilter.mode(
-                                AppTheme.primaryBlue, BlendMode.srcIn),
-                          ),
-                          const SizedBox(width: 8),
-                          Text(
-                            _getCategoryTitle(context, category),
-                            style: const TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.black87,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  ..._reports.keys.map((category) {
+                    final reports = _reports[category]!;
+                    return Column(
+                      key: _sectionKeys[category],
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            SvgPicture.asset(
+                              _categoryIcons[category]!,
+                              width: 20,
+                              height: 20,
+                              colorFilter: const ColorFilter.mode(
+                                  AppTheme.primaryBlue, BlendMode.srcIn),
                             ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 8),
+                            const SizedBox(width: 8),
+                            Text(
+                              _getCategoryTitle(context, category),
+                              style: const TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.black87,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 8),
 
-                      // Report Items
-                      ...reports.map((report) => _buildReportItem(report)),
+                        // Report Items
+                        ...reports.map((report) => _buildReportItem(report)),
 
-                      const SizedBox(height: 24),
-                    ],
-                  );
-                }),
-              ],
+                        const SizedBox(height: 24),
+                      ],
+                    );
+                  }),
+                  // Add extra padding at bottom to allow scrolling last section to top if needed
+                  const SizedBox(height: 100),
+                ],
+              ),
             ),
           ),
         ],
