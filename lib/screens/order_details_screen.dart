@@ -203,7 +203,6 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
                   email: _email ?? "Email@gmail.com",
                   currentLangCode: _selectedLanguage,
                   onLanguageChanged: _changeLanguage,
-
                   onLogout: () async {
                     await getIt<PreferencesHelper>().clearCompanyName();
                     await getIt<PreferencesHelper>().clearLang();
@@ -350,7 +349,7 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
                 ),
               ),
               Expanded(
-                flex: 2,
+                flex: 3,
                 child: Text(
                   l10n.qty,
                   textAlign: TextAlign.center,
@@ -486,7 +485,7 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
               child: SizedBox(),
             ),
             Expanded(
-              flex: 2,
+              flex: 3,
               child: Text(
                 l10n.total,
                 textAlign: TextAlign.center,

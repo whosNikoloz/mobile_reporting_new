@@ -1,4 +1,5 @@
 import 'package:mobile_reporting/application_store.dart';
+import 'package:intl/intl.dart';
 
 class CurrencyHelper {
   static String getCurrencySymbol() {
@@ -19,6 +20,7 @@ class CurrencyHelper {
 
   static String format(double value) {
     final symbol = getCurrencySymbol();
-    return '$symbol${value.toStringAsFixed(2)}';
+    final formatted = NumberFormat('#,##0.00', 'en_US').format(value);
+    return '$symbol$formatted';
   }
 }

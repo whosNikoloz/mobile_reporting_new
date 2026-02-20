@@ -7,6 +7,12 @@ import 'package:mobile_reporting/screens/top_products_screen.dart';
 import 'package:mobile_reporting/screens/category_sales_screen.dart';
 import 'package:mobile_reporting/screens/staff_sales_screen.dart';
 import 'package:mobile_reporting/screens/payment_entities_screen.dart';
+import 'package:mobile_reporting/screens/profit_by_products_screen.dart';
+import 'package:mobile_reporting/screens/profit_by_categories_screen.dart';
+import 'package:mobile_reporting/screens/buyers_debt_screen.dart';
+import 'package:mobile_reporting/screens/suppliers_debt_screen.dart';
+import 'package:mobile_reporting/screens/vendor_payments_screen.dart';
+import 'package:mobile_reporting/screens/vendor_returns_screen.dart';
 import 'package:mobile_reporting/theme/app_theme.dart';
 
 class ReportsScreen extends StatefulWidget {
@@ -393,6 +399,124 @@ class _ReportsScreenState extends State<ReportsScreen> {
   }
 
   Widget _buildReportItem(String title) {
+    VoidCallback? onTap;
+
+    if (title == 'Sales by Stores') {
+      onTap = () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const StoreSalesScreen(),
+          ),
+        );
+      };
+    } else if (title == 'Top Sales by Products') {
+      onTap = () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const TopProductsScreen(),
+          ),
+        );
+      };
+    } else if (title == 'Sales by Categories') {
+      onTap = () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const CategorySalesScreen(),
+          ),
+        );
+      };
+    } else if (title == 'Sales by Staffs') {
+      onTap = () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const StaffSalesScreen(),
+          ),
+        );
+      };
+    } else if (title == 'Sales by Payment Methods') {
+      onTap = () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const PaymentEntitiesScreen(),
+          ),
+        );
+      };
+    } else if (title == 'Profit by Products') {
+      onTap = () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const ProfitByProductsScreen(),
+          ),
+        );
+      };
+    } else if (title == 'Profit by Categories') {
+      onTap = () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const ProfitByCategoriesScreen(),
+          ),
+        );
+      };
+    } else if (title == 'Accounts Receivable') {
+      onTap = () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const BuyersDebtScreen(),
+          ),
+        );
+      };
+    } else if (title == 'Accounts Payable') {
+      onTap = () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const SuppliersDebtScreen(),
+          ),
+        );
+      };
+    } else if (title == 'Payments to Vendors') {
+      onTap = () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const VendorPaymentsScreen(),
+          ),
+        );
+      };
+    } else if (title == 'Sales by Days' ||
+        title == 'Sales by Hour' ||
+        title == 'Sales by Weekdays') {
+      onTap = () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => SalesSummaryScreen(
+              reportTitle: title,
+            ),
+          ),
+        );
+      };
+    } else if (title == 'Vendor Returns') {
+      onTap = () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const VendorReturnsScreen(),
+          ),
+        );
+      };
+    }
+
+    final bool isEnabled = onTap != null;
+
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
       decoration: BoxDecoration(
@@ -418,54 +542,10 @@ class _ReportsScreenState extends State<ReportsScreen> {
         ),
         trailing: Icon(
           Icons.chevron_right,
-          color: Colors.blue[600],
+          color: isEnabled ? Colors.blue[600] : Colors.grey[400],
           size: 35,
         ),
-        onTap: () {
-          if (title == 'Sales by Stores') {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => const StoreSalesScreen(),
-              ),
-            );
-          } else if (title == 'Top Sales by Products') {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => const TopProductsScreen(),
-              ),
-            );
-          } else if (title == 'Sales by Categories') {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => const CategorySalesScreen(),
-              ),
-            );
-          } else if (title == 'Sales by Staffs') {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => const StaffSalesScreen(),
-              ),
-            );
-          } else if (title == 'Sales by Payment Methods') {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => const PaymentEntitiesScreen(),
-              ),
-            );
-          } else {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => SalesSummaryScreen(reportTitle: title),
-              ),
-            );
-          }
-        },
+        onTap: isEnabled ? onTap : null,
       ),
     );
   }

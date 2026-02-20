@@ -14,8 +14,18 @@ import 'package:mobile_reporting/api/response_models/staff_sales_response_model.
 import 'package:mobile_reporting/api/request_models/payment_entities_request_model.dart';
 import 'package:mobile_reporting/api/response_models/payment_entities_response_model.dart';
 import 'package:mobile_reporting/api/request_models/orders_request_model.dart';
+import 'package:mobile_reporting/api/request_models/profit_by_products_request_model.dart';
+import 'package:mobile_reporting/api/request_models/profit_by_categories_request_model.dart';
+import 'package:mobile_reporting/api/request_models/vendor_payments_request_model.dart';
+import 'package:mobile_reporting/api/request_models/buyers_debt_request_model.dart';
+import 'package:mobile_reporting/api/request_models/suppliers_debt_request_model.dart';
 import 'package:mobile_reporting/api/response_models/order_response_model.dart';
 import 'package:mobile_reporting/api/response_models/paged_response_model.dart';
+import 'package:mobile_reporting/api/response_models/profit_by_product_response_model.dart';
+import 'package:mobile_reporting/api/response_models/profit_by_category_response_model.dart';
+import 'package:mobile_reporting/api/response_models/vendor_payments_response_model.dart';
+import 'package:mobile_reporting/api/response_models/buyers_debt_response_model.dart';
+import 'package:mobile_reporting/api/response_models/suppliers_debt_response_model.dart';
 import 'package:mobile_reporting/helpers/helpers_module.dart';
 import 'package:mobile_reporting/helpers/http_helper.dart';
 import 'package:mobile_reporting/helpers/preferences_helper.dart';
@@ -241,6 +251,7 @@ class ReportsService {
       return null;
     }
   }
+
   /// Get top products report
   Future<List<TopProductSalesResponseModel>?> getTopProductsReport({
     required int storeId,
@@ -273,7 +284,9 @@ class ReportsService {
 
       if (response != null) {
         final List<dynamic> data = json.decode(response);
-        return data.map((e) => TopProductSalesResponseModel.fromJson(e)).toList();
+        return data
+            .map((e) => TopProductSalesResponseModel.fromJson(e))
+            .toList();
       }
 
       return null;
@@ -282,7 +295,6 @@ class ReportsService {
       return null;
     }
   }
-
 
   /// Get category sales report
   Future<List<CategorySalesResponseModel>?> getCategorySalesReport({
@@ -324,7 +336,6 @@ class ReportsService {
       print('❌ Error in getCategorySalesReport: $err');
       return null;
     }
-
   }
 
   /// Get staff sales report
@@ -401,12 +412,54 @@ class ReportsService {
 
       if (response != null) {
         final List<dynamic> data = json.decode(response);
-        return data.map((e) => PaymentEntitiesResponseModel.fromJson(e)).toList();
+        return data
+            .map((e) => PaymentEntitiesResponseModel.fromJson(e))
+            .toList();
       }
 
       return null;
     } catch (err) {
       print('❌ Error in getPaymentEntitiesReport: $err');
+      return null;
+    }
+  }
+
+  /// Get profit by products report with pagination
+  Future<List<ProfitByProductResponseModel>?> getProfitByProducts({
+    required DateTime startDate,
+    required DateTime endDate,
+    int page = 1,
+    int pageSize = 20,
+  }) async {
+    try {
+      final requestBody = ProfitByProductsRequestModel(
+        startDate: startDate,
+        endDate: endDate,
+        page: page,
+        pageSize: pageSize,
+      );
+
+      final serverUrl = await _getServerUrl();
+      final ck = await getIt<PreferencesHelper>().getDatabase();
+      if (ck == null) return null;
+
+      final response = await _httpHelper.fetchPost(
+        ck,
+        serverUrl,
+        'get_profit_by_products',
+        body: requestBody.toJson(),
+      );
+
+      if (response != null) {
+        final List<dynamic> data = json.decode(response);
+        return data
+            .map((e) => ProfitByProductResponseModel.fromJson(e))
+            .toList();
+      }
+
+      return null;
+    } catch (err) {
+      print('❌ Error in getProfitByProducts: $err');
       return null;
     }
   }
@@ -452,6 +505,202 @@ class ReportsService {
       return null;
     } catch (err) {
       print('❌ Error in getOrders: $err');
+      return null;
+    }
+  }
+
+  /// Get buyers debt (accounts receivable) report with pagination
+  Future<List<BuyersDebtResponseModel>?> getBuyersDebt({
+    required DateTime beforeDate,
+    String pathFrom = '0#2#5',
+    String pathTo = '0#2#5%',
+    int page = 1,
+    int pageSize = 20,
+  }) async {
+    try {
+      final requestBody = BuyersDebtRequestModel(
+        beforeDate: beforeDate,
+        pathFrom: pathFrom,
+        pathTo: pathTo,
+        page: page,
+        pageSize: pageSize,
+      );
+
+      final serverUrl = await _getServerUrl();
+      final ck = await getIt<PreferencesHelper>().getDatabase();
+      if (ck == null) return null;
+
+      final response = await _httpHelper.fetchPost(
+        ck,
+        serverUrl,
+        'get_buyers_debt',
+        body: requestBody.toJson(),
+      );
+
+      if (response != null) {
+        final List<dynamic> data = json.decode(response);
+        return data.map((e) => BuyersDebtResponseModel.fromJson(e)).toList();
+      }
+
+      return null;
+    } catch (err) {
+      print('âŒ Error in getBuyersDebt: $err');
+      return null;
+    }
+  }
+
+  /// Get suppliers debt (accounts payable) report with pagination
+  Future<List<SuppliersDebtResponseModel>?> getSuppliersDebt({
+    required DateTime beforeDate,
+    int page = 1,
+    int pageSize = 20,
+  }) async {
+    try {
+      final requestBody = SuppliersDebtRequestModel(
+        beforeDate: beforeDate,
+        page: page,
+        pageSize: pageSize,
+      );
+
+      final serverUrl = await _getServerUrl();
+      final ck = await getIt<PreferencesHelper>().getDatabase();
+      if (ck == null) return null;
+
+      final response = await _httpHelper.fetchPost(
+        ck,
+        serverUrl,
+        'get_suppliers_debt',
+        body: requestBody.toJson(),
+      );
+
+      if (response != null) {
+        final List<dynamic> data = json.decode(response);
+        return data.map((e) => SuppliersDebtResponseModel.fromJson(e)).toList();
+      }
+
+      return null;
+    } catch (err) {
+      print('❌ Error in getSuppliersDebt: $err');
+      return null;
+    }
+  }
+
+  /// Get profit by categories report with pagination
+  Future<List<ProfitByCategoryResponseModel>?> getProfitByCategories({
+    required DateTime startDate,
+    required DateTime endDate,
+    int page = 1,
+    int pageSize = 20,
+  }) async {
+    try {
+      final requestBody = ProfitByCategoriesRequestModel(
+        startDate: startDate,
+        endDate: endDate,
+        page: page,
+        pageSize: pageSize,
+      );
+
+      final serverUrl = await _getServerUrl();
+      final ck = await getIt<PreferencesHelper>().getDatabase();
+      if (ck == null) return null;
+
+      final response = await _httpHelper.fetchPost(
+        ck,
+        serverUrl,
+        'get_profit_by_categories',
+        body: requestBody.toJson(),
+      );
+
+      if (response != null) {
+        final List<dynamic> data = json.decode(response);
+        return data
+            .map((e) => ProfitByCategoryResponseModel.fromJson(e))
+            .toList();
+      }
+
+      return null;
+    } catch (err) {
+      print('❌ Error in getProfitByCategories: $err');
+      return null;
+    }
+  }
+
+  /// Get vendor payments report with pagination
+  Future<List<VendorPaymentsResponseModel>?> getVendorPayments({
+    required DateTime startDate,
+    required DateTime endDate,
+    int page = 1,
+    int pageSize = 20,
+  }) async {
+    try {
+      final requestBody = VendorPaymentsRequestModel(
+        startDate: startDate,
+        endDate: endDate,
+        page: page,
+        pageSize: pageSize,
+      );
+
+      final serverUrl = await _getServerUrl();
+      final ck = await getIt<PreferencesHelper>().getDatabase();
+      if (ck == null) return null;
+
+      final response = await _httpHelper.fetchPost(
+        ck,
+        serverUrl,
+        'get_vendor_payments',
+        body: requestBody.toJson(),
+      );
+
+      if (response != null) {
+        final List<dynamic> data = json.decode(response);
+        return data
+            .map((e) => VendorPaymentsResponseModel.fromJson(e))
+            .toList();
+      }
+
+      return null;
+    } catch (err) {
+      print('âŒ Error in getVendorPayments: $err');
+      return null;
+    }
+  }
+
+  /// Get vendor returns report with pagination
+  Future<List<VendorPaymentsResponseModel>?> getVendorReturns({
+    required DateTime startDate,
+    required DateTime endDate,
+    int page = 1,
+    int pageSize = 20,
+  }) async {
+    try {
+      final requestBody = VendorPaymentsRequestModel(
+        startDate: startDate,
+        endDate: endDate,
+        page: page,
+        pageSize: pageSize,
+      );
+
+      final serverUrl = await _getServerUrl();
+      final ck = await getIt<PreferencesHelper>().getDatabase();
+      if (ck == null) return null;
+
+      final response = await _httpHelper.fetchPost(
+        ck,
+        serverUrl,
+        'get_vendor_returns',
+        body: requestBody.toJson(),
+      );
+
+      if (response != null) {
+        final List<dynamic> data = json.decode(response);
+        return data
+            .map((e) => VendorPaymentsResponseModel.fromJson(e))
+            .toList();
+      }
+
+      return null;
+    } catch (err) {
+      print('❌ Error in getVendorReturns: $err');
       return null;
     }
   }
