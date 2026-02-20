@@ -2,7 +2,6 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:mobile_reporting/screens/pin_entry_screen.dart';
 import 'package:mobile_reporting/widgets/chart_details_modal.dart';
 import 'package:flutter/services.dart';
 import 'package:fl_chart/fl_chart.dart';
@@ -15,7 +14,7 @@ import 'package:mobile_reporting/enums/screen_type.dart';
 import 'package:mobile_reporting/helpers/helpers_module.dart';
 import 'package:mobile_reporting/helpers/preferences_helper.dart';
 import 'package:mobile_reporting/main.dart';
-import 'package:mobile_reporting/screens/splash_screen.dart';
+import 'package:mobile_reporting/screens/sign_in_screen.dart';
 import 'package:mobile_reporting/services/reports_service.dart';
 import 'package:mobile_reporting/theme/app_theme.dart';
 import 'package:mobile_reporting/widgets/picker_widget.dart';
@@ -725,21 +724,7 @@ class _SalesSummaryScreenState extends State<SalesSummaryScreen> {
                       currentLangCode: _selectedLanguage,
                       onLanguageChanged: _changeLanguage,
 
-                      // Logout = only PIN user, go to PIN screen
                       onLogout: () async {
-                        await getIt<PreferencesHelper>().clearPinUserId();
-                        await getIt<PreferencesHelper>().clearPinUserName();
-                        if (!mounted) return;
-                        Navigator.pushAndRemoveUntil(
-                          context,
-                          MaterialPageRoute(
-                              builder: (_) => const PinEntryScreen()),
-                          (route) => false,
-                        );
-                      },
-
-                      // Change company = clear everything and go to Splash/login
-                      onChangeCompany: () async {
                         await getIt<PreferencesHelper>().clearCompanyName();
                         await getIt<PreferencesHelper>().clearLang();
                         await getIt<PreferencesHelper>().clearType();
@@ -749,13 +734,11 @@ class _SalesSummaryScreenState extends State<SalesSummaryScreen> {
                         await getIt<PreferencesHelper>().clearAccountLang();
                         await getIt<PreferencesHelper>().clearDatabase();
                         await getIt<PreferencesHelper>().clearUrl();
-                        await getIt<PreferencesHelper>().clearPinUserId();
-                        await getIt<PreferencesHelper>().clearPinUserName();
                         if (!mounted) return;
                         Navigator.pushAndRemoveUntil(
                           context,
                           MaterialPageRoute(
-                              builder: (_) => const SplashScreen()),
+                              builder: (_) => const SignInScreen()),
                           (route) => false,
                         );
                       },

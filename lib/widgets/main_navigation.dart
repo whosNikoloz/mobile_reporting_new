@@ -5,9 +5,8 @@ import 'package:mobile_reporting/helpers/preferences_helper.dart';
 import 'package:mobile_reporting/main.dart';
 import 'package:mobile_reporting/screens/dashboard_screen.dart';
 import 'package:mobile_reporting/screens/orders_screen.dart';
-import 'package:mobile_reporting/screens/pin_entry_screen.dart';
 import 'package:mobile_reporting/screens/reports_screen.dart';
-import 'package:mobile_reporting/screens/splash_screen.dart';
+import 'package:mobile_reporting/screens/sign_in_screen.dart';
 import 'package:mobile_reporting/theme/app_theme.dart';
 import 'package:mobile_reporting/localization/generated/l10n.dart';
 import 'package:mobile_reporting/widgets/profile_popover_widget.dart';
@@ -26,8 +25,6 @@ class _MainNavigationState extends State<MainNavigation> {
   String? _userType;
   String? _companyName;
   String? _email;
-  String? _pinUserName;
-  int? _pinUserId;
   String _selectedLanguage = 'ka';
 
   @override
@@ -41,8 +38,6 @@ class _MainNavigationState extends State<MainNavigation> {
     _userType = await getIt<PreferencesHelper>().getType();
     _companyName = await getIt<PreferencesHelper>().getCompanyName();
     _email = await getIt<PreferencesHelper>().getEmail();
-    _pinUserName = await getIt<PreferencesHelper>().getPinUserName();
-    _pinUserId = await getIt<PreferencesHelper>().getPinUserId();
     final savedLang = await getIt<PreferencesHelper>().getLang();
     if (savedLang != null) {
       _selectedLanguage = savedLang;
@@ -115,25 +110,11 @@ class _MainNavigationState extends State<MainNavigation> {
   void _showProfileDialog() {
     showProfilePopover(
       context: context,
-      name: _pinUserName ?? _companyName ?? '',
-      email: _pinUserId != null && _companyName != null
-          ? 'ID: $_pinUserId • $_companyName'
-          : (_companyName ?? _email ?? ''),
+      name: _companyName ?? '',
+      email: _email ?? '',
       currentLangCode: _selectedLanguage,
       onLanguageChanged: _changeLanguage,
       onLogout: () async {
-        await getIt<PreferencesHelper>().clearPinUserId();
-        await getIt<PreferencesHelper>().clearPinUserName();
-        if (!mounted) return;
-        Navigator.pushAndRemoveUntil(
-          context,
-          MaterialPageRoute(builder: (_) => const PinEntryScreen()),
-          (route) => false,
-        );
-      },
-
-      // Change company = clear everything and go to Splash/login
-      onChangeCompany: () async {
         await getIt<PreferencesHelper>().clearCompanyName();
         await getIt<PreferencesHelper>().clearLang();
         await getIt<PreferencesHelper>().clearType();
@@ -143,12 +124,10 @@ class _MainNavigationState extends State<MainNavigation> {
         await getIt<PreferencesHelper>().clearAccountLang();
         await getIt<PreferencesHelper>().clearDatabase();
         await getIt<PreferencesHelper>().clearUrl();
-        await getIt<PreferencesHelper>().clearPinUserId();
-        await getIt<PreferencesHelper>().clearPinUserName();
         if (!mounted) return;
         Navigator.pushAndRemoveUntil(
           context,
-          MaterialPageRoute(builder: (_) => const SplashScreen()),
+          MaterialPageRoute(builder: (_) => const SignInScreen()),
           (route) => false,
         );
       },

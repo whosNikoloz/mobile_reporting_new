@@ -73,37 +73,6 @@ class PreferencesHelper {
     return prefs.getString('user_name');
   }
 
-  // PIN user (authenticated with pin code)
-  Future<void> setPinUserId(int id) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setInt('pin_user_id', id);
-  }
-
-  Future<int?> getPinUserId() async {
-    final prefs = await SharedPreferences.getInstance();
-    return prefs.getInt('pin_user_id');
-  }
-
-  Future<void> clearPinUserId() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.remove('pin_user_id');
-  }
-
-  Future<void> setPinUserName(String name) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('pin_user_name', name);
-  }
-
-  Future<String?> getPinUserName() async {
-    final prefs = await SharedPreferences.getInstance();
-    return prefs.getString('pin_user_name');
-  }
-
-  Future<void> clearPinUserName() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.remove('pin_user_name');
-  }
-
   Future<void> setUserAuthToken(String lang) async {
     final prefs = await SharedPreferences.getInstance();
 
