@@ -665,6 +665,166 @@ class ReportsService {
     }
   }
 
+  /// Get vendor purchases report with pagination
+  Future<List<VendorPaymentsResponseModel>?> getVendorPurchases({
+    required DateTime startDate,
+    required DateTime endDate,
+    int page = 1,
+    int pageSize = 20,
+  }) async {
+    try {
+      final requestBody = VendorPaymentsRequestModel(
+        startDate: startDate,
+        endDate: endDate,
+        page: page,
+        pageSize: pageSize,
+      );
+
+      final serverUrl = await _getServerUrl();
+      final ck = await getIt<PreferencesHelper>().getDatabase();
+      if (ck == null) return null;
+
+      final response = await _httpHelper.fetchPost(
+        ck,
+        serverUrl,
+        'get_vendor_purchases',
+        body: requestBody.toJson(),
+      );
+
+      if (response != null) {
+        final List<dynamic> data = json.decode(response);
+        return data
+            .map((e) => VendorPaymentsResponseModel.fromJson(e))
+            .toList();
+      }
+
+      return null;
+    } catch (err) {
+      print('❌ Error in getVendorPurchases: $err');
+      return null;
+    }
+  }
+
+  /// Get customer sales report with pagination
+  Future<List<VendorPaymentsResponseModel>?> getCustomerSales({
+    required DateTime startDate,
+    required DateTime endDate,
+    int page = 1,
+    int pageSize = 20,
+  }) async {
+    try {
+      final requestBody = VendorPaymentsRequestModel(
+        startDate: startDate,
+        endDate: endDate,
+        page: page,
+        pageSize: pageSize,
+      );
+
+      final serverUrl = await _getServerUrl();
+      final ck = await getIt<PreferencesHelper>().getDatabase();
+      if (ck == null) return null;
+
+      final response = await _httpHelper.fetchPost(
+        ck,
+        serverUrl,
+        'get_customer_sales',
+        body: requestBody.toJson(),
+      );
+
+      if (response != null) {
+        final List<dynamic> data = json.decode(response);
+        return data
+            .map((e) => VendorPaymentsResponseModel.fromJson(e))
+            .toList();
+      }
+
+      return null;
+    } catch (err) {
+      print('❌ Error in getCustomerSales: $err');
+      return null;
+    }
+  }
+
+  /// Get customer returns report with pagination
+  Future<List<VendorPaymentsResponseModel>?> getCustomerReturns({
+    required DateTime startDate,
+    required DateTime endDate,
+    int page = 1,
+    int pageSize = 20,
+  }) async {
+    try {
+      final requestBody = VendorPaymentsRequestModel(
+        startDate: startDate,
+        endDate: endDate,
+        page: page,
+        pageSize: pageSize,
+      );
+
+      final serverUrl = await _getServerUrl();
+      final ck = await getIt<PreferencesHelper>().getDatabase();
+      if (ck == null) return null;
+
+      final response = await _httpHelper.fetchPost(
+        ck,
+        serverUrl,
+        'get_customer_returns',
+        body: requestBody.toJson(),
+      );
+
+      if (response != null) {
+        final List<dynamic> data = json.decode(response);
+        return data
+            .map((e) => VendorPaymentsResponseModel.fromJson(e))
+            .toList();
+      }
+
+      return null;
+    } catch (err) {
+      print('❌ Error in getCustomerReturns: $err');
+      return null;
+    }
+  }
+
+  /// Get customer payments report with pagination
+  Future<List<VendorPaymentsResponseModel>?> getCustomerPayments({
+    required DateTime startDate,
+    required DateTime endDate,
+    int page = 1,
+    int pageSize = 20,
+  }) async {
+    try {
+      final requestBody = VendorPaymentsRequestModel(
+        startDate: startDate,
+        endDate: endDate,
+        page: page,
+        pageSize: pageSize,
+      );
+
+      final serverUrl = await _getServerUrl();
+      final ck = await getIt<PreferencesHelper>().getDatabase();
+      if (ck == null) return null;
+
+      final response = await _httpHelper.fetchPost(
+        ck,
+        serverUrl,
+        'get_customer_payments',
+        body: requestBody.toJson(),
+      );
+
+      if (response != null) {
+        final List<dynamic> data = json.decode(response);
+        return data
+            .map((e) => VendorPaymentsResponseModel.fromJson(e))
+            .toList();
+      }
+
+      return null;
+    } catch (err) {
+      print('❌ Error in getCustomerPayments: $err');
+      return null;
+    }
+  }
+
   /// Get vendor returns report with pagination
   Future<List<VendorPaymentsResponseModel>?> getVendorReturns({
     required DateTime startDate,

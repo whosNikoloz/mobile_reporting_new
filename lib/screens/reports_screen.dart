@@ -12,7 +12,11 @@ import 'package:mobile_reporting/screens/profit_by_categories_screen.dart';
 import 'package:mobile_reporting/screens/buyers_debt_screen.dart';
 import 'package:mobile_reporting/screens/suppliers_debt_screen.dart';
 import 'package:mobile_reporting/screens/vendor_payments_screen.dart';
+import 'package:mobile_reporting/screens/vendor_purchases_screen.dart';
 import 'package:mobile_reporting/screens/vendor_returns_screen.dart';
+import 'package:mobile_reporting/screens/customer_sales_screen.dart';
+import 'package:mobile_reporting/screens/customer_returns_screen.dart';
+import 'package:mobile_reporting/screens/customer_payments_screen.dart';
 import 'package:mobile_reporting/theme/app_theme.dart';
 
 class ReportsScreen extends StatefulWidget {
@@ -69,7 +73,6 @@ class _ReportsScreenState extends State<ReportsScreen> {
       'Profit by Products',
       'Profit by Categories',
       'Received Payments List',
-      'Cash Flow'
     ],
     'Stock': [
       'Inventory Balance',
@@ -504,12 +507,48 @@ class _ReportsScreenState extends State<ReportsScreen> {
           ),
         );
       };
+    } else if (title == 'Vendor Purchases') {
+      onTap = () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const VendorPurchasesScreen(),
+          ),
+        );
+      };
     } else if (title == 'Vendor Returns') {
       onTap = () {
         Navigator.push(
           context,
           MaterialPageRoute(
             builder: (context) => const VendorReturnsScreen(),
+          ),
+        );
+      };
+    } else if (title == 'Customer Sales') {
+      onTap = () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const CustomerSalesScreen(),
+          ),
+        );
+      };
+    } else if (title == 'Customer Returns') {
+      onTap = () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const CustomerReturnsScreen(),
+          ),
+        );
+      };
+    } else if (title == 'PAyments to Customers') {
+      onTap = () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const CustomerPaymentsScreen(),
           ),
         );
       };
