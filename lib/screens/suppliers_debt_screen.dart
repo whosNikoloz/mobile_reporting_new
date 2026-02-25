@@ -25,8 +25,10 @@ class SuppliersDebtScreen extends StatefulWidget {
 class _SuppliersDebtScreenState extends State<SuppliersDebtScreen> {
   final ReportsService _reportsService = ReportsService();
   final ScrollController _scrollController = ScrollController();
+  final TextEditingController _searchController = TextEditingController();
 
   bool _filtersLoaded = false;
+  String _searchQuery = '';
 
   List<SuppliersDebtResponseModel> _items = [];
   bool _isLoading = false;
@@ -58,6 +60,7 @@ class _SuppliersDebtScreenState extends State<SuppliersDebtScreen> {
   @override
   void dispose() {
     _scrollController.dispose();
+    _searchController.dispose();
     super.dispose();
   }
 
@@ -263,6 +266,65 @@ class _SuppliersDebtScreenState extends State<SuppliersDebtScreen> {
                     });
                   },
                 ),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(12),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.04),
+                          blurRadius: 8,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    child: TextField(
+                      controller: _searchController,
+                      onChanged: (val) =>
+                          setState(() => _searchQuery = val.toLowerCase()),
+                      decoration: InputDecoration(
+                        hintText: l10n.search,
+                        hintStyle: TextStyle(
+                          color: Colors.grey.shade400,
+                          fontSize: 14,
+                        ),
+                        prefixIcon: Padding(
+                          padding: const EdgeInsets.fromLTRB(14, 0, 4, 0),
+                          child: SvgPicture.asset(
+                            'assets/icons/search.svg',
+                            width: 16,
+                            height: 16,
+                            colorFilter: const ColorFilter.mode(
+                              AppTheme.primaryBlue,
+                              BlendMode.srcIn,
+                            ),
+                          ),
+                        ),
+                        prefixIconConstraints: const BoxConstraints(
+                          minWidth: 36,
+                          minHeight: 36,
+                        ),
+                        border: InputBorder.none,
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 14,
+                          vertical: 11,
+                        ),
+                        suffixIcon: _searchQuery.isNotEmpty
+                            ? GestureDetector(
+                                onTap: () {
+                                  _searchController.clear();
+                                  setState(() => _searchQuery = '');
+                                },
+                                child: Icon(Icons.close,
+                                    size: 16, color: Colors.grey.shade600),
+                              )
+                            : null,
+                      ),
+                    ),
+                  ),
+                ),
                 Expanded(
                   child: _isLoading && _items.isEmpty
                       ? Center(child: RotatingLogoLoader())
@@ -287,10 +349,10 @@ class _SuppliersDebtScreenState extends State<SuppliersDebtScreen> {
                                 child: Column(
                                   children: [
                                     _buildTableHeader(),
-                                    ...List.generate(
-                                      _items.length,
-                                      (i) => _buildRow(_items[i], i),
-                                    ),
+                                    ...() {
+                                      final filtered = _items.where((item) => item.name.toLowerCase().contains(_searchQuery) || item.code.toLowerCase().contains(_searchQuery)).toList();
+                                      return List.generate(filtered.length, (i) => _buildRow(filtered[i], i));
+                                    }(),
                                     if (_hasMore)
                                       const Padding(
                                         padding:

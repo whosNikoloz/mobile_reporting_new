@@ -296,14 +296,14 @@ class _OrdersScreenState extends State<OrdersScreen> {
         );
       },
       child: Container(
-        margin: const EdgeInsets.only(bottom: 12),
+        margin: const EdgeInsets.only(bottom: 8),
         decoration: BoxDecoration(
           color: Colors.grey.shade50,
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.circular(12),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withValues(alpha: 0.04),
-              blurRadius: 8,
+              blurRadius: 6,
               offset: const Offset(0, 2),
             ),
           ],
@@ -312,19 +312,19 @@ class _OrdersScreenState extends State<OrdersScreen> {
           children: [
             Container(
               width: 4,
-              height: 90,
+              height: 68,
               decoration: const BoxDecoration(
                 color: AppTheme.primaryBlue,
                 borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(14),
-                  bottomLeft: Radius.circular(14),
+                  topLeft: Radius.circular(12),
+                  bottomLeft: Radius.circular(12),
                 ),
               ),
             ),
             Expanded(
               child: Padding(
                 padding:
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -335,18 +335,18 @@ class _OrdersScreenState extends State<OrdersScreen> {
                             children: [
                               SvgPicture.asset(
                                 'assets/icons/hashtag.svg',
-                                width: 20,
-                                height: 20,
+                                width: 14,
+                                height: 14,
                                 colorFilter: const ColorFilter.mode(
                                   AppTheme.primaryBlue,
                                   BlendMode.srcIn,
                                 ),
                               ),
-                              const SizedBox(width: 8),
+                              const SizedBox(width: 5),
                               Text(
                                 order.orderNumber,
                                 style: const TextStyle(
-                                  fontSize: 18,
+                                  fontSize: 13,
                                   fontWeight: FontWeight.w600,
                                   color: AppTheme.primaryTextColor,
                                 ),
@@ -359,19 +359,19 @@ class _OrdersScreenState extends State<OrdersScreen> {
                             children: [
                               SvgPicture.asset(
                                 'assets/icons/user.svg',
-                                width: 20,
-                                height: 20,
+                                width: 14,
+                                height: 14,
                                 colorFilter: const ColorFilter.mode(
                                   AppTheme.primaryBlue,
                                   BlendMode.srcIn,
                                 ),
                               ),
-                              const SizedBox(width: 8),
+                              const SizedBox(width: 5),
                               Expanded(
                                 child: Text(
                                   order.user,
                                   style: const TextStyle(
-                                    fontSize: 18,
+                                    fontSize: 13,
                                     color: AppTheme.primaryTextColor,
                                   ),
                                   overflow: TextOverflow.ellipsis,
@@ -382,7 +382,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 8),
                     Row(
                       children: [
                         Expanded(
@@ -390,18 +390,18 @@ class _OrdersScreenState extends State<OrdersScreen> {
                             children: [
                               SvgPicture.asset(
                                 'assets/icons/time.svg',
-                                width: 20,
-                                height: 20,
+                                width: 14,
+                                height: 14,
                                 colorFilter: const ColorFilter.mode(
                                   AppTheme.primaryBlue,
                                   BlendMode.srcIn,
                                 ),
                               ),
-                              const SizedBox(width: 8),
+                              const SizedBox(width: 5),
                               Text(
                                 "${order.orderTime}",
                                 style: const TextStyle(
-                                  fontSize: 18,
+                                  fontSize: 13,
                                   fontWeight: FontWeight.w600,
                                   color: AppTheme.primaryTextColor,
                                 ),
@@ -414,18 +414,18 @@ class _OrdersScreenState extends State<OrdersScreen> {
                             children: [
                               SvgPicture.asset(
                                 'assets/icons/cash.svg',
-                                width: 20,
-                                height: 20,
+                                width: 14,
+                                height: 14,
                                 colorFilter: const ColorFilter.mode(
                                   AppTheme.primaryBlue,
                                   BlendMode.srcIn,
                                 ),
                               ),
-                              const SizedBox(width: 8),
+                              const SizedBox(width: 5),
                               Text(
                                 CurrencyHelper.format(order.amount),
                                 style: const TextStyle(
-                                  fontSize: 18,
+                                  fontSize: 13,
                                   fontWeight: FontWeight.w600,
                                   color: AppTheme.primaryTextColor,
                                 ),
@@ -434,7 +434,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
                               Text(
                                 order.payType == 0 ? l10n.cash : l10n.card,
                                 style: const TextStyle(
-                                  fontSize: 16,
+                                  fontSize: 12,
                                   color: AppTheme.secondaryTextColor,
                                 ),
                               ),
