@@ -10,6 +10,7 @@ import 'package:mobile_reporting/screens/order_details_screen.dart';
 import 'package:mobile_reporting/services/reports_service.dart';
 import 'package:mobile_reporting/theme/app_theme.dart';
 import 'package:mobile_reporting/widgets/picker_widget.dart';
+import 'package:mobile_reporting/widgets/rotating_logo_loader.dart';
 
 class OrdersScreen extends StatefulWidget {
   const OrdersScreen({super.key});
@@ -242,7 +243,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
           // Orders list
           Expanded(
             child: _isLoading && _orders.isEmpty
-                ? const Center(child: CircularProgressIndicator())
+                ? Center(child: RotatingLogoLoader())
                 : _orders.isEmpty
                     ? Center(
                         child: Text(
@@ -266,7 +267,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
                               return const Padding(
                                 padding: EdgeInsets.all(16.0),
                                 child: Center(
-                                  child: CircularProgressIndicator(),
+                                  child: RotatingLogoLoader(),
                                 ),
                               );
                             }

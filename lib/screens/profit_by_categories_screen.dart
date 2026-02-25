@@ -13,6 +13,7 @@ import 'package:mobile_reporting/services/reports_service.dart';
 import 'package:mobile_reporting/theme/app_theme.dart';
 import 'package:mobile_reporting/widgets/picker_widget.dart';
 import 'package:mobile_reporting/widgets/profile_popover_widget.dart';
+import 'package:mobile_reporting/widgets/rotating_logo_loader.dart';
 
 class ProfitByCategoriesScreen extends StatefulWidget {
   const ProfitByCategoriesScreen({super.key});
@@ -258,7 +259,7 @@ class _ProfitByCategoriesScreenState extends State<ProfitByCategoriesScreen> {
         ),
       ),
       body: !_filtersLoaded
-          ? const Center(child: CircularProgressIndicator())
+          ? Center(child: RotatingLogoLoader())
           : Column(
               children: [
                 PickerWidget(
@@ -276,7 +277,7 @@ class _ProfitByCategoriesScreenState extends State<ProfitByCategoriesScreen> {
                 ),
                 Expanded(
                   child: _isLoading && _items.isEmpty
-                      ? const Center(child: CircularProgressIndicator())
+                      ? Center(child: RotatingLogoLoader())
                       : ListView(
                           controller: _scrollController,
                           padding: const EdgeInsets.all(16),
@@ -307,7 +308,7 @@ class _ProfitByCategoriesScreenState extends State<ProfitByCategoriesScreen> {
                                             vertical: 16),
                                         child: Center(
                                             child:
-                                                CircularProgressIndicator()),
+                                                RotatingLogoLoader()),
                                       ),
                                   ],
                                 ),

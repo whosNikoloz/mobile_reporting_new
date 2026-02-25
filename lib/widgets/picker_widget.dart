@@ -12,6 +12,7 @@ import 'package:mobile_reporting/models/store_model.dart';
 import 'package:month_year_picker/month_year_picker.dart';
 import 'package:mobile_reporting/theme/app_theme.dart';
 import 'package:mobile_reporting/widgets/date_ranger_picker.dart';
+import 'package:mobile_reporting/widgets/rotating_logo_loader.dart';
 
 class PickerWidget extends StatefulWidget {
   const PickerWidget({
@@ -92,8 +93,10 @@ class PickerWidgetState extends State<PickerWidget> {
     cdt = application.compareDateType ?? CompareDateType.lastDay;
     currentDate1 = application.startCurrentPeriod ?? DateTime.now();
     currentDate2 = application.endCurrentPeriod ?? DateTime.now();
-    oldDate1 = application.startOldPeriod ?? DateTime.now().subtract(const Duration(days: 1));
-    oldDate2 = application.endOldPeriod ?? DateTime.now().subtract(const Duration(days: 1));
+    oldDate1 = application.startOldPeriod ??
+        DateTime.now().subtract(const Duration(days: 1));
+    oldDate2 = application.endOldPeriod ??
+        DateTime.now().subtract(const Duration(days: 1));
   }
 
   void _saveDates() {
@@ -103,7 +106,7 @@ class PickerWidgetState extends State<PickerWidget> {
     application.endOldPeriod = oldDate2;
     application.dateType = dt;
     application.compareDateType = cdt;
-    
+
     // Persist changes
     application.saveFilters();
   }
@@ -185,11 +188,12 @@ class PickerWidgetState extends State<PickerWidget> {
               ),
             ),
           if (showStore) const SizedBox(height: 6),
-          if (showStore) _StoreSelector(onStoreChanged: () {
-            // Save store selection when changed
-            application.saveFilters();
-            _loadData();
-          }),
+          if (showStore)
+            _StoreSelector(onStoreChanged: () {
+              // Save store selection when changed
+              application.saveFilters();
+              _loadData();
+            }),
         ],
       ),
     );
@@ -327,7 +331,8 @@ class _DateSelector extends StatelessWidget {
                             ),
                           ),
                           TextSpan(
-                              text: '${_getComparisonPeriodText()})'), // right side
+                              text:
+                                  '${_getComparisonPeriodText()})'), // right side
                         ],
                       ),
                       style: const TextStyle(
@@ -352,19 +357,12 @@ class _DateSelector extends StatelessWidget {
                     ),
             ),
             const SizedBox(width: 8),
-            if (isLoading)
-              const SizedBox(
-                width: 16,
-                height: 16,
-                child: CircularProgressIndicator(
-                  strokeWidth: 2,
-                  valueColor:
-                      AlwaysStoppedAnimation<Color>(AppTheme.primaryBlue),
-                ),
-              )
-            else
+            if (isLoading) ...[
+              RotatingLogoLoader(size: 22),
+            ] else ...[
               Icon(Icons.keyboard_arrow_down,
                   size: 18, color: Colors.grey.shade600),
+            ],
           ],
         ),
       ),

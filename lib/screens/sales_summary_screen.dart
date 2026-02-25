@@ -21,6 +21,7 @@ import 'package:mobile_reporting/widgets/picker_widget.dart';
 import 'package:mobile_reporting/localization/generated/l10n.dart';
 import 'package:mobile_reporting/widgets/profile_popover_widget.dart';
 import 'package:mobile_reporting/helpers/currency_helper.dart';
+import 'package:mobile_reporting/widgets/rotating_logo_loader.dart';
 
 class SalesSummaryScreen extends StatefulWidget {
   final String reportTitle;
@@ -751,7 +752,7 @@ class _SalesSummaryScreenState extends State<SalesSummaryScreen> {
         ),
       ),
       body: !_filtersLoaded
-          ? const Center(child: CircularProgressIndicator())
+          ? Center(child: RotatingLogoLoader())
           : Column(
               children: [
                 // Date and Store Pickers
@@ -803,7 +804,7 @@ class _SalesSummaryScreenState extends State<SalesSummaryScreen> {
 
                 Expanded(
                   child: isLoading
-                      ? const Center(child: CircularProgressIndicator())
+                      ? Center(child: RotatingLogoLoader())
                       : ListView(
                           padding: const EdgeInsets.all(16),
                           children: [

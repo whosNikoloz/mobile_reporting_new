@@ -16,6 +16,7 @@ import 'package:mobile_reporting/services/reports_service.dart';
 import 'package:mobile_reporting/theme/app_theme.dart';
 import 'package:mobile_reporting/widgets/picker_widget.dart';
 import 'package:mobile_reporting/widgets/profile_popover_widget.dart';
+import 'package:mobile_reporting/widgets/rotating_logo_loader.dart';
 
 class StaffSalesScreen extends StatefulWidget {
   const StaffSalesScreen({super.key});
@@ -263,7 +264,7 @@ class _StaffSalesScreenState extends State<StaffSalesScreen> {
         ),
       ),
       body: !_filtersLoaded
-          ? const Center(child: CircularProgressIndicator())
+          ? Center(child: RotatingLogoLoader())
           : Column(
               children: [
                 PickerWidget(
@@ -338,7 +339,7 @@ class _StaffSalesScreenState extends State<StaffSalesScreen> {
 
                 Expanded(
                   child: isLoading
-                      ? const Center(child: CircularProgressIndicator())
+                      ? Center(child: RotatingLogoLoader())
                       : ListView(
                           padding: const EdgeInsets.all(16),
                           children: [

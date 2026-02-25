@@ -37,7 +37,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
     'Sales': GlobalKey(),
     'Finances': GlobalKey(),
     //'Staff': GlobalKey(),
-    'Stock': GlobalKey(),
+    //'Stock': GlobalKey(),
   };
 
   // Icons for each category
@@ -45,7 +45,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
     'Sales': 'assets/icons/reports/sales.svg',
     'Finances': 'assets/icons/reports/finances.svg',
     //'Staff': 'assets/icons/reports/staff.svg',
-    'Stock': 'assets/icons/reports/stock.svg',
+    //'Stock': 'assets/icons/reports/stock.svg',
   };
 
   final Map<String, List<String>> _reports = {
@@ -74,16 +74,16 @@ class _ReportsScreenState extends State<ReportsScreen> {
       'Profit by Categories',
       'Received Payments List',
     ],
-    'Stock': [
-      'Inventory Balance',
-      'Purchases Documents',
-      'Purchases by Item - Summary',
-      'Purchases by Item - Detailed',
-      'Sales by Item - Summary',
-      'Stock Movement',
-      'Low stock Report',
-      'Inventory Value',
-    ],
+    // 'Stock': [
+    //   'Inventory Balance',
+    //   'Purchases Documents',
+    //   'Purchases by Item - Summary',
+    //   'Purchases by Item - Detailed',
+    //   'Sales by Item - Summary',
+    //   'Stock Movement',
+    //   'Low stock Report',
+    //   'Inventory Value',
+    // ],
   };
 
   String _getCategoryTitle(BuildContext context, String category) {
@@ -95,8 +95,8 @@ class _ReportsScreenState extends State<ReportsScreen> {
         return l10n.finances;
       // case 'Staff':
       //   return l10n.staff;
-      case 'Stock':
-        return l10n.stock;
+      // case 'Stock':
+      //   return l10n.stock;
       default:
         return category;
     }
@@ -294,8 +294,8 @@ class _ReportsScreenState extends State<ReportsScreen> {
                   _buildTab('Finances'),
                   //const SizedBox(width: 40),
                   //_buildTab('Staff'),
-                  const SizedBox(width: 10),
-                  _buildTab('Stock'),
+                  //const SizedBox(width: 10),
+                  //_buildTab('Stock'),
                 ],
               ),
             ),
@@ -555,6 +555,8 @@ class _ReportsScreenState extends State<ReportsScreen> {
     }
 
     final bool isEnabled = onTap != null;
+
+    if (!isEnabled) return const SizedBox.shrink();
 
     return Container(
       margin: const EdgeInsets.only(bottom: 8),

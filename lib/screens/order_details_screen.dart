@@ -10,6 +10,7 @@ import 'package:mobile_reporting/screens/sign_in_screen.dart';
 import 'package:mobile_reporting/services/order_details_service.dart';
 import 'package:mobile_reporting/theme/app_theme.dart';
 import 'package:mobile_reporting/widgets/profile_popover_widget.dart';
+import 'package:mobile_reporting/widgets/rotating_logo_loader.dart';
 
 class OrderDetailsScreen extends StatefulWidget {
   final int orderId;
@@ -104,7 +105,7 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
             _buildHeader(order),
             Expanded(
               child: _isLoading
-                  ? const Center(child: CircularProgressIndicator())
+                  ? Center(child: RotatingLogoLoader())
                   : _errorMessage != null || order == null
                       ? Center(
                           child: Text(

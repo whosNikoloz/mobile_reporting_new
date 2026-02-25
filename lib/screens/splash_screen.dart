@@ -10,6 +10,7 @@ import 'package:mobile_reporting/models/store_model.dart';
 import 'package:mobile_reporting/screens/sign_in_screen.dart';
 import 'package:mobile_reporting/theme/app_theme.dart';
 import 'package:mobile_reporting/widgets/main_navigation.dart';
+import 'package:mobile_reporting/widgets/rotating_logo_loader.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -45,7 +46,8 @@ class _SplashScreenState extends State<SplashScreen> {
         application.stores = await getStores();
         application.isFastFood = await isFastFood();
         application.lang = await getIt<PreferencesHelper>().getLang() ?? 'ka';
-        application.accountLang = await getIt<PreferencesHelper>().getAccountLang();
+        application.accountLang =
+            await getIt<PreferencesHelper>().getAccountLang();
         if (!mounted) return;
         Navigator.pushReplacement(
           context,
@@ -79,16 +81,7 @@ class _SplashScreenState extends State<SplashScreen> {
               ),
             ),
             const SizedBox(height: 60),
-            const SizedBox(
-              width: 50.0,
-              height: 50.0,
-              child: CircularProgressIndicator(
-                strokeWidth: 3,
-                valueColor: AlwaysStoppedAnimation<Color>(
-                  Colors.white,
-                ),
-              ),
-            ),
+            RotatingLogoLoader(size: 50),
           ],
         ),
       ),
