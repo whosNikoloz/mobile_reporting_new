@@ -478,39 +478,39 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
             ],
           ),
         ),
-        const SizedBox(height: 8),
-        Row(
-          children: [
-            const Expanded(
-              flex: 4,
-              child: SizedBox(),
-            ),
-            Expanded(
-              flex: 3,
-              child: Text(
-                l10n.total,
-                textAlign: TextAlign.center,
-                style: const TextStyle(
-                  fontSize: 15,
-                  fontWeight: FontWeight.w600,
-                  color: AppTheme.primaryTextColor,
-                ),
-              ),
-            ),
-            Expanded(
-              flex: 3,
-              child: Text(
-                CurrencyHelper.format(order.total),
-                textAlign: TextAlign.right,
-                style: const TextStyle(
-                  fontSize: 15,
-                  fontWeight: FontWeight.w700,
-                  color: AppTheme.primaryTextColor,
-                ),
-              ),
-            ),
-          ],
-        ),
+        // const SizedBox(height: 8),
+        // Row(
+        //   children: [
+        //     const Expanded(
+        //       flex: 4,
+        //       child: SizedBox(),
+        //     ),
+        //     Expanded(
+        //       flex: 3,
+        //       child: Text(
+        //         l10n.total,
+        //         textAlign: TextAlign.center,
+        //         style: const TextStyle(
+        //           fontSize: 15,
+        //           fontWeight: FontWeight.w600,
+        //           color: AppTheme.primaryTextColor,
+        //         ),
+        //       ),
+        //     ),
+        //     Expanded(
+        //       flex: 3,
+        //       child: Text(
+        //         CurrencyHelper.format(order.total),
+        //         textAlign: TextAlign.right,
+        //         style: const TextStyle(
+        //           fontSize: 15,
+        //           fontWeight: FontWeight.w700,
+        //           color: AppTheme.primaryTextColor,
+        //         ),
+        //       ),
+        //     ),
+        //   ],
+        // ),
       ],
     );
   }

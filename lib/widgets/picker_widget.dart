@@ -358,7 +358,15 @@ class _DateSelector extends StatelessWidget {
             ),
             const SizedBox(width: 8),
             if (isLoading) ...[
-              RotatingLogoLoader(size: 22),
+              const SizedBox(
+                width: 16,
+                height: 16,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  valueColor:
+                      AlwaysStoppedAnimation<Color>(AppTheme.primaryBlue),
+                ),
+              )
             ] else ...[
               Icon(Icons.keyboard_arrow_down,
                   size: 18, color: Colors.grey.shade600),

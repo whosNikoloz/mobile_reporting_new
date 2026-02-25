@@ -18,9 +18,17 @@ class CurrencyHelper {
     }
   }
 
-  static String format(double value) {
+  static String format(
+    double value, {
+    bool showSymbol = true,
+    bool showDecimals = true,
+  }) {
     final symbol = getCurrencySymbol();
-    final formatted = NumberFormat('#,##0.00', 'en_US').format(value);
-    return '$symbol$formatted';
+
+    final formatPattern = showDecimals ? '#,##0.00' : '#,##0';
+
+    final formatted = NumberFormat(formatPattern, 'en_US').format(value);
+
+    return showSymbol ? '$symbol$formatted' : formatted;
   }
 }

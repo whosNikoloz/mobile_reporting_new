@@ -288,7 +288,8 @@ class _CustomerReturnsScreenState extends State<CustomerReturnsScreen> {
                                   borderRadius: BorderRadius.circular(16),
                                   boxShadow: [
                                     BoxShadow(
-                                      color: Colors.black.withValues(alpha: 0.05),
+                                      color:
+                                          Colors.black.withValues(alpha: 0.05),
                                       blurRadius: 10,
                                       offset: const Offset(0, 2),
                                     ),
@@ -303,11 +304,10 @@ class _CustomerReturnsScreenState extends State<CustomerReturnsScreen> {
                                     ),
                                     if (_hasMore)
                                       const Padding(
-                                        padding: EdgeInsets.symmetric(
-                                            vertical: 16),
-                                        child: Center(
-                                            child:
-                                                RotatingLogoLoader()),
+                                        padding:
+                                            EdgeInsets.symmetric(vertical: 16),
+                                        child:
+                                            Center(child: RotatingLogoLoader()),
                                       ),
                                   ],
                                 ),
@@ -317,8 +317,7 @@ class _CustomerReturnsScreenState extends State<CustomerReturnsScreen> {
                                 height: 300,
                                 child: Center(
                                   child: Column(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.center,
+                                    mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
                                       Icon(Icons.bar_chart,
                                           size: 48,
@@ -352,18 +351,7 @@ class _CustomerReturnsScreenState extends State<CustomerReturnsScreen> {
       child: Row(
         children: const [
           Expanded(
-            flex: 3,
-            child: Text(
-              'Code',
-              style: TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w600,
-                color: Colors.black54,
-              ),
-            ),
-          ),
-          Expanded(
-            flex: 5,
+            flex: 8,
             child: Text(
               'Customer',
               style: TextStyle(
@@ -376,8 +364,8 @@ class _CustomerReturnsScreenState extends State<CustomerReturnsScreen> {
           Expanded(
             flex: 2,
             child: Text(
-              'Bills',
-              textAlign: TextAlign.right,
+              'Qnt',
+              textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 13,
                 fontWeight: FontWeight.w600,
@@ -415,36 +403,38 @@ class _CustomerReturnsScreenState extends State<CustomerReturnsScreen> {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Expanded(
-            flex: 3,
-            child: Text(
-              item.code,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: const TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w500,
-                color: Colors.black87,
-              ),
-            ),
-          ),
-          Expanded(
-            flex: 5,
-            child: Text(
-              item.name,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-              style: const TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w500,
-                color: Colors.black87,
-              ),
+            flex: 8,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  item.name,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                    color: Colors.black87,
+                  ),
+                ),
+                if (item.code.isNotEmpty)
+                  Text(
+                    item.code,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      fontSize: 12,
+                      color: Colors.black45,
+                    ),
+                  ),
+              ],
             ),
           ),
           Expanded(
             flex: 2,
             child: Text(
               item.bollsCount.toString(),
-              textAlign: TextAlign.right,
+              textAlign: TextAlign.center,
               style: const TextStyle(
                 fontSize: 13,
                 color: Colors.black87,
@@ -454,7 +444,8 @@ class _CustomerReturnsScreenState extends State<CustomerReturnsScreen> {
           Expanded(
             flex: 3,
             child: Text(
-              CurrencyHelper.format(item.amount),
+              CurrencyHelper.format(item.amount,
+                  showSymbol: false, showDecimals: false),
               textAlign: TextAlign.right,
               style: const TextStyle(
                 fontSize: 13,

@@ -279,7 +279,8 @@ class _BuyersDebtScreenState extends State<BuyersDebtScreen> {
                                   borderRadius: BorderRadius.circular(16),
                                   boxShadow: [
                                     BoxShadow(
-                                      color: Colors.black.withValues(alpha: 0.05),
+                                      color:
+                                          Colors.black.withValues(alpha: 0.05),
                                       blurRadius: 10,
                                       offset: const Offset(0, 2),
                                     ),
@@ -294,11 +295,10 @@ class _BuyersDebtScreenState extends State<BuyersDebtScreen> {
                                     ),
                                     if (_hasMore)
                                       const Padding(
-                                        padding: EdgeInsets.symmetric(
-                                            vertical: 16),
-                                        child: Center(
-                                            child:
-                                                RotatingLogoLoader()),
+                                        padding:
+                                            EdgeInsets.symmetric(vertical: 16),
+                                        child:
+                                            Center(child: RotatingLogoLoader()),
                                       ),
                                   ],
                                 ),
@@ -308,8 +308,7 @@ class _BuyersDebtScreenState extends State<BuyersDebtScreen> {
                                 height: 300,
                                 child: Center(
                                   child: Column(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.center,
+                                    mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
                                       Icon(Icons.bar_chart,
                                           size: 48,
@@ -343,18 +342,7 @@ class _BuyersDebtScreenState extends State<BuyersDebtScreen> {
       child: Row(
         children: [
           Expanded(
-            flex: 3,
-            child: Text(
-              'Code',
-              style: const TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w600,
-                color: Colors.black54,
-              ),
-            ),
-          ),
-          Expanded(
-            flex: 5,
+            flex: 8,
             child: Text(
               'Customer',
               style: const TextStyle(
@@ -386,9 +374,6 @@ class _BuyersDebtScreenState extends State<BuyersDebtScreen> {
   }
 
   Widget _buildRow(BuyersDebtResponseModel item, int index, S l10n) {
-    final restColor =
-        item.rest >= 0 ? const Color(0xFF00BFA5) : const Color(0xFFFF5252);
-
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
       decoration: BoxDecoration(
@@ -401,40 +386,43 @@ class _BuyersDebtScreenState extends State<BuyersDebtScreen> {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Expanded(
-            flex: 3,
-            child: Text(
-              item.code,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: const TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w500,
-                color: Colors.black87,
-              ),
+            flex: 8,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  item.name,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                    color: Colors.black87,
+                  ),
+                ),
+                if (item.code.isNotEmpty)
+                  Text(
+                    item.code,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      fontSize: 12,
+                      color: Colors.black45,
+                    ),
+                  ),
+              ],
             ),
           ),
           Expanded(
-            flex: 5,
-            child: Text(
-              item.name,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-              style: const TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w500,
-                color: Colors.black87,
-              ),
-            ),
-          ),
-          Expanded(
             flex: 3,
             child: Text(
-              CurrencyHelper.format(item.rest),
+              CurrencyHelper.format(item.rest,
+                  showSymbol: false, showDecimals: false),
               textAlign: TextAlign.right,
               style: TextStyle(
                 fontSize: 13,
                 fontWeight: FontWeight.w600,
-                color: restColor,
+                color: Colors.black45,
               ),
             ),
           ),

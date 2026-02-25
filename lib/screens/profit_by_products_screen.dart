@@ -288,7 +288,8 @@ class _ProfitByProductsScreenState extends State<ProfitByProductsScreen> {
                                   borderRadius: BorderRadius.circular(16),
                                   boxShadow: [
                                     BoxShadow(
-                                      color: Colors.black.withValues(alpha: 0.05),
+                                      color:
+                                          Colors.black.withValues(alpha: 0.05),
                                       blurRadius: 10,
                                       offset: const Offset(0, 2),
                                     ),
@@ -303,11 +304,10 @@ class _ProfitByProductsScreenState extends State<ProfitByProductsScreen> {
                                     ),
                                     if (_hasMore)
                                       const Padding(
-                                        padding: EdgeInsets.symmetric(
-                                            vertical: 16),
-                                        child: Center(
-                                            child:
-                                                RotatingLogoLoader()),
+                                        padding:
+                                            EdgeInsets.symmetric(vertical: 16),
+                                        child:
+                                            Center(child: RotatingLogoLoader()),
                                       ),
                                   ],
                                 ),
@@ -317,8 +317,7 @@ class _ProfitByProductsScreenState extends State<ProfitByProductsScreen> {
                                 height: 300,
                                 child: Center(
                                   child: Column(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.center,
+                                    mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
                                       Icon(Icons.bar_chart,
                                           size: 48,
@@ -387,10 +386,6 @@ class _ProfitByProductsScreenState extends State<ProfitByProductsScreen> {
   }
 
   Widget _buildRow(ProfitByProductResponseModel item, int index, S l10n) {
-    final profitColor = item.profit >= 0
-        ? const Color(0xFF00BFA5)
-        : const Color(0xFFFF5252);
-
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
       decoration: BoxDecoration(
@@ -407,15 +402,15 @@ class _ProfitByProductsScreenState extends State<ProfitByProductsScreen> {
             flex: 5,
             child: Row(
               children: [
-                Container(
-                  width: 4,
-                  height: 36,
-                  decoration: BoxDecoration(
-                    color: AppTheme.primaryBlue,
-                    borderRadius: BorderRadius.circular(2),
-                  ),
-                ),
-                const SizedBox(width: 12),
+                // Container(
+                //   width: 4,
+                //   height: 36,
+                //   decoration: BoxDecoration(
+                //     color: AppTheme.primaryBlue,
+                //     borderRadius: BorderRadius.circular(2),
+                //   ),
+                // ),
+                // const SizedBox(width: 12),
                 Expanded(
                   child: Text(
                     item.productName,
@@ -436,7 +431,8 @@ class _ProfitByProductsScreenState extends State<ProfitByProductsScreen> {
           Expanded(
             flex: 3,
             child: Text(
-              CurrencyHelper.format(item.amount),
+              CurrencyHelper.format(item.amount,
+                  showSymbol: false, showDecimals: false),
               textAlign: TextAlign.right,
               style: const TextStyle(
                 fontSize: 13,
@@ -449,7 +445,8 @@ class _ProfitByProductsScreenState extends State<ProfitByProductsScreen> {
           Expanded(
             flex: 3,
             child: Text(
-              CurrencyHelper.format(item.selfCost),
+              CurrencyHelper.format(item.selfCost,
+                  showSymbol: false, showDecimals: false),
               textAlign: TextAlign.right,
               style: const TextStyle(
                 fontSize: 13,
@@ -462,7 +459,8 @@ class _ProfitByProductsScreenState extends State<ProfitByProductsScreen> {
           Expanded(
             flex: 3,
             child: Text(
-              CurrencyHelper.format(item.vat),
+              CurrencyHelper.format(item.vat,
+                  showSymbol: false, showDecimals: false),
               textAlign: TextAlign.right,
               style: const TextStyle(
                 fontSize: 13,
@@ -475,12 +473,13 @@ class _ProfitByProductsScreenState extends State<ProfitByProductsScreen> {
           Expanded(
             flex: 3,
             child: Text(
-              CurrencyHelper.format(item.profit),
+              CurrencyHelper.format(item.profit,
+                  showSymbol: false, showDecimals: false),
               textAlign: TextAlign.right,
               style: TextStyle(
                 fontSize: 13,
                 fontWeight: FontWeight.w600,
-                color: profitColor,
+                color: Colors.black87,
               ),
             ),
           ),
