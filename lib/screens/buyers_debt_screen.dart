@@ -352,8 +352,19 @@ class _BuyersDebtScreenState extends State<BuyersDebtScreen> {
                                   children: [
                                     _buildTableHeader(l10n),
                                     ...() {
-                                      final filtered = _items.where((item) => item.name.toLowerCase().contains(_searchQuery) || item.code.toLowerCase().contains(_searchQuery)).toList();
-                                      return List.generate(filtered.length, (i) => _buildRow(filtered[i], i, l10n));
+                                      final filtered = _items
+                                          .where((item) =>
+                                              item.name
+                                                  .toLowerCase()
+                                                  .contains(_searchQuery) ||
+                                              item.code
+                                                  .toLowerCase()
+                                                  .contains(_searchQuery))
+                                          .toList();
+                                      return List.generate(
+                                          filtered.length,
+                                          (i) =>
+                                              _buildRow(filtered[i], i, l10n));
                                     }(),
                                     if (_hasMore)
                                       const Padding(
@@ -425,7 +436,7 @@ class _BuyersDebtScreenState extends State<BuyersDebtScreen> {
       flex: 3,
       child: Text(
         text,
-        textAlign: TextAlign.right,
+        textAlign: TextAlign.center,
         style: const TextStyle(
           fontSize: 13,
           fontWeight: FontWeight.w600,
@@ -480,10 +491,9 @@ class _BuyersDebtScreenState extends State<BuyersDebtScreen> {
             child: Text(
               CurrencyHelper.format(item.rest,
                   showSymbol: false, showDecimals: false),
-              textAlign: TextAlign.right,
+              textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 13,
-                fontWeight: FontWeight.w600,
                 color: Colors.black45,
               ),
             ),

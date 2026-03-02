@@ -212,7 +212,6 @@ class _StoreSalesScreenState extends State<StoreSalesScreen> {
                       email: _email ?? "Email@gmail.com",
                       currentLangCode: _selectedLanguage,
                       onLanguageChanged: _changeLanguage,
-
                       onLogout: () async {
                         await getIt<PreferencesHelper>().clearCompanyName();
                         await getIt<PreferencesHelper>().clearLang();
@@ -718,13 +717,13 @@ class _StoreSalesScreenState extends State<StoreSalesScreen> {
       }
       return value.toStringAsFixed(0);
     } else {
-      final symbol = CurrencyHelper.getCurrencySymbol();
+      //final symbol = CurrencyHelper.getCurrencySymbol();
       if (absValue >= 1000000) {
-        return '$symbol${(value / 1000000).toStringAsFixed(absValue % 1000000 == 0 ? 0 : 1)}M';
+        return '${(value / 1000000).toStringAsFixed(absValue % 1000000 == 0 ? 0 : 1)}M';
       } else if (absValue >= 1000) {
-        return '$symbol${(value / 1000).toStringAsFixed(absValue % 1000 == 0 ? 0 : 1)}K';
+        return '${(value / 1000).toStringAsFixed(absValue % 1000 == 0 ? 0 : 1)}K';
       }
-      return '$symbol${value.toStringAsFixed(0)}';
+      return value.toStringAsFixed(0);
     }
   }
 
@@ -768,8 +767,9 @@ class _StoreSalesScreenState extends State<StoreSalesScreen> {
       formattedPrevious =
           NumberFormat('#,##0', 'en_US').format(previousValue.toInt());
     } else {
-      formattedValue = CurrencyHelper.format(currentValue);
-      formattedPrevious = CurrencyHelper.format(previousValue);
+      formattedValue = CurrencyHelper.format(currentValue, showSymbol: false);
+      formattedPrevious =
+          CurrencyHelper.format(previousValue, showSymbol: false);
     }
 
     ChartDetailsModal.show(
@@ -868,7 +868,7 @@ class _StoreSalesScreenState extends State<StoreSalesScreen> {
     if (_isChecksFilter) {
       return NumberFormat('#,##0', 'en_US').format(value.toInt());
     } else {
-      return '${CurrencyHelper.getCurrencySymbol()}${NumberFormat('#,##0.00', 'en_US').format(value)}';
+      return CurrencyHelper.format(value, showSymbol: false);
     }
   }
 
@@ -1027,13 +1027,13 @@ class _FullscreenStoreSalesChartState
       }
       return value.toStringAsFixed(0);
     } else {
-      final symbol = CurrencyHelper.getCurrencySymbol();
+      //final symbol = CurrencyHelper.getCurrencySymbol();
       if (absValue >= 1000000) {
-        return '$symbol${(value / 1000000).toStringAsFixed(absValue % 1000000 == 0 ? 0 : 1)}M';
+        return '${(value / 1000000).toStringAsFixed(absValue % 1000000 == 0 ? 0 : 1)}M';
       } else if (absValue >= 1000) {
-        return '$symbol${(value / 1000).toStringAsFixed(absValue % 1000 == 0 ? 0 : 1)}K';
+        return '${(value / 1000).toStringAsFixed(absValue % 1000 == 0 ? 0 : 1)}K';
       }
-      return '$symbol${value.toStringAsFixed(0)}';
+      return value.toStringAsFixed(0);
     }
   }
 
@@ -1110,7 +1110,7 @@ class _FullscreenStoreSalesChartState
     if (_isChecksFilter) {
       return NumberFormat('#,##0', 'en_US').format(value.toInt());
     } else {
-      return '${CurrencyHelper.getCurrencySymbol()}${NumberFormat('#,##0.00', 'en_US').format(value)}';
+      return CurrencyHelper.format(value, showSymbol: false);
     }
   }
 

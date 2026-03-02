@@ -155,7 +155,7 @@ class _TopProductsScreenState extends State<TopProductsScreen> {
 
   String _getFormattedValue(double value) {
     if (_selectedFilterType == _ReportFilterType.sales) {
-      return CurrencyHelper.format(value);
+      return CurrencyHelper.format(value, showSymbol: false);
     } else {
       return value.toStringAsFixed(0);
     }
@@ -232,7 +232,6 @@ class _TopProductsScreenState extends State<TopProductsScreen> {
                       email: _email ?? "Email@gmail.com",
                       currentLangCode: _selectedLanguage,
                       onLanguageChanged: _changeLanguage,
-
                       onLogout: () async {
                         await getIt<PreferencesHelper>().clearCompanyName();
                         await getIt<PreferencesHelper>().clearLang();
@@ -660,7 +659,8 @@ class _TopProductsScreenState extends State<TopProductsScreen> {
                     const SizedBox(width: 6),
                     Text(
                       _selectedFilterType == _ReportFilterType.sales
-                          ? CurrencyHelper.format(previousValue)
+                          ? CurrencyHelper.format(previousValue,
+                              showSymbol: false)
                           : previousValue.toStringAsFixed(0),
                       style: TextStyle(
                         fontSize: 12,
@@ -860,7 +860,7 @@ class _TopProductsScreenState extends State<TopProductsScreen> {
       currentValueText: _getFormattedValue(currentValue),
       previousValueLabel: S.of(context).previousValue ?? "Previous Value",
       previousValueText: _selectedFilterType == _ReportFilterType.sales
-          ? CurrencyHelper.format(previousValue)
+          ? CurrencyHelper.format(previousValue, showSymbol: false)
           : previousValue.toStringAsFixed(0),
       changeLabel: S.of(context).change ?? "Change",
       percentChange: percentChange,

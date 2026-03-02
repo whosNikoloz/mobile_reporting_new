@@ -360,8 +360,17 @@ class _CustomerSalesScreenState extends State<CustomerSalesScreen> {
                                   children: [
                                     _buildTableHeader(),
                                     ...() {
-                                      final filtered = _items.where((item) => item.name.toLowerCase().contains(_searchQuery) || item.code.toLowerCase().contains(_searchQuery)).toList();
-                                      return List.generate(filtered.length, (i) => _buildRow(filtered[i], i));
+                                      final filtered = _items
+                                          .where((item) =>
+                                              item.name
+                                                  .toLowerCase()
+                                                  .contains(_searchQuery) ||
+                                              item.code
+                                                  .toLowerCase()
+                                                  .contains(_searchQuery))
+                                          .toList();
+                                      return List.generate(filtered.length,
+                                          (i) => _buildRow(filtered[i], i));
                                     }(),
                                     if (_hasMore)
                                       const Padding(
@@ -438,7 +447,7 @@ class _CustomerSalesScreenState extends State<CustomerSalesScreen> {
             flex: 3,
             child: Text(
               'Amount',
-              textAlign: TextAlign.right,
+              textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 13,
                 fontWeight: FontWeight.w600,
@@ -507,10 +516,9 @@ class _CustomerSalesScreenState extends State<CustomerSalesScreen> {
             child: Text(
               CurrencyHelper.format(item.amount,
                   showSymbol: false, showDecimals: false),
-              textAlign: TextAlign.right,
+              textAlign: TextAlign.center,
               style: const TextStyle(
                 fontSize: 13,
-                fontWeight: FontWeight.w600,
                 color: Colors.black87,
               ),
             ),

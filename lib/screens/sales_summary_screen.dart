@@ -724,7 +724,6 @@ class _SalesSummaryScreenState extends State<SalesSummaryScreen> {
                       email: _email ?? "Email@gmail.com",
                       currentLangCode: _selectedLanguage,
                       onLanguageChanged: _changeLanguage,
-
                       onLogout: () async {
                         await getIt<PreferencesHelper>().clearCompanyName();
                         await getIt<PreferencesHelper>().clearLang();
@@ -1419,8 +1418,7 @@ class _SalesSummaryScreenState extends State<SalesSummaryScreen> {
                 label = _formatYAxisLabel(value);
               } else if (_isIncomeFilter || _isAvgCheckFilter) {
                 // For income: show with currency symbol
-                label =
-                    '${CurrencyHelper.getCurrencySymbol()}${_formatYAxisLabel(value)}';
+                label = _formatYAxisLabel(value);
               } else {
                 // For percentage
                 label = '${value.toStringAsFixed(0)}%';
@@ -1588,7 +1586,7 @@ class _SalesSummaryScreenState extends State<SalesSummaryScreen> {
       return NumberFormat('#,##0', 'en_US').format(value.toInt());
     } else {
       // Income and Average Check: show with currency
-      return '${CurrencyHelper.getCurrencySymbol()}${NumberFormat('#,##0.00', 'en_US').format(value)}';
+      return CurrencyHelper.format(value, showSymbol: false);
     }
   }
 
@@ -1719,7 +1717,7 @@ class _FullscreenChartPageState extends State<_FullscreenChartPage> {
     if (widget.isChecksFilter) {
       return NumberFormat('#,##0', 'en_US').format(value.toInt());
     } else {
-      return '${CurrencyHelper.getCurrencySymbol()}${NumberFormat('#,##0.00', 'en_US').format(value)}';
+      return CurrencyHelper.format(value, showSymbol: false);
     }
   }
 
@@ -1994,8 +1992,7 @@ class _FullscreenChartPageState extends State<_FullscreenChartPage> {
               if (widget.isChecksFilter) {
                 label = _formatYAxisLabel(value);
               } else if (widget.isIncomeMode) {
-                label =
-                    '${CurrencyHelper.getCurrencySymbol()}${_formatYAxisLabel(value)}';
+                label = _formatYAxisLabel(value);
               } else {
                 label = '${value.toStringAsFixed(0)}%';
               }

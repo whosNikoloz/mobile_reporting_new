@@ -360,8 +360,15 @@ class _ProfitByProductsScreenState extends State<ProfitByProductsScreen> {
                                   children: [
                                     _buildTableHeader(l10n),
                                     ...() {
-                                      final filtered = _items.where((item) => item.productName.toLowerCase().contains(_searchQuery)).toList();
-                                      return List.generate(filtered.length, (i) => _buildRow(filtered[i], i, l10n));
+                                      final filtered = _items
+                                          .where((item) => item.productName
+                                              .toLowerCase()
+                                              .contains(_searchQuery))
+                                          .toList();
+                                      return List.generate(
+                                          filtered.length,
+                                          (i) =>
+                                              _buildRow(filtered[i], i, l10n));
                                     }(),
                                     if (_hasMore)
                                       const Padding(
@@ -436,7 +443,7 @@ class _ProfitByProductsScreenState extends State<ProfitByProductsScreen> {
       flex: 3,
       child: Text(
         text,
-        textAlign: TextAlign.right,
+        textAlign: TextAlign.center,
         style: const TextStyle(
           fontSize: 13,
           fontWeight: FontWeight.w600,
@@ -494,7 +501,7 @@ class _ProfitByProductsScreenState extends State<ProfitByProductsScreen> {
             child: Text(
               CurrencyHelper.format(item.amount,
                   showSymbol: false, showDecimals: false),
-              textAlign: TextAlign.right,
+              textAlign: TextAlign.center,
               style: const TextStyle(
                 fontSize: 13,
                 color: Colors.black87,
@@ -508,7 +515,7 @@ class _ProfitByProductsScreenState extends State<ProfitByProductsScreen> {
             child: Text(
               CurrencyHelper.format(item.selfCost,
                   showSymbol: false, showDecimals: false),
-              textAlign: TextAlign.right,
+              textAlign: TextAlign.center,
               style: const TextStyle(
                 fontSize: 13,
                 color: Colors.black87,
@@ -522,7 +529,7 @@ class _ProfitByProductsScreenState extends State<ProfitByProductsScreen> {
             child: Text(
               CurrencyHelper.format(item.vat,
                   showSymbol: false, showDecimals: false),
-              textAlign: TextAlign.right,
+              textAlign: TextAlign.center,
               style: const TextStyle(
                 fontSize: 13,
                 color: Colors.black87,
@@ -536,10 +543,9 @@ class _ProfitByProductsScreenState extends State<ProfitByProductsScreen> {
             child: Text(
               CurrencyHelper.format(item.profit,
                   showSymbol: false, showDecimals: false),
-              textAlign: TextAlign.right,
+              textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 13,
-                fontWeight: FontWeight.w600,
                 color: Colors.black87,
               ),
             ),

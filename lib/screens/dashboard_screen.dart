@@ -173,7 +173,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             title: S.of(context).sales,
                             svgIcon: 'assets/icons/sales/sales.svg',
                             metric: _dashboardData!.current.sales.sales,
-                            currency: CurrencyHelper.getCurrencySymbol(),
                             isLarge: false,
                           ),
                         ),
@@ -184,7 +183,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             title: S.of(context).selfcost,
                             svgIcon: 'assets/icons/sales/selfcost.svg',
                             metric: _dashboardData!.current.sales.selfcost,
-                            currency: CurrencyHelper.getCurrencySymbol(),
                           ),
                         ),
                         StaggeredGridTile.count(
@@ -194,7 +192,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             title: S.of(context).profit,
                             svgIcon: 'assets/icons/sales/profit.svg',
                             metric: _dashboardData!.current.sales.profit,
-                            currency: CurrencyHelper.getCurrencySymbol(),
                           ),
                         ),
                         StaggeredGridTile.count(
@@ -236,7 +233,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             title: S.of(context).avgCheck,
                             svgIcon: 'assets/icons/bills/avg_check.svg',
                             metric: _dashboardData!.current.bills.avgCheck,
-                            currency: CurrencyHelper.getCurrencySymbol(),
                             isLarge: false,
                           ),
                         ),
@@ -256,7 +252,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             title: S.of(context).discount,
                             svgIcon: 'assets/icons/bills/discount.svg',
                             metric: _dashboardData!.current.bills.discount,
-                            currency: CurrencyHelper.getCurrencySymbol(),
                           ),
                         ),
                         StaggeredGridTile.count(
@@ -266,7 +261,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             title: S.of(context).refund,
                             svgIcon: 'assets/icons/bills/refund.svg',
                             metric: _dashboardData!.current.bills.refund,
-                            currency: CurrencyHelper.getCurrencySymbol(),
                           ),
                         ),
                       ],
@@ -299,7 +293,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             title: S.of(context).cash,
                             svgIcon: 'assets/icons/payments/cash.svg',
                             metric: _dashboardData!.current.payments.cash,
-                            currency: CurrencyHelper.getCurrencySymbol(),
                           ),
                         ),
                         StaggeredGridTile.count(
@@ -309,7 +302,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             title: S.of(context).card,
                             svgIcon: 'assets/icons/payments/card.svg',
                             metric: _dashboardData!.current.payments.card,
-                            currency: CurrencyHelper.getCurrencySymbol(),
                           ),
                         ),
                         StaggeredGridTile.count(
@@ -320,7 +312,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             svgIcon: 'assets/icons/payments/consignation.svg',
                             metric:
                                 _dashboardData!.current.payments.consignation,
-                            currency: CurrencyHelper.getCurrencySymbol(),
                           ),
                         ),
                         StaggeredGridTile.count(
@@ -330,7 +321,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             title: S.of(context).loyalty,
                             svgIcon: 'assets/icons/payments/loyalty.svg',
                             metric: _dashboardData!.current.payments.loyalty,
-                            currency: CurrencyHelper.getCurrencySymbol(),
                           ),
                         ),
                       ],

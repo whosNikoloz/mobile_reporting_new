@@ -210,7 +210,6 @@ class _CategorySalesScreenState extends State<CategorySalesScreen> {
                       email: _email ?? "Email@gmail.com",
                       currentLangCode: _selectedLanguage,
                       onLanguageChanged: _changeLanguage,
-
                       onLogout: () async {
                         await getIt<PreferencesHelper>().clearCompanyName();
                         await getIt<PreferencesHelper>().clearLang();
@@ -606,7 +605,7 @@ class _CategorySalesScreenState extends State<CategorySalesScreen> {
                     ),
                     const SizedBox(width: 6),
                     Text(
-                      CurrencyHelper.format(previousValue),
+                      CurrencyHelper.format(previousValue, showSymbol: false),
                       style: TextStyle(
                         fontSize: 12,
                         color: Colors.grey.shade500,
@@ -620,7 +619,7 @@ class _CategorySalesScreenState extends State<CategorySalesScreen> {
 
           // Value
           Text(
-            CurrencyHelper.format(currentValue),
+            CurrencyHelper.format(currentValue, showSymbol: false),
             style: const TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.w600,
@@ -722,9 +721,10 @@ class _CategorySalesScreenState extends State<CategorySalesScreen> {
       context: context,
       title: item.categoryName,
       currentValueLabel: S.of(context).currentValue ?? "Current Value",
-      currentValueText: CurrencyHelper.format(currentValue),
+      currentValueText: CurrencyHelper.format(currentValue, showSymbol: false),
       previousValueLabel: S.of(context).previousValue ?? "Previous Value",
-      previousValueText: CurrencyHelper.format(previousValue),
+      previousValueText:
+          CurrencyHelper.format(previousValue, showSymbol: false),
       changeLabel: S.of(context).change ?? "Change",
       percentChange: percentChange,
       closeLabel: S.of(context).close ?? "Close",

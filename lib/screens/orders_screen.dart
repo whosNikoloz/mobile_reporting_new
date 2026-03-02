@@ -423,7 +423,8 @@ class _OrdersScreenState extends State<OrdersScreen> {
                               ),
                               const SizedBox(width: 5),
                               Text(
-                                CurrencyHelper.format(order.amount),
+                                CurrencyHelper.format(order.amount,
+                                    showSymbol: false),
                                 style: const TextStyle(
                                   fontSize: 13,
                                   fontWeight: FontWeight.w600,

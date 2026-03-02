@@ -240,7 +240,6 @@ class _PaymentEntitiesScreenState extends State<PaymentEntitiesScreen> {
                       email: _email ?? "Email@gmail.com",
                       currentLangCode: _selectedLanguage,
                       onLanguageChanged: _changeLanguage,
-
                       onLogout: () async {
                         await getIt<PreferencesHelper>().clearCompanyName();
                         await getIt<PreferencesHelper>().clearLang();
@@ -611,8 +610,9 @@ class _PaymentEntitiesScreenState extends State<PaymentEntitiesScreen> {
     String formattedPrevious = "";
 
     if (_selectedType == _ReportType.income) {
-      formattedValue = CurrencyHelper.format(currentValue);
-      formattedPrevious = CurrencyHelper.format(previousValue);
+      formattedValue = CurrencyHelper.format(currentValue, showSymbol: false);
+      formattedPrevious =
+          CurrencyHelper.format(previousValue, showSymbol: false);
     } else {
       formattedValue = currentValue.toStringAsFixed(0);
       formattedPrevious = previousValue.toStringAsFixed(0);
@@ -865,8 +865,9 @@ class _PaymentEntitiesScreenState extends State<PaymentEntitiesScreen> {
     String formattedPrevious = "";
 
     if (_selectedType == _ReportType.income) {
-      formattedValue = CurrencyHelper.format(currentValue);
-      formattedPrevious = CurrencyHelper.format(previousValue);
+      formattedValue = CurrencyHelper.format(currentValue, showSymbol: false);
+      formattedPrevious =
+          CurrencyHelper.format(previousValue, showSymbol: false);
     } else {
       formattedValue = currentValue.toStringAsFixed(0);
       formattedPrevious = previousValue.toStringAsFixed(0);

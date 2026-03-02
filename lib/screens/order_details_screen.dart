@@ -298,7 +298,7 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
         ),
         _InfoCard(
           title: l10n.amount,
-          value: CurrencyHelper.format(order.amount),
+          value: CurrencyHelper.format(order.amount, showSymbol: false),
           iconAsset: 'assets/icons/cash.svg',
         ),
         _InfoCard(
@@ -324,16 +324,6 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          l10n.items,
-          style: const TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.w600,
-            color: AppTheme.primaryTextColor,
-          ),
-        ),
-        const SizedBox(height: 8),
-        // Header row on transparent background
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 4),
           child: Row(
@@ -460,7 +450,8 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
                                 Expanded(
                                   flex: 3,
                                   child: Text(
-                                    CurrencyHelper.format(item.amount),
+                                    CurrencyHelper.format(item.amount,
+                                        showSymbol: false),
                                     textAlign: TextAlign.right,
                                     style: const TextStyle(
                                       fontSize: 14,

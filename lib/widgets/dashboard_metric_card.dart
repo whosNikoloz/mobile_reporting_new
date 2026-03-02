@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
+import 'package:mobile_reporting/helpers/currency_helper.dart';
 import 'package:mobile_reporting/models/metric_decimal.dart';
 import 'package:mobile_reporting/models/metric_int.dart';
 
@@ -28,7 +29,6 @@ class DashboardMetricCard extends StatelessWidget {
     required String title,
     required String svgIcon,
     required MetricDecimal metric,
-    required String currency,
     bool isLarge = false,
   }) {
     return DashboardMetricCard(
@@ -39,8 +39,7 @@ class DashboardMetricCard extends StatelessWidget {
         height: isLarge ? 30 : 18,
         colorFilter: const ColorFilter.mode(Color(0xFF64748B), BlendMode.srcIn),
       ),
-      formattedValue:
-          '$currency${NumberFormat('#,##0.00', 'en_US').format(metric.value)}',
+      formattedValue: CurrencyHelper.format(metric.value, showSymbol: false),
       deltaPercent: metric.deltaPercent,
       hasChange: metric.hasChange,
       isLarge: isLarge,
