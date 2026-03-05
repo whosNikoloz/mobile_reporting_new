@@ -158,6 +158,12 @@ class MessageLookup extends MessageLookupByLibrary {
     "previousValue": MessageLookupByLibrary.simpleMessage(
       "Предыдущее значение",
     ),
+    "productSalesDetailed": MessageLookupByLibrary.simpleMessage(
+      "Продажи продуктов - Детально",
+    ),
+    "productSalesSummary": MessageLookupByLibrary.simpleMessage(
+      "Продажи продуктов - Сводка",
+    ),
     "productivityReport": MessageLookupByLibrary.simpleMessage(
       "Отчет о продуктивности",
     ),
@@ -186,9 +192,19 @@ class MessageLookup extends MessageLookupByLibrary {
     "refund": MessageLookupByLibrary.simpleMessage("Возврат"),
     "reports": MessageLookupByLibrary.simpleMessage("Отчеты"),
     "revenueReport": MessageLookupByLibrary.simpleMessage("Отчет о выручке"),
+    "saleDocuments": MessageLookupByLibrary.simpleMessage("Документы продажи"),
+    "saleDocumentsProductsDetailed": MessageLookupByLibrary.simpleMessage(
+      "Продукты по документам продажи - Детально",
+    ),
+    "saleDocumentsProductsSummary": MessageLookupByLibrary.simpleMessage(
+      "Продукты по документам продажи - Сводка",
+    ),
     "sales": MessageLookupByLibrary.simpleMessage("Продажи"),
     "salesByDay": MessageLookupByLibrary.simpleMessage("Продажи по дням"),
     "salesByHours": MessageLookupByLibrary.simpleMessage("Продажи по часам"),
+    "salesByItemDetailed": MessageLookupByLibrary.simpleMessage(
+      "Продажи по товарам - Детально",
+    ),
     "salesByItemSummary": MessageLookupByLibrary.simpleMessage(
       "Продажи по товарам - Сводка",
     ),
@@ -224,6 +240,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "store": MessageLookupByLibrary.simpleMessage("Магазин"),
     "storeSalesOverview": MessageLookupByLibrary.simpleMessage(
       "Обзор продаж по магазинам",
+    ),
+    "storeTransferDetails": MessageLookupByLibrary.simpleMessage(
+      "Детали перемещения между магазинами",
     ),
     "sun": MessageLookupByLibrary.simpleMessage("Вс"),
     "thu": MessageLookupByLibrary.simpleMessage("Чт"),

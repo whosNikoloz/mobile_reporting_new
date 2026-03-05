@@ -869,6 +869,76 @@ class S {
     );
   }
 
+  /// `Sale Documents`
+  String get saleDocuments {
+    return Intl.message(
+      'Sale Documents',
+      name: 'saleDocuments',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Sales by Item - Detailed`
+  String get salesByItemDetailed {
+    return Intl.message(
+      'Sales by Item - Detailed',
+      name: 'salesByItemDetailed',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Store Transfer Details`
+  String get storeTransferDetails {
+    return Intl.message(
+      'Store Transfer Details',
+      name: 'storeTransferDetails',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Product Sales - Summary`
+  String get productSalesSummary {
+    return Intl.message(
+      'Product Sales - Summary',
+      name: 'productSalesSummary',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Product Sales - Detailed`
+  String get productSalesDetailed {
+    return Intl.message(
+      'Product Sales - Detailed',
+      name: 'productSalesDetailed',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Sale Documents Products - Summary`
+  String get saleDocumentsProductsSummary {
+    return Intl.message(
+      'Sale Documents Products - Summary',
+      name: 'saleDocumentsProductsSummary',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Sale Documents Products - Detailed`
+  String get saleDocumentsProductsDetailed {
+    return Intl.message(
+      'Sale Documents Products - Detailed',
+      name: 'saleDocumentsProductsDetailed',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Stock Movement`
   String get stockMovement {
     return Intl.message(

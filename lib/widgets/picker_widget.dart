@@ -607,7 +607,7 @@ class _StoreSelector extends StatelessWidget {
 
     final storeChanged = await showDialog<bool>(
       context: context,
-      builder: (context) => _StoreSelectorDialog(
+      builder: (context) => StoreSelectorDialog(
         stores: stores,
         selectedStoreId: application.selectedStoreId,
         onStoreSelected: (storeId) {
@@ -994,22 +994,23 @@ class _CompareOptionsSheet extends StatelessWidget {
 }
 
 // Store Selector Dialog
-class _StoreSelectorDialog extends StatefulWidget {
+class StoreSelectorDialog extends StatefulWidget {
   final List<StoreModel> stores;
   final int? selectedStoreId;
   final Function(int?) onStoreSelected;
 
-  const _StoreSelectorDialog({
+  const StoreSelectorDialog({
+    super.key,
     required this.stores,
     required this.selectedStoreId,
     required this.onStoreSelected,
   });
 
   @override
-  State<_StoreSelectorDialog> createState() => _StoreSelectorDialogState();
+  State<StoreSelectorDialog> createState() => _StoreSelectorDialogState();
 }
 
-class _StoreSelectorDialogState extends State<_StoreSelectorDialog> {
+class _StoreSelectorDialogState extends State<StoreSelectorDialog> {
   late TextEditingController _searchController;
   List<StoreModel> _filteredStores = [];
 

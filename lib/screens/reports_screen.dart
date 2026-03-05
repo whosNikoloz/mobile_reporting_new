@@ -17,6 +17,14 @@ import 'package:mobile_reporting/screens/vendor_returns_screen.dart';
 import 'package:mobile_reporting/screens/customer_sales_screen.dart';
 import 'package:mobile_reporting/screens/customer_returns_screen.dart';
 import 'package:mobile_reporting/screens/customer_payments_screen.dart';
+import 'package:mobile_reporting/screens/inventory_balance_screen.dart';
+import 'package:mobile_reporting/screens/purchases_documents_screen.dart';
+import 'package:mobile_reporting/screens/product_sales_summary_screen.dart';
+import 'package:mobile_reporting/screens/product_sales_details_screen.dart';
+import 'package:mobile_reporting/screens/store_transfer_details_screen.dart';
+import 'package:mobile_reporting/screens/sale_documents_screen.dart';
+import 'package:mobile_reporting/screens/sale_documents_products_summary_screen.dart';
+import 'package:mobile_reporting/screens/sale_documents_products_details_screen.dart';
 import 'package:mobile_reporting/theme/app_theme.dart';
 
 class ReportsScreen extends StatefulWidget {
@@ -37,7 +45,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
     'Sales': GlobalKey(),
     'Finances': GlobalKey(),
     //'Staff': GlobalKey(),
-    //'Stock': GlobalKey(),
+    'Stock': GlobalKey(),
   };
 
   // Icons for each category
@@ -45,7 +53,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
     'Sales': 'assets/icons/reports/sales.svg',
     'Finances': 'assets/icons/reports/finances.svg',
     //'Staff': 'assets/icons/reports/staff.svg',
-    //'Stock': 'assets/icons/reports/stock.svg',
+    'Stock': 'assets/icons/reports/stock.svg',
   };
 
   final Map<String, List<String>> _reports = {
@@ -58,6 +66,11 @@ class _ReportsScreenState extends State<ReportsScreen> {
       'Sales by Categories',
       'Sales by Payment Methods',
       'Sales by Staffs',
+      'Product Sales - Summary',
+      'Product Sales - Detailed',
+      'Sale Documents',
+      'Sale Documents Products - Summary',
+      'Sale Documents Products - Detailed',
     ],
     'Finances': [
       'Cash Flow',
@@ -74,16 +87,17 @@ class _ReportsScreenState extends State<ReportsScreen> {
       'Profit by Categories',
       'Received Payments List',
     ],
-    // 'Stock': [
-    //   'Inventory Balance',
-    //   'Purchases Documents',
-    //   'Purchases by Item - Summary',
-    //   'Purchases by Item - Detailed',
-    //   'Sales by Item - Summary',
-    //   'Stock Movement',
-    //   'Low stock Report',
-    //   'Inventory Value',
-    // ],
+    'Stock': [
+      'Inventory Balance',
+      'Store Transfer Details',
+      'Purchases Documents',
+      // 'Purchases by Item - Summary',
+      // 'Purchases by Item - Detailed',
+      // 'Sales by Item - Summary',
+      // 'Stock Movement',
+      // 'Low stock Report',
+      // 'Inventory Value',
+    ],
   };
 
   String _getCategoryTitle(BuildContext context, String category) {
@@ -95,8 +109,8 @@ class _ReportsScreenState extends State<ReportsScreen> {
         return l10n.finances;
       // case 'Staff':
       //   return l10n.staff;
-      // case 'Stock':
-      //   return l10n.stock;
+      case 'Stock':
+        return l10n.stock;
       default:
         return category;
     }
@@ -171,14 +185,28 @@ class _ReportsScreenState extends State<ReportsScreen> {
         return l10n.receivedPaymentsList;
       case 'Inventory Balance':
         return l10n.inventoryBalance;
+      case 'Store Transfer Details':
+        return l10n.storeTransferDetails;
       case 'Purchases Documents':
         return l10n.purchasesDocuments;
+      case 'Product Sales - Summary':
+        return l10n.productSalesSummary;
+      case 'Product Sales - Detailed':
+        return l10n.productSalesDetailed;
+      case 'Sale Documents':
+        return l10n.saleDocuments;
+      case 'Sale Documents Products - Summary':
+        return l10n.saleDocumentsProductsSummary;
+      case 'Sale Documents Products - Detailed':
+        return l10n.saleDocumentsProductsDetailed;
       case 'Purchases by Item - Summary':
         return l10n.purchasesByItemSummary;
       case 'Purchases by Item - Detailed':
         return l10n.purchasesByItemDetailed;
       case 'Sales by Item - Summary':
         return l10n.salesByItemSummary;
+      case 'Sales by Item - Detailed':
+        return l10n.salesByItemDetailed;
       case 'Low stock Report':
         return l10n.lowStockReport;
       case 'Inventory Value':
@@ -294,8 +322,8 @@ class _ReportsScreenState extends State<ReportsScreen> {
                   _buildTab('Finances'),
                   //const SizedBox(width: 40),
                   //_buildTab('Staff'),
-                  //const SizedBox(width: 10),
-                  //_buildTab('Stock'),
+                  const SizedBox(width: 10),
+                  _buildTab('Stock'),
                 ],
               ),
             ),
@@ -549,6 +577,78 @@ class _ReportsScreenState extends State<ReportsScreen> {
           context,
           MaterialPageRoute(
             builder: (context) => const CustomerPaymentsScreen(),
+          ),
+        );
+      };
+    } else if (title == 'Inventory Balance') {
+      onTap = () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const InventoryBalanceScreen(),
+          ),
+        );
+      };
+    } else if (title == 'Store Transfer Details') {
+      onTap = () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const StoreTransferDetailsScreen(),
+          ),
+        );
+      };
+    } else if (title == 'Purchases Documents') {
+      onTap = () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const PurchasesDocumentsScreen(),
+          ),
+        );
+      };
+    } else if (title == 'Product Sales - Summary') {
+      onTap = () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const ProductSalesSummaryScreen(),
+          ),
+        );
+      };
+    } else if (title == 'Product Sales - Detailed') {
+      onTap = () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const ProductSalesDetailsScreen(),
+          ),
+        );
+      };
+    } else if (title == 'Sale Documents') {
+      onTap = () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const SaleDocumentsScreen(),
+          ),
+        );
+      };
+    } else if (title == 'Sale Documents Products - Summary') {
+      onTap = () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const SaleDocumentsProductsSummaryScreen(),
+          ),
+        );
+      };
+    } else if (title == 'Sale Documents Products - Detailed') {
+      onTap = () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const SaleDocumentsProductsDetailsScreen(),
           ),
         );
       };

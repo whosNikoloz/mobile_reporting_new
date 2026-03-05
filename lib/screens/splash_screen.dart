@@ -81,7 +81,10 @@ class _SplashScreenState extends State<SplashScreen> {
               ),
             ),
             const SizedBox(height: 60),
-            RotatingLogoLoader(size: 50),
+            const CircularProgressIndicator(
+              color: Colors.white,
+            ),
+            // RotatingLogoLoader(size: 50),
           ],
         ),
       ),

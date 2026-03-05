@@ -163,6 +163,12 @@ class MessageLookup extends MessageLookupByLibrary {
     "period": MessageLookupByLibrary.simpleMessage("პერიოდი"),
     "previousValue": MessageLookupByLibrary.simpleMessage("წინა მნიშვნელობა"),
     "product": MessageLookupByLibrary.simpleMessage("პროდუქტი"),
+    "productSalesDetailed": MessageLookupByLibrary.simpleMessage(
+      "პროდუქტების გაყიდვები - დეტალური",
+    ),
+    "productSalesSummary": MessageLookupByLibrary.simpleMessage(
+      "პროდუქტების გაყიდვები - შეჯამება",
+    ),
     "productivityReport": MessageLookupByLibrary.simpleMessage(
       "პროდუქტიულობის რეპორტი",
     ),
@@ -194,6 +200,15 @@ class MessageLookup extends MessageLookupByLibrary {
     "revenueReport": MessageLookupByLibrary.simpleMessage(
       "შემოსავლების რეპორტი",
     ),
+    "saleDocuments": MessageLookupByLibrary.simpleMessage(
+      "გაყიდვის დოკუმენტები",
+    ),
+    "saleDocumentsProductsDetailed": MessageLookupByLibrary.simpleMessage(
+      "გაყიდვების დოკუმენტების პროდუქტები - დეტალური",
+    ),
+    "saleDocumentsProductsSummary": MessageLookupByLibrary.simpleMessage(
+      "გაყიდვების დოკუმენტების პროდუქტები - შეჯამება",
+    ),
     "sales": MessageLookupByLibrary.simpleMessage("გაყიდვები"),
     "salesByCategories": MessageLookupByLibrary.simpleMessage(
       "გაყიდვები კატეგორიებით",
@@ -203,6 +218,9 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "salesByHours": MessageLookupByLibrary.simpleMessage(
       "გაყიდვები საათების მიხედვით",
+    ),
+    "salesByItemDetailed": MessageLookupByLibrary.simpleMessage(
+      "გაყიდვები ნივთების მიხედვით - დეტალური",
     ),
     "salesByItemSummary": MessageLookupByLibrary.simpleMessage(
       "გაყიდვები ნივთების მიხედვით - შეჯამება",
@@ -245,6 +263,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "store": MessageLookupByLibrary.simpleMessage("მაღაზია"),
     "storeSalesOverview": MessageLookupByLibrary.simpleMessage(
       "მაღაზიების გაყიდვების მიმოხილვა",
+    ),
+    "storeTransferDetails": MessageLookupByLibrary.simpleMessage(
+      "შიდა გადაადგილებები (დეტალური)",
     ),
     "sun": MessageLookupByLibrary.simpleMessage("კვი"),
     "thu": MessageLookupByLibrary.simpleMessage("ხუთ"),

@@ -150,6 +150,12 @@ class MessageLookup extends MessageLookupByLibrary {
     "paytype": MessageLookupByLibrary.simpleMessage("Ödəniş növü"),
     "period": MessageLookupByLibrary.simpleMessage("Dövr"),
     "previousValue": MessageLookupByLibrary.simpleMessage("Əvvəlki dəyər"),
+    "productSalesDetailed": MessageLookupByLibrary.simpleMessage(
+      "Məhsul satışları - Ətraflı",
+    ),
+    "productSalesSummary": MessageLookupByLibrary.simpleMessage(
+      "Məhsul satışları - İcmal",
+    ),
     "productivityReport": MessageLookupByLibrary.simpleMessage(
       "Məhsuldarlıq hesabatı",
     ),
@@ -178,9 +184,19 @@ class MessageLookup extends MessageLookupByLibrary {
     "refund": MessageLookupByLibrary.simpleMessage("Geri qaytarma"),
     "reports": MessageLookupByLibrary.simpleMessage("Hesabatlar"),
     "revenueReport": MessageLookupByLibrary.simpleMessage("Gəlir hesabatı"),
+    "saleDocuments": MessageLookupByLibrary.simpleMessage("Satış sənədləri"),
+    "saleDocumentsProductsDetailed": MessageLookupByLibrary.simpleMessage(
+      "Satış sənədləri məhsulları - Ətraflı",
+    ),
+    "saleDocumentsProductsSummary": MessageLookupByLibrary.simpleMessage(
+      "Satış sənədləri məhsulları - İcmal",
+    ),
     "sales": MessageLookupByLibrary.simpleMessage("Satışlar"),
     "salesByDay": MessageLookupByLibrary.simpleMessage("Günlər üzrə satış"),
     "salesByHours": MessageLookupByLibrary.simpleMessage("Saatlar üzrə satış"),
+    "salesByItemDetailed": MessageLookupByLibrary.simpleMessage(
+      "Məhsullar üzrə satış - Ətraflı",
+    ),
     "salesByItemSummary": MessageLookupByLibrary.simpleMessage(
       "Məhsullar üzrə satış - İcmal",
     ),
@@ -214,6 +230,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "store": MessageLookupByLibrary.simpleMessage("Mağaza"),
     "storeSalesOverview": MessageLookupByLibrary.simpleMessage(
       "Mağaza satışları icmalı",
+    ),
+    "storeTransferDetails": MessageLookupByLibrary.simpleMessage(
+      "Mağaza köçürmə təfərrüatları",
     ),
     "sun": MessageLookupByLibrary.simpleMessage("B."),
     "thu": MessageLookupByLibrary.simpleMessage("C.a."),

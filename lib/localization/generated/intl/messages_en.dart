@@ -145,6 +145,12 @@ class MessageLookup extends MessageLookupByLibrary {
     "period": MessageLookupByLibrary.simpleMessage("Period"),
     "previousValue": MessageLookupByLibrary.simpleMessage("Previous Value"),
     "product": MessageLookupByLibrary.simpleMessage("Product"),
+    "productSalesDetailed": MessageLookupByLibrary.simpleMessage(
+      "Product Sales - Detailed",
+    ),
+    "productSalesSummary": MessageLookupByLibrary.simpleMessage(
+      "Product Sales - Summary",
+    ),
     "productivityReport": MessageLookupByLibrary.simpleMessage(
       "Productivity Report",
     ),
@@ -174,12 +180,22 @@ class MessageLookup extends MessageLookupByLibrary {
     "refund": MessageLookupByLibrary.simpleMessage("Refund"),
     "reports": MessageLookupByLibrary.simpleMessage("Reports"),
     "revenueReport": MessageLookupByLibrary.simpleMessage("Revenue Report"),
+    "saleDocuments": MessageLookupByLibrary.simpleMessage("Sale Documents"),
+    "saleDocumentsProductsDetailed": MessageLookupByLibrary.simpleMessage(
+      "Sale Documents Products - Detailed",
+    ),
+    "saleDocumentsProductsSummary": MessageLookupByLibrary.simpleMessage(
+      "Sale Documents Products - Summary",
+    ),
     "sales": MessageLookupByLibrary.simpleMessage("Sales"),
     "salesByCategories": MessageLookupByLibrary.simpleMessage(
       "Sales by Categories",
     ),
     "salesByDay": MessageLookupByLibrary.simpleMessage("Sales by Days"),
     "salesByHours": MessageLookupByLibrary.simpleMessage("Sales by Hours"),
+    "salesByItemDetailed": MessageLookupByLibrary.simpleMessage(
+      "Sales by Item - Detailed",
+    ),
     "salesByItemSummary": MessageLookupByLibrary.simpleMessage(
       "Sales by Item - Summary",
     ),
@@ -213,6 +229,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "store": MessageLookupByLibrary.simpleMessage("Store"),
     "storeSalesOverview": MessageLookupByLibrary.simpleMessage(
       "Store Sales Overview",
+    ),
+    "storeTransferDetails": MessageLookupByLibrary.simpleMessage(
+      "Store Transfer Details",
     ),
     "sun": MessageLookupByLibrary.simpleMessage("Sun"),
     "thu": MessageLookupByLibrary.simpleMessage("Thu"),

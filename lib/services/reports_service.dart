@@ -26,6 +26,22 @@ import 'package:mobile_reporting/api/response_models/profit_by_category_response
 import 'package:mobile_reporting/api/response_models/vendor_payments_response_model.dart';
 import 'package:mobile_reporting/api/response_models/buyers_debt_response_model.dart';
 import 'package:mobile_reporting/api/response_models/suppliers_debt_response_model.dart';
+import 'package:mobile_reporting/api/request_models/product_rest_request_model.dart';
+import 'package:mobile_reporting/api/response_models/product_rest_response_model.dart';
+import 'package:mobile_reporting/api/request_models/contragent_payments_request_model.dart';
+import 'package:mobile_reporting/api/response_models/contragent_payments_response_model.dart';
+import 'package:mobile_reporting/api/request_models/product_sales_summary_request_model.dart';
+import 'package:mobile_reporting/api/response_models/product_sales_summary_response_model.dart';
+import 'package:mobile_reporting/api/request_models/product_sales_details_request_model.dart';
+import 'package:mobile_reporting/api/response_models/product_sales_details_response_model.dart';
+import 'package:mobile_reporting/api/request_models/store_transfer_details_request_model.dart';
+import 'package:mobile_reporting/api/response_models/store_transfer_details_response_model.dart';
+import 'package:mobile_reporting/api/request_models/sale_documents_request_model.dart';
+import 'package:mobile_reporting/api/response_models/sale_documents_response_model.dart';
+import 'package:mobile_reporting/api/request_models/sale_documents_products_summary_request_model.dart';
+import 'package:mobile_reporting/api/response_models/sale_documents_products_summary_response_model.dart';
+import 'package:mobile_reporting/api/request_models/sale_documents_products_details_request_model.dart';
+import 'package:mobile_reporting/api/response_models/sale_documents_products_details_response_model.dart';
 import 'package:mobile_reporting/helpers/helpers_module.dart';
 import 'package:mobile_reporting/helpers/http_helper.dart';
 import 'package:mobile_reporting/helpers/preferences_helper.dart';
@@ -861,6 +877,326 @@ class ReportsService {
       return null;
     } catch (err) {
       print('❌ Error in getVendorReturns: $err');
+      return null;
+    }
+  }
+
+  /// Get inventory balance
+  Future<List<ProductRestResponseModel>?> getInventoryBalance({
+    required DateTime asOfDate,
+    int storeId = 0,
+    int page = 1,
+    int pageSize = 20,
+  }) async {
+    try {
+      final requestBody = ProductRestRequestModel(
+        asOfDate: asOfDate,
+        storeId: storeId,
+        page: page,
+        pageSize: pageSize,
+      );
+
+      final serverUrl = await _getServerUrl();
+      final ck = await getIt<PreferencesHelper>().getDatabase();
+      if (ck == null) return null;
+
+      final response = await _httpHelper.fetchPost(
+        ck,
+        serverUrl,
+        'get_inventory_balance',
+        body: requestBody.toJson(),
+      );
+
+      if (response != null) {
+        final List<dynamic> data = json.decode(response);
+        return data.map((e) => ProductRestResponseModel.fromJson(e)).toList();
+      }
+
+      return null;
+    } catch (err) {
+      print('❌ Error in getInventoryBalance: $err');
+      return null;
+    }
+  }
+
+  /// Get purchase documents
+  Future<List<ContragentPaymentsResponseModel>?> getPurchaseDocuments({
+    required DateTime startDate,
+    required DateTime endDate,
+    int storeId = 0,
+    int page = 1,
+    int pageSize = 50,
+  }) async {
+    try {
+      final requestBody = ContragentPaymentsRequestModel(
+        startDate: startDate,
+        endDate: endDate,
+        storeId: storeId,
+        page: page,
+        pageSize: pageSize,
+      );
+
+      final serverUrl = await _getServerUrl();
+      final ck = await getIt<PreferencesHelper>().getDatabase();
+      if (ck == null) return null;
+
+      final response = await _httpHelper.fetchPost(
+        ck,
+        serverUrl,
+        'get_purchase_documents',
+        body: requestBody.toJson(),
+      );
+
+      if (response != null) {
+        final List<dynamic> data = json.decode(response);
+        return data.map((e) => ContragentPaymentsResponseModel.fromJson(e)).toList();
+      }
+
+      return null;
+    } catch (err) {
+      print('❌ Error in getPurchaseDocuments: $err');
+      return null;
+    }
+  }
+
+  /// Get product sales summary (Purchases by item summary)
+  Future<List<ProductSalesSummaryResponseModel>?> getProductSalesSummary({
+    required DateTime startDate,
+    required DateTime endDate,
+    int storeId = 0,
+    int page = 1,
+    int pageSize = 50,
+  }) async {
+    try {
+      final requestBody = ProductSalesSummaryRequestModel(
+        startDate: startDate,
+        endDate: endDate,
+        storeId: storeId,
+        page: page,
+        pageSize: pageSize,
+      );
+
+      final serverUrl = await _getServerUrl();
+      final ck = await getIt<PreferencesHelper>().getDatabase();
+      if (ck == null) return null;
+
+      final response = await _httpHelper.fetchPost(
+        ck,
+        serverUrl,
+        'get_product_sales_summary',
+        body: requestBody.toJson(),
+      );
+
+      if (response != null) {
+        final List<dynamic> data = json.decode(response);
+        return data.map((e) => ProductSalesSummaryResponseModel.fromJson(e)).toList();
+      }
+
+      return null;
+    } catch (err) {
+      print('❌ Error in getProductSalesSummary: $err');
+      return null;
+    }
+  }
+
+  /// Get product sales details (Purchases by item detailed)
+  Future<List<ProductSalesDetailsResponseModel>?> getProductSalesDetails({
+    required DateTime startDate,
+    required DateTime endDate,
+    int storeId = 0,
+    int page = 1,
+    int pageSize = 100,
+  }) async {
+    try {
+      final requestBody = ProductSalesDetailsRequestModel(
+        startDate: startDate,
+        endDate: endDate,
+        storeId: storeId,
+        page: page,
+        pageSize: pageSize,
+      );
+
+      final serverUrl = await _getServerUrl();
+      final ck = await getIt<PreferencesHelper>().getDatabase();
+      if (ck == null) return null;
+
+      final response = await _httpHelper.fetchPost(
+        ck,
+        serverUrl,
+        'get_product_sales_details',
+        body: requestBody.toJson(),
+      );
+
+      if (response != null) {
+        final List<dynamic> data = json.decode(response);
+        return data.map((e) => ProductSalesDetailsResponseModel.fromJson(e)).toList();
+      }
+
+      return null;
+    } catch (err) {
+      print('❌ Error in getProductSalesDetails: $err');
+      return null;
+    }
+  }
+
+  /// Get store transfer details
+  Future<List<StoreTransferDetailsResponseModel>?> getStoreTransferDetails({
+    required DateTime startDate,
+    required DateTime endDate,
+    int fromStoreId = 0,
+    int toStoreId = 0,
+    int page = 1,
+    int pageSize = 100,
+  }) async {
+    try {
+      final requestBody = StoreTransferDetailsRequestModel(
+        startDate: startDate,
+        endDate: endDate,
+        fromStoreId: fromStoreId,
+        toStoreId: toStoreId,
+        page: page,
+        pageSize: pageSize,
+      );
+
+      final serverUrl = await _getServerUrl();
+      final ck = await getIt<PreferencesHelper>().getDatabase();
+      if (ck == null) return null;
+
+      final response = await _httpHelper.fetchPost(
+        ck,
+        serverUrl,
+        'get_store_transfer_details',
+        body: requestBody.toJson(),
+      );
+
+      if (response != null) {
+        final List<dynamic> data = json.decode(response);
+        return data.map((e) => StoreTransferDetailsResponseModel.fromJson(e)).toList();
+      }
+
+      return null;
+    } catch (err) {
+      print('❌ Error in getStoreTransferDetails: $err');
+      return null;
+    }
+  }
+
+  /// Get sale documents
+  Future<List<SaleDocumentsResponseModel>?> getSaleDocuments({
+    required DateTime startDate,
+    required DateTime endDate,
+    int storeId = 0,
+    int page = 1,
+    int pageSize = 100,
+  }) async {
+    try {
+      final requestBody = SaleDocumentsRequestModel(
+        startDate: startDate,
+        endDate: endDate,
+        storeId: storeId,
+        page: page,
+        pageSize: pageSize,
+      );
+
+      final serverUrl = await _getServerUrl();
+      final ck = await getIt<PreferencesHelper>().getDatabase();
+      if (ck == null) return null;
+
+      final response = await _httpHelper.fetchPost(
+        ck,
+        serverUrl,
+        'get_sale_documents',
+        body: requestBody.toJson(),
+      );
+
+      if (response != null) {
+        final List<dynamic> data = json.decode(response);
+        return data.map((e) => SaleDocumentsResponseModel.fromJson(e)).toList();
+      }
+
+      return null;
+    } catch (err) {
+      print('❌ Error in getSaleDocuments: $err');
+      return null;
+    }
+  }
+
+  /// Get sale documents products summary
+  Future<List<SaleDocumentsProductsSummaryResponseModel>?> getSaleDocumentsProductsSummary({
+    required DateTime startDate,
+    required DateTime endDate,
+    int storeId = 0,
+    int page = 1,
+    int pageSize = 100,
+  }) async {
+    try {
+      final requestBody = SaleDocumentsProductsSummaryRequestModel(
+        startDate: startDate,
+        endDate: endDate,
+        storeId: storeId,
+        page: page,
+        pageSize: pageSize,
+      );
+
+      final serverUrl = await _getServerUrl();
+      final ck = await getIt<PreferencesHelper>().getDatabase();
+      if (ck == null) return null;
+
+      final response = await _httpHelper.fetchPost(
+        ck,
+        serverUrl,
+        'get_sale_documents_products_summary',
+        body: requestBody.toJson(),
+      );
+
+      if (response != null) {
+        final List<dynamic> data = json.decode(response);
+        return data.map((e) => SaleDocumentsProductsSummaryResponseModel.fromJson(e)).toList();
+      }
+
+      return null;
+    } catch (err) {
+      print('❌ Error in getSaleDocumentsProductsSummary: $err');
+      return null;
+    }
+  }
+
+  /// Get sale documents products details
+  Future<List<SaleDocumentsProductsDetailsResponseModel>?> getSaleDocumentsProductsDetails({
+    required DateTime startDate,
+    required DateTime endDate,
+    int storeId = 0,
+    int page = 1,
+    int pageSize = 100,
+  }) async {
+    try {
+      final requestBody = SaleDocumentsProductsDetailsRequestModel(
+        startDate: startDate,
+        endDate: endDate,
+        storeId: storeId,
+        page: page,
+        pageSize: pageSize,
+      );
+
+      final serverUrl = await _getServerUrl();
+      final ck = await getIt<PreferencesHelper>().getDatabase();
+      if (ck == null) return null;
+
+      final response = await _httpHelper.fetchPost(
+        ck,
+        serverUrl,
+        'get_sale_documents_products_details',
+        body: requestBody.toJson(),
+      );
+
+      if (response != null) {
+        final List<dynamic> data = json.decode(response);
+        return data.map((e) => SaleDocumentsProductsDetailsResponseModel.fromJson(e)).toList();
+      }
+
+      return null;
+    } catch (err) {
+      print('❌ Error in getSaleDocumentsProductsDetails: $err');
       return null;
     }
   }
