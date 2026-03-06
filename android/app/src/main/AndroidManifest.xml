@@ -2,7 +2,7 @@
     package="fina.dashboard">
     <uses-permission android:name="android.permission.INTERNET"/>
     <application
-        android:label="Fina Dashboard"
+        android:label="FINA Dashboard"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity

@@ -27,7 +27,7 @@ class _SignInScreenState extends State<SignInScreen> {
   final _passwordController = TextEditingController();
 
   bool logInClicked = false;
-  String _selectedLanguage = 'ka';
+  String _selectedLanguage = 'en';
 
   @override
   void initState() {
@@ -148,15 +148,33 @@ class _SignInScreenState extends State<SignInScreen> {
               const SizedBox(height: 60),
 
               // Title
+              // Text(
+              //   l10n.logIn,
+              //   style: const TextStyle(
+              //     fontSize: 32,
+              //     fontWeight: FontWeight.w600,
+              //     color: Colors.black,
+              //   ),
+              //   textAlign: TextAlign.center,
+              // ),
+
+              Image.asset(
+                'assets/logoDashboard-modified.png',
+                height: 60,
+                width: 60,
+              ),
+              const SizedBox(height: 10),
+
               Text(
-                l10n.logIn,
+                'FINA Dashboard',
                 style: const TextStyle(
-                  fontSize: 32,
+                  fontSize: 23,
                   fontWeight: FontWeight.w600,
                   color: Colors.black,
                 ),
                 textAlign: TextAlign.center,
               ),
+              
 
               const SizedBox(height: 40),
 

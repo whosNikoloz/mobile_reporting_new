@@ -665,16 +665,15 @@ class _StoreTransferDetailsScreenState
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'From: ${item.fromStore}',
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
+                  DateFormat('dd.MM.yy').format(item.tDate),
                   style: const TextStyle(
-                    fontSize: 12,
-                    color: Colors.black54,
+                    fontSize: 11,
+                    fontWeight: FontWeight.w500,
+                    color: Colors.black87,
                   ),
                 ),
                 Text(
-                  'To: ${item.toStore}',
+                  '${item.fromStore}',
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: const TextStyle(
@@ -684,12 +683,16 @@ class _StoreTransferDetailsScreenState
                   ),
                 ),
                 Text(
-                  DateFormat('dd.MM.yy').format(item.tDate),
+                  '${item.toStore}',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                   style: const TextStyle(
-                    fontSize: 11,
-                    color: Colors.black45,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w500,
+                    color: Colors.black87,
                   ),
                 ),
+                
               ],
             ),
           ),
