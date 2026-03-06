@@ -1,4 +1,4 @@
-package fina.mobile.mobile_reporting_new
+package fina.dashboard
 
 import io.flutter.embedding.android.FlutterActivity
 

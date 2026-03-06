@@ -6,7 +6,7 @@ plugins {
 }
 
 android {
-    namespace = "fina.mobile.mobile_reporting_new"
+    namespace = "fina.dashboard"
     compileSdk = 36
     ndkVersion = flutter.ndkVersion
 
@@ -20,7 +20,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "fina.mobile.mobile_reporting_new"
+        applicationId = "fina.dashboard"
         minSdk = flutter.minSdkVersion
         targetSdk = 36
         versionCode = 1
