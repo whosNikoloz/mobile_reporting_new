@@ -176,7 +176,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             isLarge: false,
                           ),
                         ),
-                        if (application.isFastFood ?? true) ...[
+                        if (application.isRetail ?? true) ...[
                           StaggeredGridTile.count(
                             crossAxisCellCount: 1,
                             mainAxisCellCount: 0.55,

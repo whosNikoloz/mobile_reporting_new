@@ -17,7 +17,7 @@ class ApplicationStore {
 
   int? selectedStoreId;
 
-  bool? isFastFood;
+  bool? isRetail;
 
   String? lang;
   String? accountLang;
@@ -103,8 +103,10 @@ class ApplicationStore {
   void _setDefaultCompareDates() {
     final now = DateTime.now();
     final yesterday = now.subtract(const Duration(days: 1));
-    startOldPeriod = DateTime(yesterday.year, yesterday.month, yesterday.day, 0, 0);
-    endOldPeriod = DateTime(yesterday.year, yesterday.month, yesterday.day, 23, 59);
+    startOldPeriod =
+        DateTime(yesterday.year, yesterday.month, yesterday.day, 0, 0);
+    endOldPeriod =
+        DateTime(yesterday.year, yesterday.month, yesterday.day, 23, 59);
   }
 }
 

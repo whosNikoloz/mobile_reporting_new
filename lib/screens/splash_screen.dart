@@ -44,7 +44,7 @@ class _SplashScreenState extends State<SplashScreen> {
       } else {
         application.stores.clear();
         application.stores = await getStores();
-        application.isFastFood = await isFastFood();
+        application.isRetail = await isRetail();
         application.lang = await getIt<PreferencesHelper>().getLang() ?? 'ka';
         application.accountLang =
             await getIt<PreferencesHelper>().getAccountLang();
@@ -121,7 +121,7 @@ class _SplashScreenState extends State<SplashScreen> {
     }
   }
 
-  Future<bool> isFastFood() async {
+  Future<bool> isRetail() async {
     try {
       final serverUrl = await _getServerUrl();
       final ck = await getIt<PreferencesHelper>().getDatabase() ?? '';
@@ -129,7 +129,7 @@ class _SplashScreenState extends State<SplashScreen> {
       final response = await _httpHelper.fetchGet(
         ck,
         serverUrl,
-        'is_fast_food',
+        'is_retail',
       );
 
       if (response != null) {

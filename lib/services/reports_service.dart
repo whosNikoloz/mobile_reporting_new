@@ -72,7 +72,7 @@ class ReportsService {
     try {
       final requestBody = DashboardRequest(
         paramId: storeId,
-        businessType: (application.isFastFood ?? false)
+        businessType: (application.isRetail ?? false)
             ? BusinessType.retail
             : BusinessType.cafe,
         startCurrentPeriod: startCurrentPeriod,
@@ -126,7 +126,7 @@ class ReportsService {
     try {
       final requestBody = DashboardRequest(
         paramId: storeId,
-        businessType: (application.isFastFood ?? false)
+        businessType: (application.isRetail ?? false)
             ? BusinessType.retail
             : BusinessType.cafe,
         startCurrentPeriod: startCurrentPeriod,
@@ -169,7 +169,7 @@ class ReportsService {
     try {
       final requestBody = DashboardRequest(
         paramId: storeId,
-        businessType: (application.isFastFood ?? false)
+        businessType: (application.isRetail ?? false)
             ? BusinessType.retail
             : BusinessType.cafe,
         startCurrentPeriod: startCurrentPeriod,
@@ -212,7 +212,7 @@ class ReportsService {
     try {
       final requestBody = DashboardRequest(
         paramId: storeId,
-        businessType: (application.isFastFood ?? false)
+        businessType: (application.isRetail ?? false)
             ? BusinessType.retail
             : BusinessType.cafe,
         startCurrentPeriod: startCurrentPeriod,
@@ -254,7 +254,7 @@ class ReportsService {
     try {
       final requestBody = DashboardRequest(
         paramId: 0, // 0 means all stores
-        businessType: (application.isFastFood ?? false)
+        businessType: (application.isRetail ?? false)
             ? BusinessType.retail
             : BusinessType.cafe,
         startCurrentPeriod: startCurrentPeriod,
@@ -967,7 +967,9 @@ class ReportsService {
 
       if (response != null) {
         final List<dynamic> data = json.decode(response);
-        return data.map((e) => ContragentPaymentsResponseModel.fromJson(e)).toList();
+        return data
+            .map((e) => ContragentPaymentsResponseModel.fromJson(e))
+            .toList();
       }
 
       return null;
@@ -1007,7 +1009,9 @@ class ReportsService {
 
       if (response != null) {
         final List<dynamic> data = json.decode(response);
-        return data.map((e) => ProductSalesSummaryResponseModel.fromJson(e)).toList();
+        return data
+            .map((e) => ProductSalesSummaryResponseModel.fromJson(e))
+            .toList();
       }
 
       return null;
@@ -1047,7 +1051,9 @@ class ReportsService {
 
       if (response != null) {
         final List<dynamic> data = json.decode(response);
-        return data.map((e) => ProductSalesDetailsResponseModel.fromJson(e)).toList();
+        return data
+            .map((e) => ProductSalesDetailsResponseModel.fromJson(e))
+            .toList();
       }
 
       return null;
@@ -1089,7 +1095,9 @@ class ReportsService {
 
       if (response != null) {
         final List<dynamic> data = json.decode(response);
-        return data.map((e) => StoreTransferDetailsResponseModel.fromJson(e)).toList();
+        return data
+            .map((e) => StoreTransferDetailsResponseModel.fromJson(e))
+            .toList();
       }
 
       return null;
@@ -1140,7 +1148,8 @@ class ReportsService {
   }
 
   /// Get sale documents products summary
-  Future<List<SaleDocumentsProductsSummaryResponseModel>?> getSaleDocumentsProductsSummary({
+  Future<List<SaleDocumentsProductsSummaryResponseModel>?>
+      getSaleDocumentsProductsSummary({
     required DateTime startDate,
     required DateTime endDate,
     int storeId = 0,
@@ -1169,7 +1178,9 @@ class ReportsService {
 
       if (response != null) {
         final List<dynamic> data = json.decode(response);
-        return data.map((e) => SaleDocumentsProductsSummaryResponseModel.fromJson(e)).toList();
+        return data
+            .map((e) => SaleDocumentsProductsSummaryResponseModel.fromJson(e))
+            .toList();
       }
 
       return null;
@@ -1180,7 +1191,8 @@ class ReportsService {
   }
 
   /// Get sale documents products details
-  Future<List<SaleDocumentsProductsDetailsResponseModel>?> getSaleDocumentsProductsDetails({
+  Future<List<SaleDocumentsProductsDetailsResponseModel>?>
+      getSaleDocumentsProductsDetails({
     required DateTime startDate,
     required DateTime endDate,
     int storeId = 0,
@@ -1209,7 +1221,9 @@ class ReportsService {
 
       if (response != null) {
         final List<dynamic> data = json.decode(response);
-        return data.map((e) => SaleDocumentsProductsDetailsResponseModel.fromJson(e)).toList();
+        return data
+            .map((e) => SaleDocumentsProductsDetailsResponseModel.fromJson(e))
+            .toList();
       }
 
       return null;
