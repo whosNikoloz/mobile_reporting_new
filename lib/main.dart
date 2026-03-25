@@ -32,7 +32,7 @@ class ReportingApp extends StatefulWidget {
 }
 
 class ReportingAppState extends State<ReportingApp> {
-  Locale _locale = const Locale.fromSubtags(languageCode: 'ka');
+  Locale _locale = const Locale.fromSubtags(languageCode: 'en');
 
   @override
   void initState() {

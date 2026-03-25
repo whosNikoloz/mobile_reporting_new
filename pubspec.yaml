@@ -1,7 +1,7 @@
 name: mobile_reporting
 description: FINA Mobile Reporting Dashboard
 publish_to: "none"
-version: 1.0.0+2
+version: 1.0.0+3
 
 environment:
   sdk: ">=3.0.0 <4.0.0"
@@ -57,6 +57,8 @@ dependencies:
   # Utilities
   flutter_device_type: ^0.4.0
   collection: ^1.18.0
+
+  device_info_plus: ^11.5.0
 
 # Force exact versions
 dependency_overrides:

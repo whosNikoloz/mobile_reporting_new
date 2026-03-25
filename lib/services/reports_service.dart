@@ -46,6 +46,9 @@ import 'package:mobile_reporting/helpers/helpers_module.dart';
 import 'package:mobile_reporting/helpers/http_helper.dart';
 import 'package:mobile_reporting/helpers/preferences_helper.dart';
 
+import 'package:mobile_reporting/enums/business_type.dart';
+import 'package:mobile_reporting/application_store.dart';
+
 class ReportsService {
   final HttpHelper _httpHelper = HttpHelper();
 
@@ -69,6 +72,9 @@ class ReportsService {
     try {
       final requestBody = DashboardRequest(
         paramId: storeId,
+        businessType: (application.isFastFood ?? false)
+            ? BusinessType.retail
+            : BusinessType.cafe,
         startCurrentPeriod: startCurrentPeriod,
         endCurrentPeriod: endCurrentPeriod,
         startPreviousPeriod: startPreviousPeriod,
@@ -120,6 +126,9 @@ class ReportsService {
     try {
       final requestBody = DashboardRequest(
         paramId: storeId,
+        businessType: (application.isFastFood ?? false)
+            ? BusinessType.retail
+            : BusinessType.cafe,
         startCurrentPeriod: startCurrentPeriod,
         endCurrentPeriod: endCurrentPeriod,
         startPreviousPeriod: startPreviousPeriod,
@@ -160,6 +169,9 @@ class ReportsService {
     try {
       final requestBody = DashboardRequest(
         paramId: storeId,
+        businessType: (application.isFastFood ?? false)
+            ? BusinessType.retail
+            : BusinessType.cafe,
         startCurrentPeriod: startCurrentPeriod,
         endCurrentPeriod: endCurrentPeriod,
         startPreviousPeriod: startPreviousPeriod,
@@ -200,6 +212,9 @@ class ReportsService {
     try {
       final requestBody = DashboardRequest(
         paramId: storeId,
+        businessType: (application.isFastFood ?? false)
+            ? BusinessType.retail
+            : BusinessType.cafe,
         startCurrentPeriod: startCurrentPeriod,
         endCurrentPeriod: endCurrentPeriod,
         startPreviousPeriod: startPreviousPeriod,
@@ -239,6 +254,9 @@ class ReportsService {
     try {
       final requestBody = DashboardRequest(
         paramId: 0, // 0 means all stores
+        businessType: (application.isFastFood ?? false)
+            ? BusinessType.retail
+            : BusinessType.cafe,
         startCurrentPeriod: startCurrentPeriod,
         endCurrentPeriod: endCurrentPeriod,
         startPreviousPeriod: startPreviousPeriod,

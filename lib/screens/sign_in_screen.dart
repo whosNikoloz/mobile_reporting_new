@@ -174,7 +174,6 @@ class _SignInScreenState extends State<SignInScreen> {
                 ),
                 textAlign: TextAlign.center,
               ),
-              
 
               const SizedBox(height: 40),
 

@@ -25,7 +25,7 @@ class _MainNavigationState extends State<MainNavigation> {
   String? _userType;
   String? _companyName;
   String? _email;
-  String _selectedLanguage = 'ka';
+  String _selectedLanguage = 'en';
 
   @override
   void initState() {

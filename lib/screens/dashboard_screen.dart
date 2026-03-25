@@ -176,33 +176,36 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             isLarge: false,
                           ),
                         ),
-                        StaggeredGridTile.count(
-                          crossAxisCellCount: 1,
-                          mainAxisCellCount: 0.55,
-                          child: DashboardMetricCard.fromDecimal(
-                            title: S.of(context).selfcost,
-                            svgIcon: 'assets/icons/sales/selfcost.svg',
-                            metric: _dashboardData!.current.sales.selfcost,
+                        if (application.isFastFood ?? true) ...[
+                          StaggeredGridTile.count(
+                            crossAxisCellCount: 1,
+                            mainAxisCellCount: 0.55,
+                            child: DashboardMetricCard.fromDecimal(
+                              title: S.of(context).selfcost,
+                              svgIcon: 'assets/icons/sales/selfcost.svg',
+                              metric: _dashboardData!.current.sales.selfcost,
+                            ),
                           ),
-                        ),
-                        StaggeredGridTile.count(
-                          crossAxisCellCount: 1,
-                          mainAxisCellCount: 0.55,
-                          child: DashboardMetricCard.fromDecimal(
-                            title: S.of(context).profit,
-                            svgIcon: 'assets/icons/sales/profit.svg',
-                            metric: _dashboardData!.current.sales.profit,
+                          StaggeredGridTile.count(
+                            crossAxisCellCount: 1,
+                            mainAxisCellCount: 0.55,
+                            child: DashboardMetricCard.fromDecimal(
+                              title: S.of(context).profit,
+                              svgIcon: 'assets/icons/sales/profit.svg',
+                              metric: _dashboardData!.current.sales.profit,
+                            ),
                           ),
-                        ),
-                        StaggeredGridTile.count(
-                          crossAxisCellCount: 1,
-                          mainAxisCellCount: 0.55,
-                          child: DashboardMetricCard.fromDecimalPercent(
-                            title: S.of(context).profitPercent,
-                            svgIcon: 'assets/icons/sales/profit_%.svg',
-                            metric: _dashboardData!.current.sales.profitPercent,
+                          StaggeredGridTile.count(
+                            crossAxisCellCount: 1,
+                            mainAxisCellCount: 0.55,
+                            child: DashboardMetricCard.fromDecimalPercent(
+                              title: S.of(context).profitPercent,
+                              svgIcon: 'assets/icons/sales/profit_%.svg',
+                              metric:
+                                  _dashboardData!.current.sales.profitPercent,
+                            ),
                           ),
-                        ),
+                        ],
                       ],
                     ),
 
