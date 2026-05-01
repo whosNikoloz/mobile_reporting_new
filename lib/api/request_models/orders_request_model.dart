@@ -1,3 +1,5 @@
+import '../../enums/business_type.dart';
+
 class OrdersRequestModel {
   final int storeId;
   final DateTime startDate;
@@ -5,6 +7,7 @@ class OrdersRequestModel {
   final int page;
   final int pageSize;
   final String? searchQuery;
+  final BusinessType? businessType;
 
   OrdersRequestModel({
     required this.storeId,
@@ -13,6 +16,7 @@ class OrdersRequestModel {
     this.page = 1,
     this.pageSize = 20,
     this.searchQuery,
+    this.businessType,
   });
 
   Map<String, dynamic> toJson() {
@@ -22,6 +26,7 @@ class OrdersRequestModel {
       'end_date': endDate.toIso8601String(),
       'page': page,
       'page_size': pageSize,
+      'business_type': businessType?.value,
       if (searchQuery != null && searchQuery!.isNotEmpty)
         'search_query': searchQuery,
     };

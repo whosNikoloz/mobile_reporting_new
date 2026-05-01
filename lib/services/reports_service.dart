@@ -508,6 +508,10 @@ class ReportsService {
     String? searchQuery,
   }) async {
     try {
+      final businessType = (application.isRetail ?? false)
+          ? BusinessType.retail
+          : BusinessType.cafe;
+
       final requestBody = OrdersRequestModel(
         storeId: storeId,
         startDate: startDate,
@@ -515,6 +519,7 @@ class ReportsService {
         page: page,
         pageSize: pageSize,
         searchQuery: searchQuery,
+        businessType: businessType,
       );
 
       final serverUrl = await _getServerUrl();

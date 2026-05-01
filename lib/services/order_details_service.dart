@@ -6,6 +6,9 @@ import 'package:mobile_reporting/helpers/helpers_module.dart';
 import 'package:mobile_reporting/helpers/http_helper.dart';
 import 'package:mobile_reporting/helpers/preferences_helper.dart';
 
+import 'package:mobile_reporting/enums/business_type.dart';
+import 'package:mobile_reporting/application_store.dart';
+
 class OrderDetailsService {
   final HttpHelper _httpHelper = HttpHelper();
 
@@ -21,7 +24,14 @@ class OrderDetailsService {
     required int orderId,
   }) async {
     try {
-      final requestBody = OrderDetailsRequestModel(orderId: orderId);
+      final businessType = (application.isRetail ?? false)
+          ? BusinessType.retail
+          : BusinessType.cafe;
+
+      final requestBody = OrderDetailsRequestModel(
+        orderId: orderId,
+        businessType: businessType,
+      );
 
       final serverUrl = await _getServerUrl();
       final ck = await getIt<PreferencesHelper>().getDatabase();
@@ -46,4 +56,3 @@ class OrderDetailsService {
     }
   }
 }
-
