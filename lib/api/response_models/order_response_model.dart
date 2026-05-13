@@ -4,7 +4,8 @@ class OrderResponseModel {
   final String user;
   final double amount;
   final String orderTime;
-  final int payType;
+  final int? payType;
+  final int? status;
 
   OrderResponseModel({
     required this.orderId,
@@ -13,6 +14,7 @@ class OrderResponseModel {
     required this.amount,
     required this.orderTime,
     required this.payType,
+    required this.status,
   });
 
   factory OrderResponseModel.fromJson(Map<String, dynamic> json) {
@@ -24,7 +26,8 @@ class OrderResponseModel {
       user: (json['user'] ?? '').toString(),
       amount: (json['amount'] as num?)?.toDouble() ?? 0.0,
       orderTime: (json['order_time'] ?? '').toString(),
-      payType: (json['pay_type'] as num?)?.toInt() ?? 0,
+      payType: (json['pay_type'] as num?)?.toInt(),
+      status: (json['status'] as num?)?.toInt(),
     );
   }
 }

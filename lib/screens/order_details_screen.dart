@@ -306,11 +306,12 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
           value: discountText,
           iconAsset: 'assets/icons/discount.svg',
         ),
-        _InfoCard(
-          title: l10n.paytype,
-          value: order.payType == 0 ? l10n.cash : l10n.card,
-          iconAsset: 'assets/icons/paytype.svg',
-        ),
+        if (order.payType != null)
+          _InfoCard(
+            title: l10n.paytype,
+            value: order.payType == 0 ? l10n.cash : l10n.card,
+            iconAsset: 'assets/icons/paytype.svg',
+          ),
       ],
     );
   }

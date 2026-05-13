@@ -7,7 +7,7 @@ class OrderDetailsResponseModel {
   final String store;
   final String date;
   final String time;
-  final int payType;
+  final int? payType;
   final double? discountPercent;
   final double amount;
   final List<OrderItemModel> items;
@@ -44,7 +44,7 @@ class OrderDetailsResponseModel {
       store: (json['store'] ?? '').toString(),
       date: (json['date'] ?? '').toString(),
       time: (json['time'] ?? '').toString(),
-      payType: (json['payType'] as num?)?.toInt() ?? 0,
+      payType: (json['payType'] as num?)?.toInt(),
       discountPercent: (json['discountPercent'] as num?)?.toDouble(),
       amount: (json['amount'] as num?)?.toDouble() ?? 0.0,
       items: parsedItems,
